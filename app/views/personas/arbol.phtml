@@ -91,52 +91,174 @@ $datosArbolJson = json_encode(
             return;
         }
 
-        var html = '<h2>' + escapeHtml(persona.name) + '</h2>';
+        var progenitores = obtenerProgenitores(personaId);
+        var parejas = obtenerParejas(personaId);
+        var hijos = obtenerHijos(personaId);
+
+        var html = '<h2>' +
+            escapeHtml(persona.name) +
+            '</h2>';
 
         if (persona.birthyear) {
-            html += '<p>Nacimiento: ' + persona.birthyear + '</p>';
-        }
+            html += '<p><strong>Nacimiento:</strong> ' +
+                persona.birthyear;
 
-        if (persona.birthplace) {
-            html += '<p>Lugar de nacimiento: ' +
-                escapeHtml(persona.birthplace) +
-                '</p>';
+            if (persona.birthplace) {
+                html += ' — ' +
+                    escapeHtml(persona.birthplace);
+            }
+
+            html += '</p>';
         }
 
         if (persona.deathyear) {
-            html += '<p>Defunción: ' + persona.deathyear + '</p>';
+            html += '<p><strong>Defunción:</strong> ' +
+                persona.deathyear;
+
+            if (persona.deathplace) {
+                html += ' — ' +
+                    escapeHtml(persona.deathplace);
+            }
+
+            html += '</p>';
         }
 
-        if (persona.deathplace) {
-            html += '<p>Lugar de defunción: ' +
-                escapeHtml(persona.deathplace) +
-                '</p>';
+        if (progenitores.length) {
+            html += '<h3>Progenitores</h3><ul>';
+
+            progenitores.forEach(function (progenitor) {
+                html += '<li>' +
+                    escapeHtml(progenitor.name) +
+                    '</li>';
+            });
+
+            html += '</ul>';
         }
 
-        document.getElementById('genealogia-persona-info').innerHTML = html;
+        if (parejas.length) {
+            html += '<h3>Parejas</h3><ul>';
+
+            parejas.forEach(function (pareja) {
+                html += '<li>' +
+                    escapeHtml(pareja.name) +
+                    '</li>';
+            });
+
+            html += '</ul>';
+        }
+
+        if (hijos.length) {
+            html += '<h3>Hijos</h3><ul>';
+
+            hijos.forEach(function (hijo) {
+                html += '<li>' +
+                    escapeHtml(hijo.name) +
+                    '</li>';
+            });
+
+            html += '</ul>';
+        }
+
+        document.getElementById(
+            'genealogia-persona-info'
+        ).innerHTML = html;
     }
 
-    function crearTooltip(personaId) {
+    function crearTooltip(node) {
+        var personaId = node.data.id;
         var persona = data.persons[personaId];
 
         if (!persona) {
-            return;
+            return '';
         }
 
-        console.log(persona);
+        return '<strong>' + escapeHtml(persona.name) + '</strong>';
     }
 
     function escapeHtml(texto) {
-        const mapa = {
+        if (texto === null || texto === undefined) {
+            return '';
+        }
+
+        texto = String(texto);
+
+        var mapa = {
             '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
-            "'": '&#039;' // O '&apos;'
+            "'": '&#039;'
         };
-        return texto.replace(/[&<>"']/g, function(caracter) {
+
+        return texto.replace(/[&<>"']/g, function (caracter) {
             return mapa[caracter];
         });
-        }
+    }
+
+    function obtenerProgenitores(personaId) {
+        var progenitores = [];
+
+        Object.keys(data.unions).forEach(function (unionId) {
+            var union = data.unions[unionId];
+
+            if (!Array.isArray(union.children)) {
+                return;
+            }
+
+            if (union.children.indexOf(personaId) === -1) {
+                return;
+            }
+
+            union.partner.forEach(function (id) {
+                if (data.persons[id]) {
+                    progenitores.push(data.persons[id]);
+                }
+            });
+        });
+
+        return progenitores;
+    }
+    
+    function obtenerHijos(personaId) {
+        var hijos = [];
+
+        obtenerUniones(personaId).forEach(function (union) {
+            union.children.forEach(function (id) {
+                if (data.persons[id]) {
+                    hijos.push(data.persons[id]);
+                }
+            });
+        });
+
+        return hijos;
+    }
+
+    function obtenerParejas(personaId) {
+        var parejas = [];
+
+        obtenerUniones(personaId).forEach(function (union) {
+            union.partner.forEach(function (id) {
+                if (id !== personaId && data.persons[id]) {
+                    parejas.push(data.persons[id]);
+                }
+            });
+        });
+
+        return parejas;
+    }
+
+    function obtenerUniones(personaId) {
+        var uniones = [];
+
+        Object.keys(data.unions).forEach(function (unionId) {
+            var union = data.unions[unionId];
+
+            if (union.partner.indexOf(personaId) !== -1) {
+                uniones.push(union);
+            }
+        });
+
+        return uniones;
+    }
 })();
 </script>
