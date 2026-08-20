@@ -5,20 +5,8 @@ $datosArbolJson = json_encode(
 );
 ?>
 
-<div class="genealogia-arbol">
-    <div class="genealogia-arbol-cabecera">
-        <h1>Árbol genealógico</h1>
-        <p>
-            Haz clic sobre una persona para expandir o contraer su familia.
-            Puedes desplazar el árbol y utilizar la rueda del ratón para hacer zoom.
-        </p>
-    </div>
-
-    <div id="genealogia-family-tree" class="genealogia-family-tree"></div>
-</div>
-
 <?= Css::add("js_family_tree") ?>
-<?= Css::inc() ?>;
+<?= Css::inc() ?>
 
 <style>
     .genealogia-arbol {
@@ -53,128 +41,84 @@ $datosArbolJson = json_encode(
     .genealogia-family-tree .person {
         cursor: pointer;
     }
+
+    .genealogia-persona-info {
+        margin-top: 15px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .genealogia-persona-info h2 {
+        margin-top: 0;
+    }
+
+    .genealogia-persona-info h3 {
+        margin-bottom: 5px;
+    }
+
+    .genealogia-persona-info ul {
+        margin-top: 5px;
+    }
+
+    .genealogia-persona-link {
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .genealogia-persona-link:hover {
+        text-decoration: underline;
+    }
+
+    .genealogia-ficha-completa {
+        margin-top: 20px;
+    }
+
+    .genealogia-ficha-completa button {
+        cursor: pointer;
+    }
 </style>
 
-<div id="genealogia-persona-info"></div>
+<div class="genealogia-arbol">
+    <div class="genealogia-arbol-cabecera">
+        <h1>Árbol genealógico</h1>
+
+        <p>
+            Haz clic sobre una persona para expandir o contraer su familia.
+            Puedes desplazar el árbol y utilizar la rueda del ratón para hacer zoom.
+        </p>
+    </div>
+
+    <div id="genealogia-family-tree"
+         class="genealogia-family-tree">
+    </div>
+
+    <div id="genealogia-persona-info"
+         class="genealogia-persona-info">
+    </div>
+</div>
 
 <?= Tag::js("js_family_tree.umd") ?>
 
 <script>
 (function () {
     var data = <?= $datosArbolJson ?>;
-    var container = document.getElementById('genealogia-family-tree');
+
+    var container =
+        document.getElementById('genealogia-family-tree');
+
+    var info =
+        document.getElementById('genealogia-persona-info');
 
     if (!container || typeof FT === 'undefined') {
         return;
     }
 
-    if (typeof FT !== 'undefined') {
-        var tree = new FT.FamilyTree(data, container, {
-            nodeClickFunction: function (node, ft) {
-                ft.nodeClickHandler(node);
-
-                if (node.isPerson) {
-                    mostrarFicha(node.data.id);
-                }
-            },
-
-            nodeTooltipFunction: function (node) {
-                return crearTooltip(node);
-            }
-        });
-    }
-
-    function mostrarFicha(personaId) {
-        var persona = data.persons[personaId];
-
-        if (!persona) {
-            return;
-        }
-
-        var progenitores = obtenerProgenitores(personaId);
-        var parejas = obtenerParejas(personaId);
-        var hijos = obtenerHijos(personaId);
-
-        var html = '<h2>' +
-            escapeHtml(persona.name) +
-            '</h2>';
-
-        if (persona.birthyear) {
-            html += '<p><strong>Nacimiento:</strong> ' +
-                persona.birthyear;
-
-            if (persona.birthplace) {
-                html += ' — ' +
-                    escapeHtml(persona.birthplace);
-            }
-
-            html += '</p>';
-        }
-
-        if (persona.deathyear) {
-            html += '<p><strong>Defunción:</strong> ' +
-                persona.deathyear;
-
-            if (persona.deathplace) {
-                html += ' — ' +
-                    escapeHtml(persona.deathplace);
-            }
-
-            html += '</p>';
-        }
-
-        if (progenitores.length) {
-            html += '<h3>Progenitores</h3><ul>';
-
-            progenitores.forEach(function (progenitor) {
-                html += '<li>' +
-                    escapeHtml(progenitor.name) +
-                    '</li>';
-            });
-
-            html += '</ul>';
-        }
-
-        if (parejas.length) {
-            html += '<h3>Parejas</h3><ul>';
-
-            parejas.forEach(function (pareja) {
-                html += '<li>' +
-                    escapeHtml(pareja.name) +
-                    '</li>';
-            });
-
-            html += '</ul>';
-        }
-
-        if (hijos.length) {
-            html += '<h3>Hijos</h3><ul>';
-
-            hijos.forEach(function (hijo) {
-                html += '<li>' +
-                    escapeHtml(hijo.name) +
-                    '</li>';
-            });
-
-            html += '</ul>';
-        }
-
-        document.getElementById(
-            'genealogia-persona-info'
-        ).innerHTML = html;
-    }
-
-    function crearTooltip(node) {
-        var personaId = node.data.id;
-        var persona = data.persons[personaId];
-
-        if (!persona) {
-            return '';
-        }
-
-        return '<strong>' + escapeHtml(persona.name) + '</strong>';
-    }
-
+    /*
+     * ---------------------------------------------------------
+     *  UTILIDADES
+     * ---------------------------------------------------------
+     */
     function escapeHtml(texto) {
         if (texto === null || texto === undefined) {
             return '';
@@ -195,10 +139,16 @@ $datosArbolJson = json_encode(
         });
     }
 
+    /*
+     * ---------------------------------------------------------
+     *  PROGENITORES
+     * ---------------------------------------------------------
+     */
     function obtenerProgenitores(personaId) {
         var progenitores = [];
 
         Object.keys(data.unions).forEach(function (unionId) {
+
             var union = data.unions[unionId];
 
             if (!Array.isArray(union.children)) {
@@ -206,6 +156,10 @@ $datosArbolJson = json_encode(
             }
 
             if (union.children.indexOf(personaId) === -1) {
+                return;
+            }
+
+            if (!Array.isArray(union.partner)) {
                 return;
             }
 
@@ -218,12 +172,68 @@ $datosArbolJson = json_encode(
 
         return progenitores;
     }
-    
+
+    /*
+     * ---------------------------------------------------------
+     *  PAREJAS
+     * ---------------------------------------------------------
+     */
+    function obtenerParejas(personaId) {
+        var parejas = [];
+
+        Object.keys(data.unions).forEach(function (unionId) {
+
+            var union = data.unions[unionId];
+
+            if (!Array.isArray(union.partner)) {
+                return;
+            }
+
+            if (union.partner.indexOf(personaId) === -1) {
+                return;
+            }
+
+            union.partner.forEach(function (id) {
+
+                if (
+                    id !== personaId &&
+                    data.persons[id]
+                ) {
+                    parejas.push(data.persons[id]);
+                }
+            });
+        });
+
+        return parejas;
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     *  HIJOS
+     * ---------------------------------------------------------
+     */
     function obtenerHijos(personaId) {
         var hijos = [];
 
-        obtenerUniones(personaId).forEach(function (union) {
+        Object.keys(data.unions).forEach(function (unionId) {
+
+            var union = data.unions[unionId];
+
+            if (!Array.isArray(union.partner)) {
+                return;
+            }
+
+            if (union.partner.indexOf(personaId) === -1) {
+                return;
+            }
+
+            if (!Array.isArray(union.children)) {
+                return;
+            }
+
             union.children.forEach(function (id) {
+
                 if (data.persons[id]) {
                     hijos.push(data.persons[id]);
                 }
@@ -233,32 +243,279 @@ $datosArbolJson = json_encode(
         return hijos;
     }
 
-    function obtenerParejas(personaId) {
-        var parejas = [];
+    /*
+     * ---------------------------------------------------------
+     *  ENLACE A OTRA PERSONA
+     * ---------------------------------------------------------
+     *
+     * No usamos un <a href="..."> para navegar entre familiares.
+     * Utilizamos un botón/enlace interno que será atendido por
+     * el manejador del div de información.
+     */
+    function enlacePersona(persona) {
+        if (!persona || !persona.id) {
+            return '';
+        }
 
-        obtenerUniones(personaId).forEach(function (union) {
-            union.partner.forEach(function (id) {
-                if (id !== personaId && data.persons[id]) {
-                    parejas.push(data.persons[id]);
-                }
-            });
-        });
-
-        return parejas;
+        return '<a href="#" ' +
+            'class="genealogia-persona-link" ' +
+            'data-persona-id="' +
+            escapeHtml(persona.id) +
+            '">' +
+            escapeHtml(persona.name) +
+            '</a>';
     }
 
-    function obtenerUniones(personaId) {
-        var uniones = [];
+    /*
+     * ---------------------------------------------------------
+     *  FICHA DE UNA PERSONA
+     * ---------------------------------------------------------
+     *
+     * IMPORTANTE:
+     * Esta función recibe SIEMPRE el ID de la persona.
+     */
+    function mostrarFicha(personaId) {
+        var persona = data.persons[personaId];
 
-        Object.keys(data.unions).forEach(function (unionId) {
-            var union = data.unions[unionId];
+        if (!persona) {
+            return;
+        }
 
-            if (union.partner.indexOf(personaId) !== -1) {
-                uniones.push(union);
+        var progenitores =
+            obtenerProgenitores(personaId);
+
+        var parejas =
+            obtenerParejas(personaId);
+
+        var hijos =
+            obtenerHijos(personaId);
+
+        var html =
+            '<h2>' +
+            escapeHtml(persona.name) +
+            '</h2>';
+
+        /*
+         * Nacimiento
+         */
+        if (persona.birthyear) {
+
+            html +=
+                '<p>' +
+                '<strong>Nacimiento:</strong> ' +
+                escapeHtml(persona.birthyear);
+
+            if (persona.birthplace) {
+                html +=
+                    ' — ' +
+                    escapeHtml(persona.birthplace);
             }
-        });
 
-        return uniones;
+            html += '</p>';
+        }
+
+        /*
+         * Defunción
+         */
+        if (persona.deathyear) {
+
+            html +=
+                '<p>' +
+                '<strong>Defunción:</strong> ' +
+                escapeHtml(persona.deathyear);
+
+            if (persona.deathplace) {
+                html +=
+                    ' — ' +
+                    escapeHtml(persona.deathplace);
+            }
+
+            html += '</p>';
+        }
+
+        /*
+         * Progenitores
+         */
+        if (progenitores.length) {
+
+            html +=
+                '<h3>Progenitores</h3>' +
+                '<ul>';
+
+            progenitores.forEach(function (progenitor) {
+                html +=
+                    '<li>' +
+                    enlacePersona(progenitor) +
+                    '</li>';
+            });
+
+            html += '</ul>';
+        }
+
+        /*
+         * Parejas
+         */
+        if (parejas.length) {
+            html +=
+                '<h3>Parejas</h3>' +
+                '<ul>';
+
+            parejas.forEach(function (pareja) {
+                html +=
+                    '<li>' +
+                    enlacePersona(pareja) +
+                    '</li>';
+            });
+
+            html += '</ul>';
+        }
+
+        /*
+         * Hijos
+         */
+        if (hijos.length) {
+
+            html +=
+                '<h3>Hijos</h3>' +
+                '<ul>';
+
+            hijos.forEach(function (hijo) {
+                html +=
+                    '<li>' +
+                    enlacePersona(hijo) +
+                    '</li>';
+            });
+
+            html += '</ul>';
+        }
+
+        /*
+         * Ficha completa
+         */
+        html +=
+            '<p class="genealogia-ficha-completa">' +
+            '<button type="button" ' +
+            'class="genealogia-ficha-completa-btn" ' +
+            'data-persona-id="' +
+            escapeHtml(persona.id) +
+            '">' +
+            'Ver ficha completa' +
+            '</button>' +
+            '</p>';
+
+
+        info.innerHTML = html;
     }
+
+    /*
+     * ---------------------------------------------------------
+     *  FAMILY TREE
+     * ---------------------------------------------------------
+     */
+    new FT.FamilyTree(data, container, {
+        /*
+         * Conservamos el comportamiento original de la
+         * biblioteca: expandir/contraer el nodo.
+         *
+         * Después mostramos nuestra ficha.
+         */
+
+        nodeClickFunction: function (node, ft) {
+            ft.nodeClickHandler(node);
+
+            if (node.isPerson) {
+                mostrarFicha(node.data.id);
+            }
+        },
+
+        /*
+         * Tooltip propio.
+         */
+        nodeTooltipFunction: function (node) {
+            if (!node || !node.isPerson) {
+                return '';
+            }
+
+            var persona =
+                data.persons[node.data.id];
+
+            if (!persona) {
+                return '';
+            }
+
+            var html =
+                '<strong>' +
+                escapeHtml(persona.name) +
+                '</strong>';
+
+            if (persona.birthyear) {
+                html +=
+                    '<br>Nacimiento: ' +
+                    escapeHtml(persona.birthyear);
+            }
+
+            if (persona.birthplace) {
+                html +=
+                    '<br>Lugar: ' +
+                    escapeHtml(persona.birthplace);
+            }
+
+            if (persona.deathyear) {
+                html +=
+                    '<br>Defunción: ' +
+                    escapeHtml(persona.deathyear);
+            }
+            if (persona.deathplace) {
+                html +=
+                    '<br>Lugar: ' +
+                    escapeHtml(persona.deathplace);
+            }
+
+            return html;
+        }
+    });
+
+    /*
+     * ---------------------------------------------------------
+     *  CLICS DENTRO DE LA FICHA
+     * ---------------------------------------------------------
+     *
+     * Estos clics están fuera del SVG del árbol, por lo que
+     * no interfieren con la biblioteca gráfica.
+     */
+    info.addEventListener('click', function (event) {
+        var enlace =
+            event.target.closest(
+                '.genealogia-persona-link'
+            );
+
+        if (enlace) {
+            event.preventDefault();
+
+            var personaId =
+                enlace.getAttribute(
+                    'data-persona-id'
+                );
+
+            mostrarFicha(personaId);
+
+            return;
+        }
+
+        var boton =
+            event.target.closest(
+                '.genealogia-ficha-completa-btn'
+            );
+
+        if (boton) {
+            var personaId =
+                boton.getAttribute(
+                    'data-persona-id'
+                );
+
+            window.location.href =
+                'personas/ver/' + personaId;
+        }
+    });
 })();
 </script>
