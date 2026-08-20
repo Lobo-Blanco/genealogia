@@ -143,16 +143,6 @@ $datosArbolJson = json_encode(
     var info =
         document.getElementById('genealogia-persona-info');
 
-        info.addEventListener('mousedown', function (event) {
-    console.log('MOUSE DOWN EN FICHA', event.target);
-    event.stopPropagation();
-});
-
-info.addEventListener('click', function (event) {
-    console.log('CLICK EN FICHA', event.target);
-    event.stopPropagation();
-});
-
     if (!container || typeof FT === 'undefined') {
         return;
     }
