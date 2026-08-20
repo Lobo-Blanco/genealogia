@@ -1,0 +1,196 @@
+/*
+ * Árbol genealógico
+ */
+
+.genealogia-arbol {
+    margin: 1.5rem auto;
+    max-width: 1400px;
+    overflow-x: auto;
+    padding: 0 1rem 2rem;
+}
+
+.genealogia-cabecera {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.genealogia-cabecera h1 {
+    margin-bottom: .25rem;
+}
+
+.genealogia-subtitulo {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.genealogia-acciones a {
+    white-space: nowrap;
+}
+
+.genealogia-nivel,
+.genealogia-nucleo {
+    text-align: center;
+}
+
+.genealogia-nivel h2 {
+    font-size: 1.05rem;
+    margin: 0 0 1rem;
+}
+
+.genealogia-personas,
+.genealogia-hijos {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.persona-nodo {
+    background: #fff;
+    border: 2px solid #777;
+    border-radius: 8px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
+    min-width: 170px;
+    max-width: 230px;
+    padding: .75rem 1rem;
+    text-align: center;
+}
+
+.persona-nodo a {
+    align-items: center;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    text-decoration: none;
+}
+
+.persona-nodo a:hover {
+    text-decoration: underline;
+}
+
+.persona-nodo strong {
+    line-height: 1.25;
+}
+
+.persona-tipo {
+    font-size: .78rem;
+    opacity: .75;
+}
+
+.persona-central {
+    border-width: 3px;
+    display: inline-block;
+    min-width: 230px;
+}
+
+.persona-central-mini,
+.persona-pareja {
+    min-width: 180px;
+}
+
+.filiacion-biologica {
+    border-style: solid;
+}
+
+.filiacion-adoptiva {
+    border-style: dashed;
+}
+
+.conexion {
+    height: 35px;
+    margin: 0 auto;
+    position: relative;
+    width: 2px;
+}
+
+.conexion::after {
+    background: #777;
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 2px;
+}
+
+.genealogia-nucleo {
+    margin-bottom: 1.5rem;
+}
+
+.genealogia-familias {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.familia-bloque {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    min-width: 420px;
+    padding: 1rem;
+}
+
+.familia-pareja {
+    align-items: center;
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+}
+
+.union-linea {
+    align-items: center;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    font-size: .78rem;
+    line-height: 1.2;
+    min-width: 75px;
+}
+
+.union-simbolo {
+    font-weight: bold;
+}
+
+.conexion-hijos {
+    height: 30px;
+}
+
+.genealogia-hijos-sin-union {
+    border-top: 1px solid #ddd;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.genealogia-vacia {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .genealogia-cabecera {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .familia-bloque {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .familia-pareja {
+        flex-direction: column;
+    }
+
+    .persona-nodo {
+        max-width: 100%;
+    }
+}

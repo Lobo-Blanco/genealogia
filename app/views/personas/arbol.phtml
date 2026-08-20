@@ -1,137 +1,73 @@
-<div class="arbol-genealogico">
+<?php
+$datosArbolJson = json_encode(
+    $datosArbol,
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+);
+?>
 
-    <h1>Árbol genealógico</h1>
-
-    <?php if (count($progenitores)): ?>
-
-        <div class="progenitores">
-
-            <h2>Progenitores</h2>
-
-            <?php foreach ($progenitores as $filiacion): ?>
-
-                <?php
-                $progenitor =
-                    $persona->find(
-                        $filiacion->progenitor_id
-                    );
-                ?>
-
-                <?php if ($progenitor): ?>
-
-                    <p>
-                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $progenitor->id ?>">
-                            <?= htmlspecialchars($progenitor->nombre) ?>
-                            <?= htmlspecialchars($progenitor->apellidos) ?>
-                        </a>
-
-                        (<?= htmlspecialchars($filiacion->tipo) ?>)
-                    </p>
-
-                <?php endif; ?>
-
-            <?php endforeach; ?>
-
-        </div>
-
-    <?php endif; ?>
-
-
-    <div class="persona-central">
-
-        <h2>
-            <?= htmlspecialchars($persona->nombre) ?>
-            <?= htmlspecialchars($persona->apellidos) ?>
-        </h2>
-
+<div class="genealogia-arbol">
+    <div class="genealogia-arbol-cabecera">
+        <h1>Árbol genealógico</h1>
         <p>
-            <a href="<?= PUBLIC_PATH ?>personas/ver/<?= $persona->id ?>">
-                Ver ficha
-            </a>
+            Haz clic sobre una persona para expandir o contraer su familia.
+            Puedes desplazar el árbol y utilizar la rueda del ratón para hacer zoom.
         </p>
-
     </div>
 
-    <?php if (count($uniones)): ?>
-
-        <div class="parejas">
-
-            <h2>Parejas</h2>
-
-            <?php foreach ($uniones as $union): ?>
-
-                <?php
-                if ($union->persona1_id == $persona->id) {
-                    $parejaId = $union->persona2_id;
-                } else {
-                    $parejaId = $union->persona1_id;
-                }
-
-                $pareja = $persona->find($parejaId);
-                ?>
-
-                <?php if ($pareja): ?>
-
-                    <p>
-
-                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $pareja->id ?>">
-                            <?= htmlspecialchars($pareja->nombre) ?>
-                            <?= htmlspecialchars($pareja->apellidos) ?>
-                        </a>
-
-                        — <?= htmlspecialchars($union->tipo) ?>
-
-                        <?php if (!empty($union->fecha_inicio)): ?>
-                            (<?= htmlspecialchars($union->fecha_inicio) ?>)
-                        <?php endif; ?>
-
-                        <?php if (!empty($union->fecha_fin)): ?>
-                            -
-                            <?= htmlspecialchars($union->fecha_fin) ?>
-                        <?php endif; ?>
-
-                    </p>
-
-                <?php endif; ?>
-
-            <?php endforeach; ?>
-
-        </div>
-
-    <?php endif; ?>
-
-    <?php if (count($hijos)): ?>
-
-        <div class="hijos">
-
-            <h2>Hijos</h2>
-
-            <?php foreach ($hijos as $filiacion): ?>
-
-                <?php
-                $hijo =
-                    $persona->find(
-                        $filiacion->hijo_id
-                    );
-                ?>
-
-                <?php if ($hijo): ?>
-
-                    <p>
-                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $hijo->id ?>">
-                            <?= htmlspecialchars($hijo->nombre) ?>
-                            <?= htmlspecialchars($hijo->apellidos) ?>
-                        </a>
-
-                        (<?= htmlspecialchars($filiacion->tipo) ?>)
-                    </p>
-
-                <?php endif; ?>
-
-            <?php endforeach; ?>
-
-        </div>
-
-    <?php endif; ?>
-
+    <div id="genealogia-family-tree" class="genealogia-family-tree"></div>
 </div>
+
+<?= Css::add("js_family_tree") ?>
+<?= Css::inc() ?>;
+
+<style>
+    .genealogia-arbol {
+        width: 100%;
+    }
+
+    .genealogia-arbol-cabecera {
+        margin-bottom: 10px;
+    }
+
+    .genealogia-arbol-cabecera h1 {
+        margin-bottom: 5px;
+    }
+
+    .genealogia-arbol-cabecera p {
+        margin-top: 0;
+    }
+
+    .genealogia-family-tree {
+        width: 100%;
+        height: 75vh;
+        min-height: 500px;
+        border: 1px solid #ddd;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .genealogia-family-tree .node-label {
+        font-size: 12px;
+    }
+
+    .genealogia-family-tree .person {
+        cursor: pointer;
+    }
+</style>
+
+<?= Tag::js("js_family_tree.umd") ?>
+
+<script>
+(function () {
+    var data = <?= $datosArbolJson ?>;
+    var container = document.getElementById('genealogia-family-tree');
+
+    if (!container || typeof FT === 'undefined') {
+        return;
+    }
+
+    if (typeof FT !== 'undefined') {
+        new FT.FamilyTree(data, container);
+    }
+})();
+</script>

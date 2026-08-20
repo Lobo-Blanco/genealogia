@@ -1917,41 +1917,211 @@ public function arbol($id)
             'La persona no existe.'
         );
 
-        return Redirect::to(
-            'personas/'
+        return Redirect::to('personas/');
+    }
+
+    /*
+     * Obtenemos todas las personas del árbol actual. Las tablas
+     * de filiaciones y uniones relacionan personas, por lo que
+     * no necesitan tener arbol_id para poder limitar los datos.
+     */
+    $personasArbol = $personas->find(
+        "conditions: arbol_id = " . intval($arbol->id)
+    );
+
+    $idsPersonas = array();
+
+    foreach ($personasArbol as $personaArbol) {
+        $idsPersonas[] = intval($personaArbol->id);
+    }
+
+    $ids = implode(',', $idsPersonas);
+
+    $filiaciones = new Filiaciones();
+    $todasFiliaciones = array();
+
+    if ($ids !== '') {
+        $todasFiliaciones = $filiaciones->find(
+            "conditions: hijo_id IN ({$ids}) " .
+            "AND progenitor_id IN ({$ids})"
         );
     }
 
-    $filiaciones = new Filiaciones();
+    /*
+     * Todas las uniones que pertenecen al árbol actual.
+     */
+    $unionesModelo = new Uniones();
+    $uniones = array();
+
+    if ($ids !== '') {
+        $uniones = $unionesModelo->find(
+            "conditions: persona1_id IN ({$ids}) " .
+            "AND persona2_id IN ({$ids})",
+            "order: fecha_inicio"
+        );
+    }
 
     /*
-    * Progenitores de la persona central.
-    */
-    $progenitores = $filiaciones->find(
-        "conditions: hijo_id = " .
-        intval($persona->id),
-        "order: tipo"
-    );
+     * Índice rápido de personas.
+     */
+    $personasPorId = array();
+
+    foreach ($personasArbol as $personaArbol) {
+        $personasPorId[(string) $personaArbol->id] = $personaArbol;
+    }
 
     /*
-    * Hijos de la persona central.
-    */
-    $hijos = $filiaciones->find(
-        "conditions: progenitor_id = " .
-        intval($persona->id),
-        "order: tipo"
-    );
+     * Índice de progenitores por hijo.
+     */
+    $progenitoresPorHijo = array();
 
-    $uniones = (new Uniones())->find(
-        "conditions: " .
-        "(persona1_id = " . intval($persona->id) .
-        " OR persona2_id = " . intval($persona->id) . ")",
-        "order: fecha_inicio"
+    foreach ($todasFiliaciones as $filiacion) {
+        $hijoId = (string) $filiacion->hijo_id;
+        $progenitoresPorHijo[$hijoId][] = $filiacion;
+    }
+
+    /*
+     * Construimos el formato que espera js_family_tree:
+     *
+     * persons -> personas
+     * unions  -> parejas/uniones
+     * links   -> conexiones persona/unión
+     *
+     * La biblioteca está diseñada expresamente para este modelo
+     * de persona + unión + enlaces.
+     */
+    $datosPersonas = array();
+    $datosUniones = array();
+    $links = array();
+
+    foreach ($personasArbol as $personaArbol) {
+        $personaId = "id{$personaArbol->id}";
+        $datosPersonas[$personaId] = array(
+            'id' => $personaId,
+            'name' => trim(
+                $personaArbol->nombre . ' ' .
+                $personaArbol->apellidos
+            ),
+            'birthyear' => !empty($personaArbol->fecha_nacimiento)
+                ? intval(substr($personaArbol->fecha_nacimiento, 0, 4))
+                : null,
+            'deathyear' => !empty($personaArbol->fecha_defuncion)
+                ? intval(substr($personaArbol->fecha_defuncion, 0, 4))
+                : null,
+            'birthplace' => $personaArbol->lugar_nacimiento,
+            'deathplace' => $personaArbol->lugar_defuncion,
+            //'own_unions' => array()
+        );
+    }
+
+    foreach ($uniones as $union) {
+        $unionId = 'u' . intval($union->id);
+        $persona1Id = (string) $union->persona1_id;
+        $persona2Id = (string) $union->persona2_id;
+
+        $datosUniones[$unionId] = array(
+            'id' => $unionId,
+            'partner' => array("id{$persona1Id}", "id{$persona2Id}"),
+            'children' => array(),
+            //'tipo' => $union->tipo,
+            //'fecha_inicio' => $union->fecha_inicio,
+            //'fecha_fin' => $union->fecha_fin,
+            //'lugar' => $union->lugar
+        );
+        //if (isset($datosPersonas["id{$persona1Id}"])) {
+        //    $datosPersonas["id{$persona1Id}"]['own_unions'][] = $unionId;
+        //}
+
+        //if (isset($datosPersonas["id{$persona2Id}"])) {
+        //    $datosPersonas["id{$persona2Id}"]['own_unions'][] = $unionId;
+        //}
+
+        $links[] = array("id{$persona1Id}", $unionId);
+        $links[] = array("id{$persona2Id}", $unionId);
+    }
+
+    /*
+     * Intentamos asociar cada hijo a la unión correspondiente.
+     * Si los dos progenitores registrados son los miembros de una
+     * unión, esa unión pasa a ser su parent_union.
+     */
+    foreach ($progenitoresPorHijo as $hijoId => $filiacionesHijo) {
+        $progenitorIds = array();
+
+        foreach ($filiacionesHijo as $filiacion) {
+            $progenitorIds[] = (string) "id{$filiacion->progenitor_id}";
+        }
+
+        foreach ($datosUniones as $unionId => &$datosUnion) {
+            $partners = $datosUnion['partner'];
+            $coinciden = 0;
+
+            foreach ($partners as $partnerId) {
+                if (in_array($partnerId, $progenitorIds, true)) {
+                    $coinciden++;
+                }
+            }
+
+            if ($coinciden === count($partners)) {
+                $datosUnion['children'][] = "id{$hijoId}";
+
+                //if (isset($datosPersonas["id{$hijoId}"])) {
+                //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
+                //}
+
+                $links[] = array($unionId, "id{$hijoId}");
+                break;
+            } else if (count($progenitorIds) == 1) {
+                $unionId = null;
+                $progenitorId = $progenitorIds[0];
+
+                foreach ($datosUniones as $key => $union) {
+                    // Acceder a name[0] porque es un array
+                    if (isset($union['partner'][0]) && $union['partner'][0] === $progenitorId) {
+                        $unionId = $key;
+                        break;
+                    }
+                }
+
+                if ($unionId === null) {
+                    $unionId = array_key_last($datosUniones);
+
+                    if ($unionId === null) {
+                        $unionId = "u1";
+                    } else {
+                        $numero = (int) str_replace('u', '', $unionId);
+                        $unionId = 'u' . ($numero + 1);
+                    }
+
+                    $datosUniones[$unionId] = [
+                        "id" => $unionId,
+                        "partner" => [$progenitorId],
+                        'children'=> []
+                    ];
+                    //$datosPersonas[$progenitorId]['own_unions'] = [$unionId];
+                    $links[] = array($progenitorId, $unionId);
+                }
+
+                $datosUniones[$unionId]['children'][] = "id{$hijoId}";
+
+                //if (isset($datosPersonas["id{$hijoId}"])) {
+                //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
+                //}
+                $links[] = array($unionId, "id{$hijoId}");
+                break;
+            }
+        }
+        unset($datosUnion);
+    }
+
+    $datos = array(
+        'start' => "id" . (string) $persona->id,
+        'persons' => $datosPersonas,
+        'unions' => $datosUniones,
+        'links' => $links
     );
 
     $this->persona = $persona;
-    $this->progenitores = $progenitores;
-    $this->hijos = $hijos;
-    $this->uniones = $uniones;
+    $this->datosArbol = $datos;
 }
 }
