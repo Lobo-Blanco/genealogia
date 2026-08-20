@@ -1,0 +1,137 @@
+<div class="arbol-genealogico">
+
+    <h1>Árbol genealógico</h1>
+
+    <?php if (count($progenitores)): ?>
+
+        <div class="progenitores">
+
+            <h2>Progenitores</h2>
+
+            <?php foreach ($progenitores as $filiacion): ?>
+
+                <?php
+                $progenitor =
+                    $persona->find(
+                        $filiacion->progenitor_id
+                    );
+                ?>
+
+                <?php if ($progenitor): ?>
+
+                    <p>
+                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $progenitor->id ?>">
+                            <?= htmlspecialchars($progenitor->nombre) ?>
+                            <?= htmlspecialchars($progenitor->apellidos) ?>
+                        </a>
+
+                        (<?= htmlspecialchars($filiacion->tipo) ?>)
+                    </p>
+
+                <?php endif; ?>
+
+            <?php endforeach; ?>
+
+        </div>
+
+    <?php endif; ?>
+
+
+    <div class="persona-central">
+
+        <h2>
+            <?= htmlspecialchars($persona->nombre) ?>
+            <?= htmlspecialchars($persona->apellidos) ?>
+        </h2>
+
+        <p>
+            <a href="<?= PUBLIC_PATH ?>personas/ver/<?= $persona->id ?>">
+                Ver ficha
+            </a>
+        </p>
+
+    </div>
+
+    <?php if (count($uniones)): ?>
+
+        <div class="parejas">
+
+            <h2>Parejas</h2>
+
+            <?php foreach ($uniones as $union): ?>
+
+                <?php
+                if ($union->persona1_id == $persona->id) {
+                    $parejaId = $union->persona2_id;
+                } else {
+                    $parejaId = $union->persona1_id;
+                }
+
+                $pareja = $persona->find($parejaId);
+                ?>
+
+                <?php if ($pareja): ?>
+
+                    <p>
+
+                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $pareja->id ?>">
+                            <?= htmlspecialchars($pareja->nombre) ?>
+                            <?= htmlspecialchars($pareja->apellidos) ?>
+                        </a>
+
+                        — <?= htmlspecialchars($union->tipo) ?>
+
+                        <?php if (!empty($union->fecha_inicio)): ?>
+                            (<?= htmlspecialchars($union->fecha_inicio) ?>)
+                        <?php endif; ?>
+
+                        <?php if (!empty($union->fecha_fin)): ?>
+                            -
+                            <?= htmlspecialchars($union->fecha_fin) ?>
+                        <?php endif; ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+            <?php endforeach; ?>
+
+        </div>
+
+    <?php endif; ?>
+
+    <?php if (count($hijos)): ?>
+
+        <div class="hijos">
+
+            <h2>Hijos</h2>
+
+            <?php foreach ($hijos as $filiacion): ?>
+
+                <?php
+                $hijo =
+                    $persona->find(
+                        $filiacion->hijo_id
+                    );
+                ?>
+
+                <?php if ($hijo): ?>
+
+                    <p>
+                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $hijo->id ?>">
+                            <?= htmlspecialchars($hijo->nombre) ?>
+                            <?= htmlspecialchars($hijo->apellidos) ?>
+                        </a>
+
+                        (<?= htmlspecialchars($filiacion->tipo) ?>)
+                    </p>
+
+                <?php endif; ?>
+
+            <?php endforeach; ?>
+
+        </div>
+
+    <?php endif; ?>
+
+</div>

@@ -1,0 +1,75 @@
+{
+    "packages": [
+        {
+            "name": "kumbia/activerecord",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KumbiaPHP/ActiveRecord.git",
+                "reference": "5c25c2dcab042182f052a08dad1a9d54b78908a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KumbiaPHP/ActiveRecord/zipball/5c25c2dcab042182f052a08dad1a9d54b78908a1",
+                "reference": "5c25c2dcab042182f052a08dad1a9d54b78908a1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pdo": "*",
+                "php": ">=7.4.0"
+            },
+            "time": "2024-11-06T11:54:52+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Kumbia\\ActiveRecord\\": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Joan Miquel",
+                    "email": "joanhey@kumbiaphp.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alberto Berrotan",
+                    "email": "ashrey@kumbiaphp.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Emilio",
+                    "email": "emiliorst@kumbiaphp.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Fast ActiveRecord",
+            "homepage": "https://github.com/KumbiaPHP/ActiveRecord",
+            "keywords": [
+                "activerecord",
+                "database",
+                "orm"
+            ],
+            "support": {
+                "issues": "https://github.com/KumbiaPHP/ActiveRecord/issues",
+                "slack": "https://slack.kumbiaphp.com",
+                "source": "https://github.com/KumbiaPHP/ActiveRecord/tree/master"
+            },
+            "funding": [
+                {
+                    "url": "https://opencollective.com/kumbiaphp",
+                    "type": "Open Collective"
+                }
+            ],
+            "install-path": "../kumbia/activerecord"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}

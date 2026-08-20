@@ -1,0 +1,165 @@
+<h1>
+    Añadir progenitor
+</h1>
+
+<p>
+    Persona:
+    <strong>
+        <?= htmlspecialchars($persona->nombre) ?>
+        <?= htmlspecialchars($persona->apellidos) ?>
+    </strong>
+</p>
+
+<h3>Seleccionar una persona existente</h3>
+
+<p>
+    <?= Html::link(
+        'personas/buscar_familiar/' .
+        $persona->id . '/progenitor',
+        'Buscar una persona existente'
+    ) ?>
+</p>
+
+<hr>
+
+<h3>Crear nuevo progenitor</h3>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label(
+        'nombre',
+        'Nombre'
+    ) ?>
+
+    <?= Form::text(
+        'nombre',
+        '',
+        $progenitor->nombre
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'apellidos',
+        'Apellidos'
+    ) ?>
+
+    <?= Form::text(
+        'apellidos',
+        '',
+        $progenitor->apellidos
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'sexo',
+        'Sexo'
+    ) ?>
+
+    <?= Form::select(
+        'sexo',
+        array(
+            ''  => 'Sin especificar',
+            'H' => 'Hombre',
+            'M' => 'Mujer',
+            'O' => 'Otro'
+        ),
+        $progenitor->sexo
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_nacimiento',
+        'Fecha de nacimiento'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_nacimiento',
+        '',
+        $progenitor->fecha_nacimiento
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_nacimiento',
+        'Lugar de nacimiento'
+    ) ?>
+
+    <?= Form::text(
+        'lugar_nacimiento',
+        '',
+        $progenitor->lugar_nacimiento
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_defuncion',
+        'Fecha de defunción'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_defuncion',
+        '',
+        $progenitor->fecha_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_defuncion',
+        'Lugar de defunción'
+    ) ?>
+
+    <?= Form::text(
+        'lugar_defuncion',
+        '',
+        $progenitor->lugar_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'tipo',
+        'Tipo de filiación'
+    ) ?>
+
+    <?= Form::select(
+        'tipo',
+        array(
+            'biologica' => 'Biológica',
+            'adoptiva'  => 'Adoptiva'
+        ),
+        'biologica'
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'notas_filiacion',
+        'Notas sobre la filiación'
+    ) ?>
+
+    <?= Form::textarea(
+        'notas_filiacion',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit(
+        'Añadir progenitor'
+    ) ?>
+
+    <?= Html::link(
+        'personas/ver/' . $persona->id,
+        'Cancelar'
+    ) ?>
+</p>
+
+<?= Form::close() ?>

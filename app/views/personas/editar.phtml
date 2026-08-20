@@ -1,0 +1,106 @@
+<h1>
+    Editar persona
+</h1>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label('nombre', 'Nombre') ?>
+
+    <?= Form::text(
+        'nombre','',
+        $persona->nombre
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label('apellidos', 'Apellidos') ?>
+
+    <?= Form::text(
+        'apellidos','',
+        $persona->apellidos
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label('sexo', 'Sexo') ?>
+
+    <?= Form::select(
+        'sexo',
+        array(
+            ''  => 'Sin especificar',
+            'H' => 'Hombre',
+            'M' => 'Mujer',
+            'O' => 'Otro'
+        ),'',
+        $persona->sexo
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_nacimiento',
+        'Fecha de nacimiento'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_nacimiento','',
+        $persona->fecha_nacimiento
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_nacimiento',
+        'Lugar de nacimiento'
+    ) ?>
+
+    <?= Form::text(
+        'lugar_nacimiento','',
+        $persona->lugar_nacimiento
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_defuncion',
+        'Fecha de defunción'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_defuncion','',
+        $persona->fecha_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_defuncion',
+        'Lugar de defunción'
+    ) ?>
+
+    <?= Form::text(
+        'lugar_defuncion','',
+        $persona->lugar_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label('notas', 'Notas') ?>
+
+    <?= Form::textarea(
+        'notas','',
+        $persona->notas
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit('Guardar cambios') ?>
+
+    <?= Html::link(
+        'personas/ver/' . $persona->id,
+        'Cancelar'
+    ) ?>
+</p>
+
+<?= Form::close() ?>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="bootstrap.php" colors="true">
+    <php>
+        <env name="metadata_table" value="test"/>
+        <env name="metadata_schema" value=""/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Kumbia ActiveRecord">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>.</directory>
+            <exclude>
+                <directory>./tests</directory>
+                <directory>./temp</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

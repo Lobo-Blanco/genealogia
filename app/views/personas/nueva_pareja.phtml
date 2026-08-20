@@ -1,0 +1,309 @@
+<h1>Añadir pareja</h1>
+
+<p>
+    Persona:
+    <strong>
+        <?= htmlspecialchars(
+            $persona->nombre . ' ' .
+            $persona->apellidos
+        ) ?>
+    </strong>
+</p>
+
+<h2>Seleccionar una persona existente</h2>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label(
+        'buscar',
+        'Nombre o apellidos'
+    ) ?>
+
+<?= Form::text(
+    'buscar',
+    '',
+    Input::hasPost('buscar')
+        ? Input::post('buscar')
+        : ''
+) ?>
+
+<?= Form::submit('Buscar') ?>
+
+</p>
+
+<?= Form::close() ?>
+
+<?php if (!empty($resultados)): ?>
+
+<h3>Personas encontradas</h3>
+
+<?= Form::open() ?>
+
+<?php foreach ($resultados as $resultado): ?>
+
+    <div>
+        <?= Form::radio(
+            'persona_id',
+            $resultado->id
+        ) ?>
+
+        <strong>
+            <?= htmlspecialchars(
+                $resultado->nombre . ' ' .
+                $resultado->apellidos
+            ) ?>
+        </strong>
+
+        <?php if ($resultado->fecha_nacimiento): ?>
+            —
+            <?= htmlspecialchars(
+                $resultado->fecha_nacimiento
+            ) ?>
+        <?php endif; ?>
+
+        <?php if ($resultado->lugar_nacimiento): ?>
+            —
+            <?= htmlspecialchars(
+                $resultado->lugar_nacimiento
+            ) ?>
+        <?php endif; ?>
+    </div>
+
+<?php endforeach; ?>
+
+<h3>Datos de la unión</h3>
+
+<p>
+    <?= Form::label(
+        'tipo',
+        'Tipo'
+    ) ?>
+
+    <?= Form::select(
+        'tipo',
+        array(
+            'pareja'     => 'Pareja',
+            'matrimonio' => 'Matrimonio'
+        ),
+        'pareja'
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_inicio',
+        'Fecha de inicio'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_inicio',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar',
+        'Lugar'
+    ) ?>
+
+    <?= Form::text(
+        'lugar',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'notas',
+        'Notas'
+    ) ?>
+
+    <?= Form::textarea(
+        'notas',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit(
+        'Añadir pareja'
+    ) ?>
+</p>
+
+<?= Form::close() ?>
+
+<?php elseif (
+    Input::hasPost('buscar')
+): ?>
+
+<p>
+    No se han encontrado personas.
+</p>
+
+<?php endif; ?>
+
+<hr>
+
+<h2>Crear una nueva persona</h2>
+
+<?= Form::open() ?>
+
+<?= Form::hidden(
+    'crear_persona', '',
+    '1'
+) ?>
+
+<p>
+    <?= Form::label(
+        'nombre',
+        'Nombre'
+    ) ?>
+
+<?= Form::text(
+    'nombre',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'apellidos',
+        'Apellidos'
+    ) ?>
+
+<?= Form::text(
+    'apellidos',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'sexo',
+        'Sexo'
+    ) ?>
+
+<?= Form::select(
+    'sexo',
+    array(
+        'H' => 'Hombre',
+        'M' => 'Mujer',
+        'O' => 'Otro'
+    ),
+    'O'
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_nacimiento',
+        'Fecha de nacimiento'
+    ) ?>
+
+<?= Form::date(
+    'fecha_nacimiento',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_nacimiento',
+        'Lugar de nacimiento'
+    ) ?>
+
+<?= Form::text(
+    'lugar_nacimiento',
+    '',
+    ''
+) ?>
+
+</p>
+
+<h3>Datos de la unión</h3>
+
+<p>
+    <?= Form::label(
+        'tipo',
+        'Tipo'
+    ) ?>
+
+<?= Form::select(
+    'tipo',
+    array(
+        'pareja'     => 'Pareja',
+        'matrimonio' => 'Matrimonio'
+    ),
+    'pareja'
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'fecha_inicio',
+        'Fecha de inicio'
+    ) ?>
+
+<?= Form::date(
+    'fecha_inicio',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar',
+        'Lugar'
+    ) ?>
+
+<?= Form::text(
+    'lugar',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::label(
+        'notas',
+        'Notas'
+    ) ?>
+
+<?= Form::textarea(
+    'notas',
+    '',
+    ''
+) ?>
+
+</p>
+
+<p>
+    <?= Form::submit(
+        'Crear persona y añadir pareja'
+    ) ?>
+</p>
+
+<?= Form::close() ?>
+
+<p>
+    <?= Html::link(
+        'personas/ver/' . $persona->id,
+        'Cancelar'
+    ) ?>
+</p>

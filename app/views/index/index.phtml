@@ -1,0 +1,48 @@
+<h1>Personas</h1>
+
+<p>
+    <?= Html::link('Nueva persona', 'personas/nuevo') ?>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Apellidos</th>
+            <th>Nombre</th>
+            <th>Sexo</th>
+            <th>Nacimiento</th>
+            <th>Defunción</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    <?php foreach ($personas as $persona): ?>
+
+        <tr>
+            <td><?= $persona->apellidos ?></td>
+            <td><?= $persona->nombre ?></td>
+            <td><?= $persona->sexo ?></td>
+            <td><?= $persona->fecha_nacimiento ?></td>
+            <td><?= $persona->fecha_defuncion ?></td>
+
+            <td>
+                <?= Html::link(
+                    'Ver',
+                    'personas/ver/' . $persona->id
+                ) ?>
+
+                |
+
+                <?= Html::link(
+                    'Editar',
+                    'personas/editar/' . $persona->id
+                ) ?>
+            </td>
+        </tr>
+
+    <?php endforeach; ?>
+
+    </tbody>
+</table>

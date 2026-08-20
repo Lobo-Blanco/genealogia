@@ -1,0 +1,185 @@
+<h2>
+    Familia de
+    <?= $persona->nombre ?>
+    <?= $persona->apellidos ?>
+    <?php $estaPersonaId = $persona->id ?>
+</h2>
+
+
+<h3>Progenitores</h3>
+
+<?php if ($progenitores): ?>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Persona</th>
+                <th>Tipo</th>
+                <th>Desde</th>
+                <th>Hasta</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <?php foreach ($progenitores as $filiacion): ?>
+
+            <?php
+            $progenitor =
+                $persona->find(
+                    $filiacion->progenitor_id
+                );
+            ?>
+
+            <tr>
+
+                <td>
+                    <?= Html::link(
+                        'personas/ver/' .
+                        $progenitor->id,
+                        $progenitor->nombre .
+                        ' ' .
+                        $progenitor->apellidos
+                    ) ?>
+                </td>
+
+                <td>
+                    <?= ucfirst(
+                        $filiacion->tipo
+                    ) ?>
+                </td>
+
+                <td>
+                    <?= $filiacion->fecha_inicio ?>
+                </td>
+
+                <td>
+                    <?= $filiacion->fecha_fin ?>
+                </td>
+
+                <td>
+                    <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
+                        <?= Html::link(
+                            'personas/editar_filiacion/' .
+                            $progenitor->id . '/' . $estaPersonaId,
+                            'Editar'
+                        ) ?>
+
+                        <?= Html::link(
+                            'personas/eliminar_filiacion/' .
+                            $filiacion->id . '/' . $estaPersonaId,
+                            'Eliminar',
+                            "onclick=\"return confirm('¿Está seguro de que desea eliminar esta filiación?');\""
+                        ) ?>
+
+                    <?php endif; ?>
+                </td>
+            </tr>
+
+        <?php endforeach; ?>
+
+        </tbody>
+    </table>
+
+<?php else: ?>
+
+    <p>No hay progenitores registrados.</p>
+
+<?php endif; ?>
+
+<?= Html::link(
+    'personas/buscar_familiar/' .
+    $estaPersonaId .
+    '/progenitor',
+    'Añadir progenitor'
+) ?>
+
+<h3>Hijos</h3>
+
+<?php if ($hijos): ?>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Persona</th>
+                <th>Tipo</th>
+                <th>Desde</th>
+                <th>Hasta</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <?php foreach ($hijos as $filiacion): ?>
+
+            <?php
+            $hijo =
+                $persona->find(
+                    $filiacion->hijo_id
+                );
+            ?>
+
+            <tr>
+
+                <td>
+                    <?= Html::link(
+                        'personas/ver/' .
+                        $hijo->id,
+                        $hijo->nombre .
+                        ' ' .
+                        $hijo->apellidos
+                    ) ?>
+                </td>
+
+                <td>
+                    <?= ucfirst(
+                        $filiacion->tipo
+                    ) ?>
+                </td>
+
+                <td>
+                    <?= $filiacion->fecha_inicio ?>
+                </td>
+
+                <td>
+                    <?= $filiacion->fecha_fin ?>
+                </td>
+                <td>
+                    <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
+                        <?= Html::link(
+                            'personas/editar_filiacion/' .
+                            $hijo->id . '/' . $estaPersonaId,
+                            'Editar'
+                        ) ?>
+ 
+                        <?= Html::link(
+                            'personas/eliminar_filiacion/' .
+                            $filiacion->id . '/' . $estaPersonaId,
+                            'Eliminar',
+                            "onclick=\"return confirm('¿Está seguro de que desea eliminar esta filiación?');\""
+                        ) ?>
+
+                    <?php endif; ?>
+                </td>
+            </tr>
+
+        <?php endforeach; ?>
+
+        </tbody>
+    </table>
+
+<?php else: ?>
+
+    <p>No hay hijos registrados.</p>
+
+<?php endif; ?>
+
+<?= Html::link(
+    'personas/buscar_familiar/' .
+    $estaPersonaId .
+    '/hijo',
+    'Añadir hijo'
+) ?>
+<p>
+    <?= Html::link('personas', 'Volver al listado') ?>
+</p>

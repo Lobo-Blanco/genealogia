@@ -1,0 +1,765 @@
+¿Tu podrías construirme un programa en KumbiaPHP que controlase un árbol genealógico? Debería controlar personas (nacimientos, bodas, divorcios, muerte) que a su vez son hijos (naturales o adoptados) de otras personas y poder mostrar la rama de una persona determinada o el árbol completo. 
+
+Sí. Y, de hecho, KumbiaPHP 1.2.1 encaja bastante bien para hacerlo, porque el problema se presta a separar claramente personas, relaciones familiares y acontecimientos.
+
+Yo lo plantearía como una aplicación web real, no como un simple ejemplo. Podríamos construirla además como proyecto práctico del manual de KumbiaPHP que estamos preparando, de manera que vayamos aplicando casi todo lo aprendido.
+
+Qué debería controlar
+
+La entidad central sería Persona:
+
+Nombre y apellidos.
+Sexo.
+Fecha y lugar de nacimiento.
+Fecha y lugar de fallecimiento.
+Fotografía, opcional.
+Notas biográficas.
+
+Pero no metería los matrimonios, divorcios y filiaciones directamente como campos de Persona. Son relaciones o acontecimientos y conviene modelarlos independientemente.
+
+Por ejemplo:
+
+PERSONA
+   ?
+   ??? Filiaciones
+   ?      ??? padre/madre biológico
+   ?      ??? padre/madre adoptivo
+   ?
+   ??? Matrimonios
+   ?      ??? cónyuge
+   ?      ??? fecha
+   ?      ??? lugar
+   ?
+   ??? Divorcios
+          ??? matrimonio afectado
+          ??? fecha
+          ??? lugar
+Modelo de datos
+
+Una primera versión podría tener aproximadamente estas tablas:
+
+personas
+
+id
+nombre
+apellidos
+sexo
+fecha_nacimiento
+lugar_nacimiento
+fecha_defuncion
+lugar_defuncion
+notas
+
+filiaciones
+
+id
+persona_id
+progenitor_id
+tipo
+fecha
+notas
+
+Donde tipo podría ser:
+
+biologica
+adoptiva
+
+Esto permite algo importante: una persona puede tener varios progenitores registrados sin perder la información sobre el tipo de filiación.
+
+Por ejemplo:
+
+                Juan ????????? María
+                  ?              ?
+             biológica      biológica
+                  ?              ?
+                  ????? Pedro ????
+                         ?
+                       adoptado
+                         ?
+                       Carlos
+
+Aunque para adopciones reales quizá queramos distinguir posteriormente entre padre/madre biológico y padre/madre adoptivo.
+
+Luego tendríamos:
+
+matrimonios
+
+id
+persona1_id
+persona2_id
+fecha
+lugar
+notas
+
+Y:
+
+divorcios
+
+id
+matrimonio_id
+fecha
+lugar
+notas
+
+Aunque hay otra posibilidad que me gusta más: convertir matrimonio, divorcio, nacimiento, defunción, etc. en acontecimientos. Eso permitiría ampliar el programa en el futuro sin tener que rediseñarlo.
+
+Una característica especialmente interesante
+
+El programa no debería limitarse a mostrar una lista de personas.
+
+Debería poder recibir, por ejemplo:
+
+/personas/rama/125
+
+y generar algo parecido a:
+
+                         ???? Antonio
+                         ?
+              ????????????
+              ?          ???? María
+              ?
+          Carlos
+              ?
+              ??????????? Ana
+              ?
+              ??????????? Luis
+                           ?
+                           ??? Pedro
+                           ??? Marta
+
+Y también poder mostrar ascendientes:
+
+                 Abuelo ??? Abuela
+                    ?
+              Padre ??? Madre
+                    ?
+                  YO
+
+O ambas cosas:
+
+                 ABUELOS
+                    ?
+              ?????????????
+              ?           ?
+            PADRE       TÍO
+              ?
+          ?????????
+          ?       ?
+         YO     HERMANO
+          ?
+       HIJO
+
+Y finalmente:
+
+"Árbol completo", partiendo de las personas que no tienen progenitores conocidos y recorriendo todas las relaciones.
+
+Y aquí aparece un problema interesante
+
+Un árbol genealógico no es realmente un árbol en sentido matemático.
+
+Es un grafo.
+
+Por ejemplo:
+
+       A ??? B
+        ?   ?
+        ??C??
+
+Además, puede haber:
+
+adopciones;
+hijos de distintas parejas;
+segundos matrimonios;
+divorcios;
+hermanos por parte de padre;
+hermanos por parte de madre;
+personas cuyos padres se desconocen;
+familias que se cruzan.
+
+Por eso no diseñaría el programa pensando únicamente en una estructura padre -> hijos.
+
+La base de datos debe representar relaciones entre personas, y después el programa construye las distintas vistas genealógicas.
+
+Esto también nos permitiría enseñar en el proyecto cosas muy interesantes de KumbiaPHP: relaciones de modelos, consultas recursivas, validaciones, formularios, sesiones, autenticación, autorización, AJAX, etc.
+
+La aplicación podría tener estos módulos
+
+Por ejemplo:
+
+Personas
+   ??? Listado
+   ??? Nueva persona
+   ??? Editar
+   ??? Ver ficha
+   ??? Eliminar
+
+
+Familias
+   ??? Ascendientes
+   ??? Descendientes
+   ??? Hermanos
+   ??? Árbol completo
+
+
+Relaciones
+   ??? Padres
+   ??? Hijos
+   ??? Cónyuges
+   ??? Adopciones
+
+
+Acontecimientos
+   ??? Nacimiento
+   ??? Matrimonio
+   ??? Divorcio
+   ??? Defunción
+
+
+Administración
+   ??? Usuarios
+   ??? Permisos
+   ??? Configuración
+
+Y la ficha de una persona podría ser bastante completa:
+
+???????????????????????????????????????????????????????
+? Pedro García López                                  ?
+???????????????????????????????????????????????????????
+? Nacimiento: 12/05/1950 – Ávila                     ?
+? Defunción:  03/11/2020 – Madrid                    ?
+?                                                     ?
+? PADRES                                              ?
+?   Juan García                                       ?
+?   María López                                       ?
+?                                                     ?
+? CÓNYUGES                                            ?
+?   Ana Fernández (1975–1998)                        ?
+?   Carmen Martín  (2001–2020)                       ?
+?                                                     ?
+? HIJOS                                               ?
+?   ??? Luis García                                   ?
+?   ??? Marta García                                  ?
+?                                                     ?
+? [Ver ascendientes] [Ver descendientes] [Ver árbol] ?
+???????????????????????????????????????????????????????
+Incluso podemos hacer el árbol visual
+
+Aquí hay dos caminos.
+
+Uno sencillo, completamente generado desde PHP/HTML:
+
+          Juan ??? María
+             ?
+       ?????????????
+       ?           ?
+     Pedro        Ana
+       ?
+   ?????????
+ Luis     Marta
+
+Y otro mucho más interesante: utilizar JavaScript para dibujar y manipular el grafo, dejando KumbiaPHP encargado de proporcionar los datos.
+
+Así podríamos hacer cosas como:
+
+ampliar/reducir;
+desplazarse por el árbol;
+pulsar una persona;
+centrar el árbol en esa persona;
+distinguir matrimonios;
+distinguir adopciones;
+mostrar fechas;
+ocultar ramas;
+seleccionar "ascendientes" o "descendientes".
+Y yo lo haría por fases
+
+No intentaría programarlo todo de golpe.
+
+Fase 1 — Modelo
+
+Personas, filiaciones y matrimonios.
+
+Fase 2 — CRUD
+
+Alta, modificación, consulta y eliminación de personas.
+
+Fase 3 — Relaciones
+
+Padres, hijos, hermanos y cónyuges.
+
+Fase 4 — Acontecimientos
+
+Nacimiento, matrimonio, divorcio y defunción.
+
+Fase 5 — Consultas genealógicas
+
+Ascendientes, descendientes, hermanos y ramas.
+
+Fase 6 — Representación gráfica
+
+Árbol genealógico HTML/JavaScript.
+
+Fase 7 — Usuarios y seguridad
+
+Login, permisos, sesiones, protección de formularios, etc.
+
+Fase 8 — Internacionalización
+
+Y aquí aprovecharíamos precisamente el capítulo 38 que acabamos de preparar: gettext, .po, .mo, traducciones, etc.
+
+Y hay una ventaja adicional: podemos construirlo siguiendo exactamente KumbiaPHP 1.2.1, sin introducir características de versiones anteriores que no quieres utilizar, y aprovecharlo como una aplicación real que sirva de ejemplo para prácticamente todo el manual.
+
+Yo empezaría por diseñar bien la base de datos y los modelos antes de escribir una sola línea de KumbiaPHP. En una aplicación genealógica, si el modelo de relaciones queda mal diseñado, luego el árbol se convierte en un problema.
+
+personas_controller.php
+Archivo
+personas.php
+Archivo
+filiaciones.php
+Archivo
+index.phtml
+Archivo
+ver.phtml
+Archivo
+genealogia.php
+Archivo
+personas_controller(1).php
+Archivo
+Se ha pegado el código.php
+Archivo
+Así tengo personas_controller
+
+
+genealogia(1).php
+Archivo
+Te envío la genealogía, para que me digas si está bien
+personas_controller(2).php
+Archivo
+uniones.phtml
+Archivo
+personas_controller(3).php
+Archivo
+auth.php
+Archivo
+familia.phtml
+Archivo
+genealogia.sql
+Archivo
+Si puedes, excepto los usuarios, recreame los ficheros de prueba
+nuevo_hijo.phtml
+Archivo
+nuevo_progenitor.phtml
+Archivo
+En nuevo_progenitor ya añadí algo
+buscar_familiar.phtml
+Archivo
+nueva_pareja.phtml
+Archivo
+nuevo_familiar.phtml
+Archivo
+personas_controller(4).php
+Archivo
+genealogia(2).php
+Archivo
+Te paso el que tengo ahora mismo
+genealogia(3).php
+Archivo
+familia(1).phtml
+Archivo
+public function familia($id)
+{
+    $arbol = Auth::arbolActual();
+
+    if (!$arbol) {
+        Flash::error(
+            'No hay un árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    $personas = new Personas();
+    
+    $persona = $personas->find_first(
+        "conditions: arbol_id = {$arbol->id} AND id = " . 
+        intval($id)
+    );
+
+    if (!$persona) {
+        Flash::error(
+            'La persona no existe.'
+        );
+
+        return Redirect::to(
+            'personas/'
+        );
+    }
+
+    $filiaciones = new Filiaciones();
+
+    /*
+     * Progenitores de la persona.
+     */
+    $progenitores = $filiaciones->find(
+        "conditions: hijo_id = " .
+        intval($id),
+        "order: tipo"
+    );
+
+    /*
+     * Hijos de la persona.
+     */
+    $hijos = $filiaciones->find(
+        "conditions: progenitor_id = " .
+        intval($id),
+        "order: tipo"
+    );
+
+    $this->persona = $persona;
+    $this->progenitores = $progenitores;
+    $this->hijos = $hijos;
+}
+
+
+Claro. Como esta primera versión solo recibe la persona central, haría el arbol.phtml muy sencillo, dejando preparado el sitio para añadir los progenitores, parejas e hijos en el siguiente paso.
+
+app/views/personas/arbol.phtml
+
+<div class="arbol-genealogico">
+
+<h1>Árbol genealógico</h1>
+
+<div class="persona-central">
+
+    <h2>
+        <?= htmlspecialchars($persona->nombre) ?>
+        <?= htmlspecialchars($persona->apellidos) ?>
+    </h2>
+
+    <?php if (!empty($persona->fecha_nacimiento)): ?>
+        <p>
+            <strong>Nacimiento:</strong>
+            <?= htmlspecialchars($persona->fecha_nacimiento) ?>
+        </p>
+    <?php endif; ?>
+
+    <?php if (!empty($persona->lugar_nacimiento)): ?>
+        <p>
+            <strong>Lugar:</strong>
+            <?= htmlspecialchars($persona->lugar_nacimiento) ?>
+        </p>
+    <?php endif; ?>
+
+    <p>
+        <a href="<?= PUBLIC_PATH ?>personas/ver/<?= $persona->id ?>">
+            Ver ficha
+        </a>
+    </p>
+
+</div>
+
+</div>
+
+sigamos
+
+Vamos.
+
+Ahora que arbol($id) y arbol.phtml ya tienen la persona central, el siguiente paso es añadir el primer nivel: sus progenitores y sus hijos.
+
+Pero antes de hacer el árbol gráfico, vamos a conseguir los datos correctamente en el controlador.
+
+En arbol() añade:
+
+$filiaciones = new Filiaciones();
+
+
+/*
+ * Progenitores de la persona central.
+ */
+$progenitores = $filiaciones->find(
+    "conditions: hijo_id = " .
+    intval($persona->id),
+    "order: tipo"
+);
+
+
+/*
+ * Hijos de la persona central.
+ */
+$hijos = $filiaciones->find(
+    "conditions: progenitor_id = " .
+    intval($persona->id),
+    "order: tipo"
+);
+
+
+$this->persona = $persona;
+$this->progenitores = $progenitores;
+$this->hijos = $hijos;
+
+Así tendremos:
+
+$persona
+$progenitores
+$hijos
+Y en arbol.phtml
+
+Podemos hacer ya una primera representación:
+
+<div class="arbol-genealogico">
+
+
+    <h1>Árbol genealógico</h1>
+
+
+    <?php if (count($progenitores)): ?>
+
+
+        <div class="progenitores">
+
+
+            <h2>Progenitores</h2>
+
+
+            <?php foreach ($progenitores as $filiacion): ?>
+
+
+                <?php
+                $progenitor =
+                    $persona->find(
+                        $filiacion->progenitor_id
+                    );
+                ?>
+
+
+                <?php if ($progenitor): ?>
+
+
+                    <p>
+                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $progenitor->id ?>">
+                            <?= htmlspecialchars($progenitor->nombre) ?>
+                            <?= htmlspecialchars($progenitor->apellidos) ?>
+                        </a>
+
+
+                        (<?= htmlspecialchars($filiacion->tipo) ?>)
+                    </p>
+
+
+                <?php endif; ?>
+
+
+            <?php endforeach; ?>
+
+
+        </div>
+
+
+    <?php endif; ?>
+
+
+
+
+    <div class="persona-central">
+
+
+        <h2>
+            <?= htmlspecialchars($persona->nombre) ?>
+            <?= htmlspecialchars($persona->apellidos) ?>
+        </h2>
+
+
+        <p>
+            <a href="<?= PUBLIC_PATH ?>personas/ver/<?= $persona->id ?>">
+                Ver ficha
+            </a>
+        </p>
+
+
+    </div>
+
+
+
+
+    <?php if (count($hijos)): ?>
+
+
+        <div class="hijos">
+
+
+            <h2>Hijos</h2>
+
+
+            <?php foreach ($hijos as $filiacion): ?>
+
+
+                <?php
+                $hijo =
+                    $persona->find(
+                        $filiacion->hijo_id
+                    );
+                ?>
+
+
+                <?php if ($hijo): ?>
+
+
+                    <p>
+                        <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $hijo->id ?>">
+                            <?= htmlspecialchars($hijo->nombre) ?>
+                            <?= htmlspecialchars($hijo->apellidos) ?>
+                        </a>
+
+
+                        (<?= htmlspecialchars($filiacion->tipo) ?>)
+                    </p>
+
+
+                <?php endif; ?>
+
+
+            <?php endforeach; ?>
+
+
+        </div>
+
+
+    <?php endif; ?>
+
+
+</div>
+
+Esto todavía no es el árbol visual definitivo. Es una primera prueba para comprobar que:
+
+obtenemos correctamente los progenitores;
+obtenemos correctamente los hijos;
+los enlaces llevan a arbol/{id};
+podemos desplazarnos de persona en persona por la genealogía.
+
+Cuando esto funcione, el siguiente paso será añadir las parejas/matrimonios de la persona central, que es donde empezaremos a darle forma realmente de árbol.
+
+vamos
+
+Vamos. Ahora añadimos las uniones de la persona central.
+
+La idea es que el árbol pueda mostrar:
+
+        Progenitor 1       Progenitor 2
+              \             /
+               \           /
+                PERSONA ??? PAREJA
+                   ?
+             ?????????????
+             ?           ?
+           Hijo 1       Hijo 2
+1. En arbol()
+
+Después de obtener $hijos, añade:
+
+$uniones = (new Uniones())->find(
+    "conditions: " .
+    "(persona1_id = " . intval($persona->id) .
+    " OR persona2_id = " . intval($persona->id) . ")",
+    "order: fecha_inicio"
+);
+
+
+$this->uniones = $uniones;
+
+De momento obtenemos todas las uniones, no solamente las activas. Esto es intencionado: queremos que el árbol pueda representar también el historial.
+
+2. En arbol.phtml
+
+Después del bloque de la persona central y antes de los hijos, añadimos:
+
+<?php if (count($uniones)): ?>
+
+
+    <div class="parejas">
+
+
+        <h2>Parejas</h2>
+
+
+        <?php foreach ($uniones as $union): ?>
+
+
+            <?php
+            if ($union->persona1_id == $persona->id) {
+                $parejaId = $union->persona2_id;
+            } else {
+                $parejaId = $union->persona1_id;
+            }
+
+
+            $pareja = $persona->find($parejaId);
+            ?>
+
+
+            <?php if ($pareja): ?>
+
+
+                <p>
+
+
+                    <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $pareja->id ?>">
+                        <?= htmlspecialchars($pareja->nombre) ?>
+                        <?= htmlspecialchars($pareja->apellidos) ?>
+                    </a>
+
+
+                    — <?= htmlspecialchars($union->tipo) ?>
+
+
+                    <?php if (!empty($union->fecha_inicio)): ?>
+                        (<?= htmlspecialchars($union->fecha_inicio) ?>)
+                    <?php endif; ?>
+
+
+                    <?php if (!empty($union->fecha_fin)): ?>
+                        -
+                        <?= htmlspecialchars($union->fecha_fin) ?>
+                    <?php endif; ?>
+
+
+                </p>
+
+
+            <?php endif; ?>
+
+
+        <?php endforeach; ?>
+
+
+    </div>
+
+
+<?php endif; ?>
+Un detalle importante
+
+No estamos tratando una pareja como si fuera un progenitor o un hijo.
+
+La unión es una relación independiente:
+
+persona ?? unión ?? pareja
+
+Mientras que la filiación es:
+
+progenitor ?? filiación ?? hijo
+
+Eso nos permitirá posteriormente dibujar el árbol correctamente.
+
+Y al pulsar sobre la pareja, hacemos lo mismo que con cualquier otra persona:
+
+personas/arbol/{id}
+
+La pareja pasa a ser la nueva persona central.
+
+¿Qué conseguimos ya?
+
+Podemos navegar:
+
+Juan ? María ? sus progenitores ? sus hijos ? etc.
+
+sin cargar todo el árbol de una vez.
+
+El siguiente paso ya sí sería interesante: dejar de mostrar estos bloques uno debajo de otro y construir la representación visual del árbol, con la persona central en medio, progenitores arriba, hijos abajo y parejas a los lados.

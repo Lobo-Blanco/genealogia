@@ -1,0 +1,53 @@
+<h1>Buscar persona</h1>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label(
+        'texto',
+        'Nombre o apellidos'
+    ) ?>
+
+    <?= Form::text(
+        'texto',
+        '',
+        ''
+    ) ?>
+
+    <?= Form::submit('Buscar') ?>
+</p>
+
+<?= Form::close() ?>
+
+
+<?php if (!empty($personas)): ?>
+
+    <h2>Personas encontradas</h2>
+
+    <ul>
+
+        <?php foreach ($personas as $persona): ?>
+
+            <li>
+                <?= Html::link(
+                    'personas/ver/' . $persona->id,
+                    htmlspecialchars(
+                        $persona->nombre . ' ' .
+                        $persona->apellidos
+                    )
+                ) ?>
+            </li>
+
+        <?php endforeach; ?>
+
+    </ul>
+
+<?php elseif (
+    Input::hasPost('texto')
+): ?>
+
+    <p>
+        No se han encontrado personas.
+    </p>
+
+<?php endif; ?>

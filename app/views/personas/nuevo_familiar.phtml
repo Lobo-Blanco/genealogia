@@ -1,0 +1,97 @@
+<h2>
+    Crear
+    <?= $tipo == 'progenitor'
+        ? 'progenitor'
+        : 'hijo'
+    ?>
+    de
+    <?= $persona->nombre ?>
+    <?= $persona->apellidos ?>
+</h2>
+
+<?= Form::open("personas/guardar_familiar/{$persona->id}/$tipo") ?>
+
+<p>
+    Nombre
+    <?= Form::text(
+        'nombre',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    Apellidos
+    <?= Form::text(
+        'apellidos',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    Sexo
+    <?= Form::select(
+        'sexo',
+        array(
+            '' => 'Sin especificar',
+            'H' => 'Hombre',
+            'M' => 'Mujer',
+            'O' => 'Otro'
+        ),
+        ''
+    ) ?>
+</p>
+
+<p>
+    Fecha de nacimiento
+    <?= Form::date(
+        'fecha_nacimiento',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    Lugar de nacimiento
+    <?= Form::text(
+        'lugar_nacimiento',
+        '',
+        ''
+    ) ?>
+</p>
+
+<p>
+    Tipo de filiación
+</p>
+
+<?= Form::select(
+    'tipo_filiacion',
+    array(
+        'biologica' => 'Biológica',
+        'adoptiva' => 'Adoptiva'
+    ),
+    'biologica'
+) ?>
+
+<p>
+    Notas
+</p>
+
+<?= Form::textarea(
+    'notas',
+    '',
+    ''
+) ?>
+
+<?= Form::hidden(
+    'tipo',
+    $tipo
+) ?>
+
+<?= Form::submit(
+    'guardar',
+    'Crear y añadir'
+) ?>
+
+<?= Form::close() ?>

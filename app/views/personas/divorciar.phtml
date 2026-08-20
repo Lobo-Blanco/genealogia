@@ -1,0 +1,44 @@
+<h2>Registrar divorcio</h2>
+
+<p>
+    Va a registrar el divorcio de este matrimonio.
+</p>
+
+<form method="post">
+
+    <div>
+        <label>Fecha del divorcio</label>
+        <input
+            type="date"
+            name="fecha"
+            required
+        >
+    </div>
+
+    <div>
+        <label>Lugar</label>
+        <input
+            type="text"
+            name="lugar"
+        >
+    </div>
+
+    <div>
+        <label>Notas</label>
+        <textarea
+            name="notas"
+            rows="4"
+        ></textarea>
+    </div>
+
+    <div>
+        <button type="submit">
+            Registrar divorcio
+        </button>
+
+        <a href="<?= PUBLIC_PATH ?>personas/uniones/<?= $union->persona1_id ?>">
+            Cancelar
+        </a>
+    </div>
+
+</form>

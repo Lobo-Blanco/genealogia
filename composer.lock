@@ -1,0 +1,87 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "7576803e37efbf39aafe9d3bdc6e44bc",
+    "packages": [
+        {
+            "name": "kumbia/activerecord",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KumbiaPHP/ActiveRecord.git",
+                "reference": "5c25c2dcab042182f052a08dad1a9d54b78908a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KumbiaPHP/ActiveRecord/zipball/5c25c2dcab042182f052a08dad1a9d54b78908a1",
+                "reference": "5c25c2dcab042182f052a08dad1a9d54b78908a1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pdo": "*",
+                "php": ">=7.4.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Kumbia\\ActiveRecord\\": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Joan Miquel",
+                    "email": "joanhey@kumbiaphp.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alberto Berrotan",
+                    "email": "ashrey@kumbiaphp.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Emilio",
+                    "email": "emiliorst@kumbiaphp.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Fast ActiveRecord",
+            "homepage": "https://github.com/KumbiaPHP/ActiveRecord",
+            "keywords": [
+                "activerecord",
+                "database",
+                "orm"
+            ],
+            "support": {
+                "issues": "https://github.com/KumbiaPHP/ActiveRecord/issues",
+                "slack": "https://slack.kumbiaphp.com",
+                "source": "https://github.com/KumbiaPHP/ActiveRecord/tree/master"
+            },
+            "funding": [
+                {
+                    "url": "https://opencollective.com/kumbiaphp",
+                    "type": "Open Collective"
+                }
+            ],
+            "time": "2024-11-06T11:54:52+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "kumbia/activerecord": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
+}

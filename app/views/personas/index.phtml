@@ -1,0 +1,110 @@
+<?php
+$usuario = Auth::usuario();
+$arbol = Auth::arbolActual();
+
+Flash::error(
+    'Usuario: ' . $usuario->id .
+    ' - Árbol: ' . $arbol->id .
+    ' - ' . $arbol->nombre
+);
+?>
+<?php if (Auth::estaAutenticado()): ?>
+
+    <p>
+        Usuario conectado:
+        <?= htmlspecialchars(
+            Auth::usuario()->username
+        ) ?>
+    </p>
+
+<?php endif; ?>
+
+<h1>Personas</h1>
+
+<p>
+    Total de personas: <?= count($personas) ?>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Apellidos</th>
+            <th>Nombre</th>
+            <th>Sexo</th>
+            <th>Fecha nacimiento</th>
+            <th>Fecha defunción</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    <?php foreach ($personas as $persona): ?>
+
+        <tr>
+            <td>
+                <?= $persona->id ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($persona->apellidos) ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($persona->nombre) ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($persona->sexo ?? '') ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($persona->fecha_nacimiento ?? '') ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($persona->fecha_defuncion ?? '') ?>
+            </td>
+
+            <td>
+                <?php if (Auth::puedeEditar($persona->id)): ?>
+
+                <?= Html::link(
+                    'personas/editar/' . $persona->id,
+                    'Editar'
+                ) ?>
+
+                <?php endif; ?>
+
+                <?= Html::link(
+                    "personas/ver/{$persona->id}",
+                    'Ver'
+                ) ?>
+                <?= Html::link(
+                    'personas/uniones/' . $persona->id,
+                    'Uniones'
+                ) ?>
+                <?= Html::link(
+                    'personas/familia/' . $persona->id,
+                    'Familia'
+                ) ?>
+                <?= Html::link(
+                    'personas/arbol/' . $persona->id,
+                    'Árbol'
+                ) ?>
+            </td>
+        </tr>
+
+    <?php endforeach; ?>
+
+    </tbody>
+</table>
+
+<p>
+    <?= Html::link(
+        'personas/nuevo/',
+        'Crear nueva persona'
+    ) ?>
+</p>
+

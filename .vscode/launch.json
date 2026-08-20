@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug KumbiaPHP en XAMPP",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "E:\\xampp\\htdocs\\genealogia": "E:\\xampp\\htdocs\\genealogia",
+                "E:\\xampp\\htdocs\\core": "E:\\xampp\\htdocs\\core"
+            },
+            "hostname": "127.0.0.1"
+        }
+    ]
+}

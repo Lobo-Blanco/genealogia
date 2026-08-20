@@ -1,0 +1,59 @@
+<h2>Editar filiación</h2>
+
+<p>
+    <strong>Progenitor:</strong>
+    <?= $progenitor->nombre ?>
+    <?= $progenitor->apellidos ?>
+</p>
+
+<p>
+    <strong>Hijo:</strong>
+    <?= $hijo->nombre ?>
+    <?= $hijo->apellidos ?>
+</p>
+
+<form method="post">
+
+    <div>
+        <label for="tipo">
+            Tipo de filiación
+        </label>
+
+        <select
+            name="tipo"
+            id="tipo"
+        >
+
+            <option
+                value="biologica"
+                <?= $filiacion->tipo == 'biologica'
+                    ? 'selected'
+                    : '' ?>
+            >
+                Biológica
+            </option>
+
+            <option
+                value="adoptiva"
+                <?= $filiacion->tipo == 'adoptiva'
+                    ? 'selected'
+                    : '' ?>
+            >
+                Adoptiva
+            </option>
+
+        </select>
+    </div>
+
+    <div>
+        <button type="submit">
+            Guardar cambios
+        </button>
+
+        <?= Html::link(
+            'personas/familia/' . $origenId,
+            'Cancelar'
+        ) ?>
+    </div>
+
+</form>

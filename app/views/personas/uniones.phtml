@@ -1,0 +1,106 @@
+<h2>
+    Uniones de
+    <?= $persona->nombre ?>
+    <?= $persona->apellidos ?>
+    <?php $estaPersonaId = $persona->id ?>
+</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Persona</th>
+            <th>Tipo</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Finalización</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    <?php foreach ($uniones as $union): ?>
+
+        <?php
+        if ($union->persona1_id == $persona->id) {
+            $otraPersonaId = $union->persona2_id;
+        } else {
+            $otraPersonaId = $union->persona1_id;
+        }
+
+        $otraPersona = $persona->find_first(
+            "conditions: id = " . intval($otraPersonaId)
+        );
+        ?>
+
+        <tr>
+            <td>
+                <?= $otraPersona->nombre ?>
+                <?= $otraPersona->apellidos ?>
+            </td>
+
+            <td>
+                <?= ucfirst($union->tipo) ?>
+            </td>
+
+            <td>
+                <?= $union->fecha_inicio ?>
+            </td>
+
+            <td>
+                <?= $union->fecha_fin ?>
+            </td>
+
+            <td>
+                <?php if ($union->fecha_fin): ?>
+                    <?= $union->fecha_fin ?>
+                    (<?= ucfirst($union->fin_tipo) ?>)
+                <?php else: ?>
+                    Actualmente
+                <?php endif; ?>
+            </td>
+            <td>
+
+                <?php if (
+                    !$union->fecha_fin &&
+                    Auth::puedeEditarUnion($union->id)
+                ): ?>
+
+                <?php if (
+                    Auth::puedeEditarUnion($union->id)
+                ): ?>
+
+                    <?= Html::link(
+                        'personas/editar_union/' . $union->id . '/' . $estaPersonaId,
+                        'Editar'
+                    ) ?>
+
+                <?php endif; ?>
+
+                    <?php if ($union->tipo == 'pareja'): ?>
+
+                        <?= Html::link(
+                            'personas/disolver_pareja/' . $union->id . '/' . $estaPersonaId,
+                            'Disolver'
+                        ) ?>
+
+                    <?php elseif ($union->tipo == 'matrimonio'): ?>
+
+                        <?= Html::link(
+                            'personas/divorciar/' . $union->id . '/' . $estaPersonaId,
+                            'Divorciar'
+                        ) ?>
+
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+            </td>
+        </tr>
+
+        <?php endforeach; ?>
+ 
+    </tbody>
+</table>
+<p>
+    <?= Html::link('personas', 'Volver al listado') ?>
+</p>

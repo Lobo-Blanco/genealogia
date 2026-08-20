@@ -1,0 +1,44 @@
+<h2>Disolver pareja</h2>
+
+<p>
+    Va a finalizar la relación de pareja.
+</p>
+
+<form method="post">
+
+    <div>
+        <label>Fecha de disolución</label>
+        <input
+            type="date"
+            name="fecha"
+            required
+        >
+    </div>
+
+    <div>
+        <label>Lugar</label>
+        <input
+            type="text"
+            name="lugar"
+        >
+    </div>
+
+    <div>
+        <label>Notas</label>
+        <textarea
+            name="notas"
+            rows="4"
+        ></textarea>
+    </div>
+
+    <div>
+        <button type="submit">
+            Disolver pareja
+        </button>
+
+        <a href="<?= PUBLIC_PATH ?>personas/uniones/<?= $union->persona1_id ?>">
+            Cancelar
+        </a>
+    </div>
+
+</form>
