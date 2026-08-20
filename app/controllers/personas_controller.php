@@ -2052,6 +2052,7 @@ public function arbol($id)
             $progenitorIds[] = (string) "id{$filiacion->progenitor_id}";
         }
 
+        $found = false;
         foreach ($datosUniones as $unionId => &$datosUnion) {
             $partners = $datosUnion['partner'];
             $coinciden = 0;
@@ -2070,47 +2071,61 @@ public function arbol($id)
                 //}
 
                 $links[] = array($unionId, "id{$hijoId}");
-                break;
-            } else if (count($progenitorIds) == 1) {
-                $unionId = null;
-                $progenitorId = $progenitorIds[0];
-
-                foreach ($datosUniones as $key => $union) {
-                    // Acceder a name[0] porque es un array
-                    if (isset($union['partner'][0]) && $union['partner'][0] === $progenitorId) {
-                        $unionId = $key;
-                        break;
-                    }
-                }
-
-                if ($unionId === null) {
-                    $unionId = array_key_last($datosUniones);
-
-                    if ($unionId === null) {
-                        $unionId = "u1";
-                    } else {
-                        $numero = (int) str_replace('u', '', $unionId);
-                        $unionId = 'u' . ($numero + 1);
-                    }
-
-                    $datosUniones[$unionId] = [
-                        "id" => $unionId,
-                        "partner" => [$progenitorId],
-                        'children'=> []
-                    ];
-                    //$datosPersonas[$progenitorId]['own_unions'] = [$unionId];
-                    $links[] = array($progenitorId, $unionId);
-                }
-
-                $datosUniones[$unionId]['children'][] = "id{$hijoId}";
-
-                //if (isset($datosPersonas["id{$hijoId}"])) {
-                //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
-                //}
-                $links[] = array($unionId, "id{$hijoId}");
+                $found = true;
                 break;
             }
         }
+
+        if (!$found) {
+            $unionId = null;
+            $progenitorId1 = $progenitorIds[0];
+            if (isset($progenitorIds[1])) {
+                $progenitorId2 = $progenitorIds[1];
+            }
+
+            foreach ($datosUniones as $key => $union) {
+                // Acceder a name[0] porque es un array
+                if (in_array($progenitorId1, $union['partner'])) {
+                    $unionId = $key;
+                    break;
+                }
+            }
+
+            if ($unionId === null) {
+                $unionId = array_key_last($datosUniones);
+
+                if ($unionId === null) {
+                    $unionId = "u1";
+                } else {
+                    $numero = (int) str_replace('u', '', $unionId);
+                    $unionId = 'u' . ($numero + 1);
+                }
+
+                $datosUniones[$unionId] = [
+                    "id" => $unionId,
+                    "partner" => [],
+                    'children'=> []
+                ];
+                //$datosPersonas[$progenitorId]['own_unions'] = [$unionId];
+                $links[] = array($progenitorId1, $unionId);
+                if (isset($progenitorId2)) {
+                    $links[] = array($progenitorId2, $unionId);
+                }
+            }
+
+            $partner[] = $progenitorId1;
+            if (isset($progenitorId2)) {
+                $partner[] = $progenitorId2;
+            }
+
+            $datosUniones[$unionId]['children'][] = "id{$hijoId}";
+            $datosUniones[$unionId]['partner'] = $partner;
+            //if (isset($datosPersonas["id{$hijoId}"])) {
+            //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
+            //}
+            $links[] = array($unionId, "id{$hijoId}");
+        }
+
         unset($datosUnion);
     }
 
