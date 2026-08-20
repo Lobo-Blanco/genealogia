@@ -2066,6 +2066,24 @@ public function arbol($id)
             if ($coinciden === count($partners)) {
                 $datosUnion['children'][] = "id{$hijoId}";
 
+                switch ($union->tipo) {
+                    case 'pareja':
+                        if ($union->fin_tipo === "disolucion") {
+                            $datosUnion['status'] = "broken_up";
+                            break;
+                        }
+                        $datosUnion['status'] = "couple";
+                        break;
+                    
+                    case 'matrimonio':
+                        if ($union->fin_tipo === "divorcio") {
+                            $datosUnion['status'] = "divorced";
+                            break;
+                        }
+                        $datosUnion['status'] = "married";
+                        break;
+                }
+
                 //if (isset($datosPersonas["id{$hijoId}"])) {
                 //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
                 //}
@@ -2075,6 +2093,7 @@ public function arbol($id)
                 break;
             } elseif ($coinciden === 1) {
                 $this->anadirUnion([$progenitorIds[0]], $datosUniones, $links, $hijoId);
+                $datosUnion['status'] = "single";
                 $found = true;
                 break;
            }
