@@ -2059,7 +2059,7 @@ public function arbol($id)
 
             foreach ($partners as $partnerId) {
                 if (in_array($partnerId, $progenitorIds, true)) {
-                    $coinciden++;
+                   $coinciden++;
                 }
             }
 
@@ -2073,57 +2073,15 @@ public function arbol($id)
                 $links[] = array($unionId, "id{$hijoId}");
                 $found = true;
                 break;
-            }
+            } elseif ($coinciden === 1) {
+                $this->anadirUnion([$progenitorIds[0]], $datosUniones, $links, $hijoId);
+                $found = true;
+                break;
+           }
         }
 
         if (!$found) {
-            $unionId = null;
-            $progenitorId1 = $progenitorIds[0];
-            if (isset($progenitorIds[1])) {
-                $progenitorId2 = $progenitorIds[1];
-            }
-
-            foreach ($datosUniones as $key => $union) {
-                // Acceder a name[0] porque es un array
-                if (in_array($progenitorId1, $union['partner'])) {
-                    $unionId = $key;
-                    break;
-                }
-            }
-
-            if ($unionId === null) {
-                $unionId = array_key_last($datosUniones);
-
-                if ($unionId === null) {
-                    $unionId = "u1";
-                } else {
-                    $numero = (int) str_replace('u', '', $unionId);
-                    $unionId = 'u' . ($numero + 1);
-                }
-
-                $datosUniones[$unionId] = [
-                    "id" => $unionId,
-                    "partner" => [],
-                    'children'=> []
-                ];
-                //$datosPersonas[$progenitorId]['own_unions'] = [$unionId];
-                $links[] = array($progenitorId1, $unionId);
-                if (isset($progenitorId2)) {
-                    $links[] = array($progenitorId2, $unionId);
-                }
-            }
-
-            $partner[] = $progenitorId1;
-            if (isset($progenitorId2)) {
-                $partner[] = $progenitorId2;
-            }
-
-            $datosUniones[$unionId]['children'][] = "id{$hijoId}";
-            $datosUniones[$unionId]['partner'] = $partner;
-            //if (isset($datosPersonas["id{$hijoId}"])) {
-            //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
-            //}
-            $links[] = array($unionId, "id{$hijoId}");
+            $this->anadirUnion($progenitorIds, $datosUniones, $links, $hijoId);
         }
 
         unset($datosUnion);
@@ -2138,5 +2096,57 @@ public function arbol($id)
 
     $this->persona = $persona;
     $this->datosArbol = $datos;
+}
+
+private function anadirUnion($progenitorIds, &$datosUniones, &$links, $hijoId) {
+    $unionId = null;
+    $progenitorId1 = $progenitorIds[0];
+    if (isset($progenitorIds[1])) {
+        $progenitorId2 = $progenitorIds[1];
+    }
+
+    foreach ($datosUniones as $key => $union) {
+        // Acceder a name[0] porque es un array
+        if (in_array($progenitorId1, $union['partner'])) {
+            if (isset($progenitorId2) && in_array($progenitorId2, $union['partner'])) {
+                $unionId = $key;
+                break;
+            }
+        }
+    }
+
+    if ($unionId === null) {
+        $unionId = array_key_last($datosUniones);
+
+        if ($unionId === null) {
+            $unionId = "u1";
+        } else {
+            $numero = (int) str_replace('u', '', $unionId);
+            $unionId = 'u' . ($numero + 1);
+        }
+
+        $datosUniones[$unionId] = [
+            "id" => $unionId,
+            "partner" => [],
+            'children'=> []
+        ];
+        //$datosPersonas[$progenitorId]['own_unions'] = [$unionId];
+        $links[] = array($progenitorId1, $unionId);
+        if (isset($progenitorId2)) {
+            $links[] = array($progenitorId2, $unionId);
+        }
+    }
+
+    $partner[] = $progenitorId1;
+    if (isset($progenitorId2)) {
+        $partner[] = $progenitorId2;
+    }
+
+    $datosUniones[$unionId]['children'][] = "id{$hijoId}";
+    $datosUniones[$unionId]['partner'] = $partner;
+    //if (isset($datosPersonas["id{$hijoId}"])) {
+    //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
+    //}
+    $links[] = array($unionId, "id{$hijoId}");
 }
 }
