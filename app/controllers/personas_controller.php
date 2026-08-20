@@ -1414,12 +1414,15 @@ public function guardar_familiar($id, $tipo)
 
 public function disolver_pareja($unionId, $origenId)
 {
+    $arbol = Auth::arbolActual();
+
+    if (!$arbol) {
+        Flash::error('No hay un árbol activo.');
+        return Redirect::to('personas');
+    }
+
     if (!Auth::estaAutenticado()) {
-
-        Flash::error(
-            'Debe iniciar sesión.'
-        );
-
+        Flash::error('Debe iniciar sesión.');
         return Redirect::to('login');
     }
 
@@ -1430,7 +1433,6 @@ public function disolver_pareja($unionId, $origenId)
     );
 
     if (!$union) {
-
         Flash::error(
             'La unión no existe.'
         );
@@ -1438,8 +1440,38 @@ public function disolver_pareja($unionId, $origenId)
         return Redirect::to('personas');
     }
 
-    if (!Auth::puedeEditarUnion($union->id)) {
+    if ($union->arbol_id != $arbol->id) {
+        Flash::error(
+            'La unión no pertenece al árbol actual.'
+        );
 
+        return Redirect::to(
+            'personas/ver/' . $origenId
+        );
+    }
+
+    $persona = (new personal)->find_first($origenId);
+
+    if (!$persona) {
+        Flash::error(
+            'La persona no existe.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if ($persona->arbol_id != $arbol->id) {
+        Flash::error(
+            'La persona no pertenece al árbol actual.'
+        );
+
+        return Redirect::to(
+            'personas/ver/' . $origenId
+        );
+    }
+
+
+    if (!Auth::puedeEditarUnion($union->id)) {
         Flash::error(
             'No tiene permiso para modificar esta unión.'
         );
@@ -1481,8 +1513,17 @@ public function disolver_pareja($unionId, $origenId)
 
 public function divorciar($unionId, $origenId)
 {
-    if (!Auth::estaAutenticado()) {
+    $arbol = Auth::arbolActual();
 
+    if (!$arbol) {
+        Flash::error(
+            'No hay un árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if (!Auth::estaAutenticado()) {
         Flash::error(
             'Debe iniciar sesión.'
         );
@@ -1497,7 +1538,6 @@ public function divorciar($unionId, $origenId)
     );
 
     if (!$union) {
-
         Flash::error(
             'La unión no existe.'
         );
@@ -1505,8 +1545,37 @@ public function divorciar($unionId, $origenId)
         return Redirect::to('personas');
     }
 
-    if (!Auth::puedeEditarUnion($union->id)) {
+    if ($union->arbol_id != $arbol->id) {
+        Flash::error(
+            'La unión no pertenece al árbol actual.'
+        );
 
+        return Redirect::to(
+            'personas/ver/' . $origenId
+        );
+    }
+
+    $persona = (new personal)->find_first($origenId);
+
+    if (!$persona) {
+        Flash::error(
+            'La persona no existe.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if ($persona->arbol_id != $arbol->id) {
+        Flash::error(
+            'La persona no pertenece al árbol actual.'
+        );
+
+        return Redirect::to(
+            'personas/ver/' . $origenId
+        );
+    }
+
+    if (!Auth::puedeEditarUnion($union->id)) {
         Flash::error(
             'No tiene permiso para modificar esta unión.'
         );
