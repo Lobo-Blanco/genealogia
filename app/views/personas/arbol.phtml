@@ -55,6 +55,8 @@ $datosArbolJson = json_encode(
     }
 </style>
 
+<div id="genealogia-persona-info"></div>
+
 <?= Tag::js("js_family_tree.umd") ?>
 
 <script>
@@ -67,7 +69,74 @@ $datosArbolJson = json_encode(
     }
 
     if (typeof FT !== 'undefined') {
-        new FT.FamilyTree(data, container);
+        var tree = new FT.FamilyTree(data, container, {
+            nodeClickFunction: function (node, ft) {
+                ft.nodeClickHandler(node);
+
+                if (node.isPerson) {
+                    mostrarFicha(node.data.id);
+                }
+            },
+
+            nodeTooltipFunction: function (node) {
+                return crearTooltip(node);
+            }
+        });
     }
+
+    function mostrarFicha(personaId) {
+        var persona = data.persons[personaId];
+
+        if (!persona) {
+            return;
+        }
+
+        var html = '<h2>' + escapeHtml(persona.name) + '</h2>';
+
+        if (persona.birthyear) {
+            html += '<p>Nacimiento: ' + persona.birthyear + '</p>';
+        }
+
+        if (persona.birthplace) {
+            html += '<p>Lugar de nacimiento: ' +
+                escapeHtml(persona.birthplace) +
+                '</p>';
+        }
+
+        if (persona.deathyear) {
+            html += '<p>Defunción: ' + persona.deathyear + '</p>';
+        }
+
+        if (persona.deathplace) {
+            html += '<p>Lugar de defunción: ' +
+                escapeHtml(persona.deathplace) +
+                '</p>';
+        }
+
+        document.getElementById('genealogia-persona-info').innerHTML = html;
+    }
+
+    function crearTooltip(personaId) {
+        var persona = data.persons[personaId];
+
+        if (!persona) {
+            return;
+        }
+
+        console.log(persona);
+    }
+
+    function escapeHtml(texto) {
+        const mapa = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;' // O '&apos;'
+        };
+        return texto.replace(/[&<>"']/g, function(caracter) {
+            return mapa[caracter];
+        });
+        }
 })();
 </script>
