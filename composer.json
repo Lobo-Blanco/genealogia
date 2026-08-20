@@ -1,5 +1,0 @@
-{
-    "require": {
-        "kumbia/activerecord" : "dev-master"
-    }
-}
