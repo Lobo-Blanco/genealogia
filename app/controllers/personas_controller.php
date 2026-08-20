@@ -2092,7 +2092,7 @@ public function arbol($id)
                 $found = true;
                 break;
             } elseif ($coinciden === 1) {
-                $this->anadirUnion([$progenitorIds[0]], $datosUniones, $links, $hijoId);
+                $this->anadirUnion($progenitorIds, $datosUniones, $links, $hijoId);
                 $datosUnion['status'] = "single";
                 $found = true;
                 break;
