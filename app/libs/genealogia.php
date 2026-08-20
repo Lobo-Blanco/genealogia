@@ -708,7 +708,6 @@ public static function crearUnion(
         );
     }
 
-
     /**
      * Registra un divorcio y finaliza el matrimonio.
      *
@@ -727,7 +726,6 @@ public static function crearUnion(
                     'Debe indicar la fecha del divorcio.'
             );
         }
-
 
         $uniones = new Uniones();
         $divorcios = new Divorcios();
@@ -763,7 +761,6 @@ public static function crearUnion(
             );
         }
 
-
         if (
             $union->fecha_fin !== null &&
             $union->fecha_fin != ''
@@ -786,7 +783,6 @@ public static function crearUnion(
                     'anterior al inicio del matrimonio.'
             );
         }
-
 
         $existente = $divorcios->find_first(
             "conditions: union_id = " .
