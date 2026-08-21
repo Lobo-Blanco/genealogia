@@ -1394,22 +1394,31 @@ public function guardar_familiar($id, $tipo)
          * Lo que estamos creando es una nueva filiación,
          * cuyo propietario será el usuario actual.
          */
-        $tipoFiliacion =
-            Input::post('tipo_filiacion');
+        if ($tipo == 'progenitor') {
+            $tipoFiliacion = 'biologica';
 
-        if ($tipoFiliacion == 'biologica') {
             $fecha_inicio =
-                Input::post('fecha_nacimiento');;
-        } elseif (
-            $tipoFiliacion == 'adoptiva'
-        ) {
-            $fecha_inicio =
-                Input::post('fecha_inicio');
+                $persona->fecha_nacimiento;
 
         } else {
-            Flash::valid(
-                'Tipo de filiación no válido.'
-            );
+            $tipoFiliacion =
+                Input::post('tipo_filiacion');
+
+            if ($tipoFiliacion == 'biologica') {
+                $fecha_inicio =
+                    $familiar->fecha_nacimiento;
+            } elseif (
+                $tipoFiliacion == 'adoptiva' ||
+                $tipoFiliacion == 'pre-adoptiva'
+            ) {
+                $fecha_inicio =
+                    Input::post('fecha_inicio');
+
+            } else {
+                Flash::valid(
+                    'Tipo de filiación no válido.'
+                );
+            }
         }
 
         $personas->begin();
@@ -1505,23 +1514,32 @@ public function guardar_familiar($id, $tipo)
             );
         }
 
-        $tipoFiliacion =
-            Input::post('tipo_filiacion');
+        if ($tipo == 'progenitor') {
+            $tipoFiliacion = 'biologica';
 
-        if ($tipoFiliacion == 'biologica') {
             $fecha_inicio =
-                Input::post('fecha_nacimiento');;
-        } elseif (
-            $tipoFiliacion == 'adoptiva'
-        ) {
-            $fecha_inicio =
-                Input::post('fecha_inicio');
+                $persona->fecha_nacimiento;
 
         } else {
-            Flash::valid(
-                'Tipo de filiación no válido.'
-            );
+            $tipoFiliacion =
+                Input::post('tipo_filiacion');
 
+            if ($tipoFiliacion == 'biologica') {
+                $fecha_inicio =
+                    $nueva->fecha_nacimiento;
+            } elseif (
+                $tipoFiliacion == 'adoptiva' ||
+                $tipoFiliacion == 'pre-adoptiva'
+            ) {
+                $fecha_inicio =
+                    Input::post('fecha_inicio');
+
+            } else {
+                Flash::valid(
+                    'Tipo de filiación no válido.'
+                );
+            }
+            
             return Redirect::to(
                 'personas/familia/' .
                 $persona->id
@@ -1534,7 +1552,7 @@ public function guardar_familiar($id, $tipo)
                     $persona->id,
                     $nueva->id,
                     "biologica",
-                    $persona->fecha_nacimiento
+                    $familiar->fecha_nacimiento
                 );
 
         } else {
