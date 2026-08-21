@@ -1688,7 +1688,6 @@ public function divorciar($unionId, $origenId)
 public function editar_union($id, $origenId)
 {
     if (!Auth::estaAutenticado()) {
-
         Flash::error(
             'Debe iniciar sesión.'
         );
@@ -1699,7 +1698,6 @@ public function editar_union($id, $origenId)
     $arbol = Auth::arbolActual();
 
     if (!$arbol) {
-
         Flash::error(
             'No hay un árbol activo.'
         );
@@ -1714,7 +1712,6 @@ public function editar_union($id, $origenId)
     );
 
     if (!$union) {
-
         Flash::error(
             'La unión no existe.'
         );
@@ -1723,7 +1720,6 @@ public function editar_union($id, $origenId)
     }
 
     if (!Auth::puedeEditarUnion($union->id)) {
-
         Flash::error(
             'No tiene permiso para modificar esta unión.'
         );
@@ -1754,7 +1750,6 @@ public function editar_union($id, $origenId)
     );
 
     if (!$persona1 || !$persona2) {
-
         Flash::error(
             'La unión no pertenece al árbol actual.'
         );
@@ -1763,7 +1758,6 @@ public function editar_union($id, $origenId)
     }
 
     if (Input::hasPost('fecha_inicio')) {
-
         $union->fecha_inicio =
             Input::post('fecha_inicio');
 
@@ -1798,7 +1792,6 @@ public function editar_union($id, $origenId)
 public function eliminar_filiacion($id, $origenId)
 {
     if (!Auth::estaAutenticado()) {
-
         Flash::error(
             'Debe iniciar sesión.'
         );
@@ -1809,7 +1802,6 @@ public function eliminar_filiacion($id, $origenId)
     $arbol = Auth::arbolActual();
 
     if (!$arbol) {
-
         Flash::error(
             'No hay un árbol activo.'
         );
@@ -1825,7 +1817,6 @@ public function eliminar_filiacion($id, $origenId)
     );
 
     if (!$filiacion) {
-
         Flash::error(
             'La filiación no existe.'
         );
@@ -1860,7 +1851,6 @@ public function eliminar_filiacion($id, $origenId)
     );
 
     if (!$hijo) {
-
         Flash::error(
             'La filiación no pertenece al árbol actual.'
         );
@@ -1879,7 +1869,6 @@ public function eliminar_filiacion($id, $origenId)
     );
 
     if (!$progenitor) {
-
         Flash::error(
             'El progenitor no pertenece al árbol actual.'
         );
@@ -1888,7 +1877,6 @@ public function eliminar_filiacion($id, $origenId)
     }
 
     if ($filiacion->delete()) {
-
         Flash::valid(
             'La filiación se ha eliminado correctamente.'
         );
@@ -1910,7 +1898,6 @@ public function eliminar_filiacion($id, $origenId)
 public function editar_filiacion($id, $origenId)
 {
     if (!Auth::estaAutenticado()) {
-
         Flash::error(
             'Debe iniciar sesión.'
         );
@@ -1921,7 +1908,6 @@ public function editar_filiacion($id, $origenId)
     $arbol = Auth::arbolActual();
 
     if (!$arbol) {
-
         Flash::error(
             'No hay un árbol activo.'
         );
@@ -1936,7 +1922,6 @@ public function editar_filiacion($id, $origenId)
     );
 
     if (!$filiacion) {
-
         Flash::error(
             'La filiación no existe.'
         );
@@ -1947,7 +1932,6 @@ public function editar_filiacion($id, $origenId)
     if (!Auth::puedeEditarFiliacion(
         $filiacion->id
     )) {
-
         Flash::error(
             'No tiene permiso para modificar esta filiación.'
         );
@@ -1982,7 +1966,6 @@ public function editar_filiacion($id, $origenId)
     );
 
     if (!$hijo || !$progenitor) {
-
         Flash::error(
             'La filiación no pertenece al árbol actual.'
         );
@@ -1991,20 +1974,18 @@ public function editar_filiacion($id, $origenId)
     }
 
     if (Input::hasPost('tipo')) {
-
         $tipo = Input::post('tipo');
 
         if (
             $tipo != 'biologica' &&
+            $tipo != 'pre-adoptiva' &&
             $tipo != 'adoptiva'
         ) {
-
             Flash::error(
                 'El tipo de filiación no es válido.'
             );
 
         } else {
-
             $filiacion->tipo = $tipo;
 
             if ($filiacion->save()) {

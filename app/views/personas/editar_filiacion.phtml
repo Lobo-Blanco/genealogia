@@ -23,7 +23,6 @@
             name="tipo"
             id="tipo"
         >
-
             <option
                 value="biologica"
                 <?= $filiacion->tipo == 'biologica'
@@ -34,6 +33,15 @@
             </option>
 
             <option
+                value="pre-adoptiva"
+                <?= $filiacion->tipo == 'pre-adoptiva'
+                    ? 'selected'
+                    : '' ?>
+            >
+                Adoptiva
+            </option>
+
+            <option
                 value="adoptiva"
                 <?= $filiacion->tipo == 'adoptiva'
                     ? 'selected'
@@ -41,7 +49,6 @@
             >
                 Adoptiva
             </option>
-
         </select>
     </div>
 

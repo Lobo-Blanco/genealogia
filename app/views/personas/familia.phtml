@@ -61,7 +61,7 @@
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
                         <?= Html::link(
                             'personas/editar_filiacion/' .
-                            $progenitor->id . '/' . $estaPersonaId,
+                            $filiacion->id . '/' . $estaPersonaId,
                             'Editar'
                         ) ?>
 

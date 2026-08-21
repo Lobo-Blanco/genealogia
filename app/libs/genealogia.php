@@ -1089,7 +1089,7 @@ public static function crearFiliacion(
      */
     if (!in_array(
         $tipo,
-        array('biologica', 'adoptiva')
+        array('biologica', 'pre-adoptiva', 'adoptiva')
     )) {
         return array(
             'ok' => false,
