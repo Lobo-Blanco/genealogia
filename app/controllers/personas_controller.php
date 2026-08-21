@@ -541,6 +541,8 @@ public function nuevo_progenitor($personaId)
 
             $filiacion->fecha_fin = null;
 
+            $filiacion->usuario_id = Auth::usuario()->id;
+
             $filiacion->notas =
                 Input::post('notas_filiacion');
 
@@ -703,6 +705,8 @@ public function nuevo_progenitor($personaId)
             }
 
             $filiacion->fecha_fin = null;
+            
+            $filiacion->usuario_id = Auth::usuario()->id;
 
             $filiacion->notas =
                 Input::post('notas_filiacion');
@@ -724,9 +728,9 @@ public function nuevo_progenitor($personaId)
                         );
                     }
 
-                    $adopcion->hijo_id = $hijo->id;
+                    $filiacion->hijo_id = $hijo->id;
                     
-                    $adopcion->usuario_id = Auth::usuario()->id;
+                    $filiacion->usuario_id = Auth::usuario()->id;
 
                     if (!$filiacion->save()) {
                         throw new Exception(
