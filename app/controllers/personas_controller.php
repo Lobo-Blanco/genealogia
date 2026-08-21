@@ -1366,7 +1366,6 @@ public function guardar_familiar($id, $tipo)
         intval(Input::post('persona_existente'));
 
     if ($familiarId > 0) {
-
         $familiar = $personas->find_first(
             "conditions: arbol_id = " .
             intval($arbol->id) .
@@ -1375,7 +1374,6 @@ public function guardar_familiar($id, $tipo)
         );
 
         if (!$familiar) {
-
             Flash::error(
                 'La persona seleccionada no existe ' .
                 'en el árbol actual.'
@@ -1399,10 +1397,24 @@ public function guardar_familiar($id, $tipo)
         $tipoFiliacion =
             Input::post('tipo_filiacion');
 
+        if ($tipoFiliacion == 'biologica') {
+            $fecha_inicio =
+                Input::post('fecha_nacimiento');;
+        } elseif (
+            $tipoFiliacion == 'adoptiva'
+        ) {
+            $fecha_inicio =
+                Input::post('fecha_inicio');
+
+        } else {
+            Flash::valid(
+                'Tipo de filiación no válido.'
+            );
+        }
+
         $personas->begin();
 
         try {
-
             if ($tipo == 'progenitor') {
 
                 $resultado =
@@ -1413,7 +1425,6 @@ public function guardar_familiar($id, $tipo)
                     );
 
             } else {
-
                 $resultado =
                     Genealogia::crearFiliacion(
                         $familiar->id,
@@ -1497,22 +1508,42 @@ public function guardar_familiar($id, $tipo)
         $tipoFiliacion =
             Input::post('tipo_filiacion');
 
-        if ($tipo == 'progenitor') {
+        if ($tipoFiliacion == 'biologica') {
+            $fecha_inicio =
+                Input::post('fecha_nacimiento');;
+        } elseif (
+            $tipoFiliacion == 'adoptiva'
+        ) {
+            $fecha_inicio =
+                Input::post('fecha_inicio');
 
+        } else {
+            Flash::valid(
+                'Tipo de filiación no válido.'
+            );
+
+            return Redirect::to(
+                'personas/familia/' .
+                $persona->id
+            );
+        }
+
+        if ($tipo == 'progenitor') {
             $resultado =
                 Genealogia::crearFiliacion(
                     $persona->id,
                     $nueva->id,
-                    $tipoFiliacion
+                    "biologica",
+                    $persona->fecha_nacimiento
                 );
 
         } else {
-
             $resultado =
                 Genealogia::crearFiliacion(
                     $nueva->id,
                     $persona->id,
-                    $tipoFiliacion
+                    $tipoFiliacion,
+                    $fecha_inicio
                 );
         }
 

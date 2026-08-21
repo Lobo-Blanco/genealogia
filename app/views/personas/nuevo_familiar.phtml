@@ -61,6 +61,7 @@
     ) ?>
 </p>
 
+<?php if ($tipo === "hijo"): ?>
 <p>
     Tipo de filiación
 </p>
@@ -74,6 +75,25 @@
     ),
     'biologica'
 ) ?>
+
+<p id="fecha-inicio-filiacion">
+    <?= Form::label(
+        'fecha_inicio',
+        'Fecha de inicio de la filiación'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_inicio',
+        ''
+    ) ?>
+</p>
+<?php else: ?>
+    <?= Form::hidden(
+        'tipo_filiacion',
+        '',
+        'biologica'
+    ) ?>
+<?php endif; ?>
 
 <p>
     Notas
@@ -96,3 +116,31 @@
 ) ?>
 
 <?= Form::close() ?>
+<script>
+    function actualizarFechaFiliacion() {
+        const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
+        const campo = document.getElementById('fecha-inicio-filiacion');
+
+        if (!tipo_filiacion || !campo) {
+            return;
+        }
+
+        campo.style.display =
+            tipo_filiacion.value === 'biologica'
+                ? 'none'
+                : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
+
+        if (tipo_filiacion) {
+            tipo_filiacion.addEventListener(
+                'change',
+                actualizarFechaFiliacion
+            );
+        }
+
+        actualizarFechaFiliacion();
+    });
+</script>
