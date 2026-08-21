@@ -1,5 +1,4 @@
-```php
-<h2>Finalizar pre-adopci髇</h2>
+<h2>Finalizar pre-adopci贸n</h2>
 
 <p>
     <strong>Hijo:</strong>
@@ -12,36 +11,39 @@
 </p>
 
 <p>
-    <strong>Inicio de la pre-adopci髇:</strong>
+    <strong>Inicio de la pre-adopci贸n:</strong>
     <?= h($filiacion->fecha_inicio) ?>
 </p>
 
 <?= Form::open() ?>
 
 <div class="form-group">
-    <?= Form::label('fecha_fin', 'Fecha de finalizaci髇') ?>
+    <?= Form::label('fecha_fin', 'Fecha de finalizaci贸n') ?>
 
     <?= Form::date(
         'fecha_fin',
         array(
+            'min' => "$filiacion->fecha_inicio",
+            'max' => "date('Y-m-d')",
             'required' => 'required'
-        )
+        ),
+        "<?= $filiacion->fecha_inicio ?>"
     ) ?>
 </div>
 
 <div class="form-actions">
     <?= Form::submit(
-        'Finalizar pre-adopci髇',
+        'Finalizar pre-adopci贸n',
         array(
             'class' => 'btn btn-primary'
         )
     ) ?>
 
     <?= Html::link(
-        'Cancelar',
         'personas/familia/' . $hijo->id,
+        'Cancelar',
         array(
-            'class' => 'btn btn-secondary'
+            'class' => 'btn btn-primary'
         )
     ) ?>
 </div>

@@ -2426,8 +2426,7 @@ public function finalizar_pre_adopcion($filiacionId)
     $filiaciones = new Filiaciones();
 
     $filiacion = $filiaciones->find_first(
-        'conditions: id = ' .
-        intval($filiacionId)
+        "conditions: id = " . intval($filiacionId)
     );
 
     if (!$filiacion) {
@@ -2438,6 +2437,10 @@ public function finalizar_pre_adopcion($filiacionId)
         return Redirect::to('personas');
     }
 
+    /*
+     * Sólo se puede finalizar una pre-adopción
+     * que todavía esté abierta.
+     */
     if ($filiacion->tipo != 'pre-adoptiva') {
         Flash::error(
             'La filiación no es pre-adoptiva.'
@@ -2451,7 +2454,7 @@ public function finalizar_pre_adopcion($filiacionId)
 
     if (!empty($filiacion->fecha_fin)) {
         Flash::error(
-            'La pre-adopción ya ha finalizado.'
+            'La pre-adopción ya está finalizada.'
         );
 
         return Redirect::to(
@@ -2462,17 +2465,20 @@ public function finalizar_pre_adopcion($filiacionId)
 
     $personas = new Personas();
 
+    /*
+     * Comprobamos ambos extremos dentro del árbol actual.
+     */
     $hijo = $personas->find_first(
-        'conditions: arbol_id = ' .
+        "conditions: arbol_id = " .
         intval($arbol->id) .
-        ' AND id = ' .
+        " AND id = " .
         intval($filiacion->hijo_id)
     );
 
     $progenitor = $personas->find_first(
-        'conditions: arbol_id = ' .
+        "conditions: arbol_id = " .
         intval($arbol->id) .
-        ' AND id = ' .
+        " AND id = " .
         intval($filiacion->progenitor_id)
     );
 
@@ -2484,9 +2490,40 @@ public function finalizar_pre_adopcion($filiacionId)
         return Redirect::to('personas');
     }
 
+    /*
+     * La persona que inicia la operación debe poder editar
+     * al hijo, igual que en el resto de operaciones sobre
+     * su familia.
+     */
+    if (!Auth::puedeEditar($hijo->id)) {
+        Flash::error(
+            'No tiene permiso para modificar esta filiación.'
+        );
+
+        return Redirect::to(
+            'personas/ver/' . $hijo->id
+        );
+    }
+
+    /*
+     * GET: mostramos el formulario.
+     */
+    if (!Input::Post()) {
+
+        $this->filiacion = $filiacion;
+        $this->hijo = $hijo;
+        $this->progenitor = $progenitor;
+        $this->origenId = $hijo->id;
+
+        return;
+    }
+
+    /*
+     * POST: recibimos la fecha de finalización.
+     */
     $fechaFin = Input::post('fecha_fin');
 
-    if (!$fechaFin) {
+    if (empty($fechaFin)) {
         Flash::error(
             'Debe indicar la fecha de finalización.'
         );
@@ -2497,6 +2534,10 @@ public function finalizar_pre_adopcion($filiacionId)
         );
     }
 
+    /*
+     * La finalización nunca puede ser anterior
+     * al comienzo de la pre-adopción.
+     */
     if (
         !empty($filiacion->fecha_inicio) &&
         $fechaFin < $filiacion->fecha_inicio
@@ -2512,6 +2553,10 @@ public function finalizar_pre_adopcion($filiacionId)
         );
     }
 
+    /*
+     * Guardamos únicamente la fecha de finalización.
+     * El registro histórico se conserva.
+     */
     $filiacion->fecha_fin = $fechaFin;
 
     if (!$filiacion->save()) {
@@ -2520,8 +2565,7 @@ public function finalizar_pre_adopcion($filiacionId)
         );
 
         return Redirect::to(
-            'personas/familia/' .
-            intval($hijo->id)
+            'personas/familia/' . $hijo->id
         );
     }
 
@@ -2530,8 +2574,7 @@ public function finalizar_pre_adopcion($filiacionId)
     );
 
     return Redirect::to(
-        'personas/familia/' .
-        intval($hijo->id)
+        'personas/familia/' . $hijo->id
     );
 }
 }

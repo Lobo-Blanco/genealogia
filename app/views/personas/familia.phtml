@@ -14,9 +14,9 @@
         <thead>
             <tr>
                 <th>Persona</th>
-                <th>Tipo</th>
+                <!--<th>Tipo</th>
                 <th>Desde</th>
-                <th>Hasta</th>
+                <th>Hasta</th>-->
             </tr>
         </thead>
 
@@ -43,7 +43,7 @@
                     ) ?>
                 </td>
 
-                <td>
+                <!--<td>
                     <?= ucfirst(
                         $filiacion->tipo
                     ) ?>
@@ -55,7 +55,7 @@
 
                 <td>
                     <?= $filiacion->fecha_fin ?>
-                </td>
+                </td>-->
 
                 <td>
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
@@ -152,6 +152,15 @@
                             'Editar'
                         ) ?>
  
+                        <?php if ($filiacion->tipo === "pre-adoptiva" &&
+                                empty($filiacion->fecha_fin)): ?>
+                            <?= Html::link(
+                                'personas/finalizar_pre_adopcion/' .
+                                $filiacion->id,
+                                'Finalizar Pre-adopción'
+                            ) ?>
+                        <?php endif; ?>
+
                         <?= Html::link(
                             'personas/eliminar_filiacion/' .
                             $filiacion->id . '/' . $estaPersonaId,
