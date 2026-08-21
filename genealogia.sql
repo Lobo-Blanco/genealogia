@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-08-2026 a las 14:44:45
+-- Tiempo de generación: 21-08-2026 a las 13:29:28
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -57,6 +57,13 @@ CREATE TABLE `divorcios` (
   `notas` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+--
+-- Volcado de datos para la tabla `divorcios`
+--
+
+INSERT INTO `divorcios` (`id`, `union_id`, `fecha`, `lugar`, `notas`) VALUES
+(1, 7, '2012-02-15', 'Alicante', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -68,7 +75,7 @@ CREATE TABLE `filiaciones` (
   `usuario_id` int(10) UNSIGNED DEFAULT NULL,
   `hijo_id` int(10) UNSIGNED NOT NULL,
   `progenitor_id` int(10) UNSIGNED NOT NULL,
-  `tipo` enum('biologica','adoptiva') NOT NULL DEFAULT 'biologica',
+  `tipo` enum('biologica','pre-adoptiva','adoptiva') NOT NULL DEFAULT 'biologica',
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
   `notas` text DEFAULT NULL
@@ -122,18 +129,18 @@ CREATE TABLE `personas` (
 INSERT INTO `personas` (`id`, `nombre`, `apellidos`, `sexo`, `fecha_nacimiento`, `lugar_nacimiento`, `fecha_defuncion`, `lugar_defuncion`, `notas`, `arbol_id`, `created_at`, `updated_at`) VALUES
 (1, 'Juan', 'Patriarca', 'H', '1975-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-19 22:04:59', '2026-08-19 22:44:29'),
 (2, 'Maria', 'hija de Juan e Isabel', 'M', '1996-12-01', NULL, NULL, NULL, NULL, 2, '2026-08-19 22:05:33', '2026-08-19 22:05:33'),
-(3, 'Alberto', 'marido de Maria', 'H', '1997-12-01', NULL, NULL, NULL, NULL, 2, '2026-08-19 23:43:34', '2026-08-19 23:43:34'),
-(4, 'Pedro', 'hijo de Juan e Isabel', 'H', '1995-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-19 23:45:53', '2026-08-19 23:45:53'),
+(3, 'Alberto', 'marido de Maria', 'H', '1997-12-01', NULL, '2026-01-15', NULL, NULL, 2, '2026-08-19 23:43:34', '2026-08-21 11:28:49'),
+(4, 'Pedro', 'hijo de Juan e Isabel', 'H', '1995-01-01', 'Madrid', '2025-06-15', 'Albacete', NULL, 2, '2026-08-19 23:45:53', '2026-08-21 11:22:04'),
 (5, 'Luis', 'hijo de Maria y Alberto', 'H', '2009-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-19 23:46:54', '2026-08-19 23:46:54'),
 (6, 'Isabel', 'compañera de Juan', 'M', '1973-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 08:12:02', '2026-08-20 08:12:02'),
 (7, 'Joaquin', 'hijo de Pedro soltero', 'H', '2005-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 08:51:57', '2026-08-20 08:51:57'),
 (8, 'Elisa', 'mujer de Pedro', 'M', '1987-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 08:53:02', '2026-08-20 08:53:02'),
 (9, 'Ernesto', 'hijo de Pedro y Elisa', 'H', '2012-12-20', NULL, NULL, NULL, NULL, 2, '2026-08-20 08:54:32', '2026-08-20 08:54:51'),
-(10, 'Juana', 'mujer de Luis', 'M', '2010-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:21:00', '2026-08-20 11:21:00'),
+(10, 'Juana', 'mujer de Luis', 'M', '2010-01-01', 'Madrid', '2026-01-30', 'Burgos', NULL, 2, '2026-08-20 11:21:00', '2026-08-21 11:04:42'),
 (11, 'Ana', 'hija de Juan', 'M', '1994-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:24:26', '2026-08-20 11:24:26'),
 (12, 'Luis', 'hijo de Juan y Carmen', 'H', '1995-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:26:06', '2026-08-20 11:26:06'),
 (13, 'Carmen', 'Pareja anterior de Juan', 'M', '1978-01-01', NULL, '1997-10-01', NULL, NULL, 2, '2026-08-20 11:26:57', '2026-08-20 11:26:57'),
-(14, 'Ana', 'otra pareja de Juan', 'M', '1979-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:43:18', '2026-08-20 11:43:18'),
+(14, 'Ana', 'otra pareja de Juan', 'M', '1979-01-01', 'Murcia', '2026-01-28', 'Albacete', NULL, 2, '2026-08-20 11:43:18', '2026-08-21 11:08:04'),
 (15, 'Ana', 'Hija de Juan y Ana', 'M', '1994-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:44:17', '2026-08-20 11:44:17');
 
 -- --------------------------------------------------------
@@ -181,9 +188,9 @@ CREATE TABLE `uniones` (
 --
 
 INSERT INTO `uniones` (`id`, `usuario_id`, `persona1_id`, `persona2_id`, `tipo`, `fecha_inicio`, `fecha_fin`, `fin_tipo`, `lugar`, `notas`) VALUES
-(6, 4, 2, 3, 'pareja', '2000-12-01', NULL, 'ninguno', NULL, NULL),
-(7, 4, 8, 4, 'matrimonio', '2010-01-01', NULL, 'ninguno', NULL, NULL),
-(8, 4, 5, 10, 'matrimonio', '2024-01-01', NULL, 'ninguno', NULL, NULL);
+(6, 4, 2, 3, 'pareja', '2000-12-01', '2026-01-15', 'fallecimiento', NULL, NULL),
+(7, 4, 8, 4, 'matrimonio', '2010-01-01', '2012-02-15', 'divorcio', NULL, NULL),
+(8, 4, 5, 10, 'matrimonio', '2024-01-01', '2026-01-30', 'fallecimiento', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -365,7 +372,7 @@ ALTER TABLE `arboles`
 -- AUTO_INCREMENT de la tabla `divorcios`
 --
 ALTER TABLE `divorcios`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `filiaciones`
