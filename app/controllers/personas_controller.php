@@ -2714,7 +2714,7 @@ public function formalizar_adopcion($filiacionId)
      * Una sola transacción para cerrar la pre-adopción
      * y crear la adopción.
      */
-    $hijo->begin();
+    $filiaciones->begin();
 
     try {
 
@@ -2759,11 +2759,11 @@ public function formalizar_adopcion($filiacionId)
             );
         }
 
-        $hijo->commit();
+        $filiaciones->commit();
 
     } catch (Exception $e) {
 
-        $hijo->rollback();
+        $filiaciones->rollback();
 
         Flash::error(
             $e->getMessage()
