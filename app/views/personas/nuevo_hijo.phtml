@@ -131,7 +131,7 @@
     ) ?>
 
     <?= Form::select(
-        'tipo',
+        'tipo_filiacion',
         array(
             'biologica' => 'Biológica',
             'pre-adoptiva'  => 'Pre-adoptiva',
@@ -181,24 +181,24 @@
 <?= Form::close() ?>
 <script>
     function actualizarFechaFiliacion() {
-        const tipo = document.querySelector('[name="tipo"]');
+        const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
         const campo = document.getElementById('fecha-inicio-filiacion');
 
-        if (!tipo || !campo) {
+        if (!tipo_filiacion || !campo) {
             return;
         }
 
         campo.style.display =
-            tipo.value === 'biologica'
+            tipo_filiacion.value === 'biologica'
                 ? 'none'
                 : '';
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const tipo = document.querySelector('[name="tipo"]');
+        const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
 
-        if (tipo) {
-            tipo.addEventListener(
+        if (tipo_filiacion) {
+            tipo_filiacion.addEventListener(
                 'change',
                 actualizarFechaFiliacion
             );

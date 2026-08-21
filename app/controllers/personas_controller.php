@@ -405,7 +405,6 @@ public function nuevo_progenitor($personaId)
      * Persona existente.
      */
     if (Input::hasPost('persona_existente')) {
-
         $progenitorId =
             intval(Input::post('persona_existente'));
 
@@ -417,13 +416,10 @@ public function nuevo_progenitor($personaId)
         );
 
         if (!$progenitor) {
-
             Flash::error(
                 'La persona seleccionada no existe en el árbol actual.'
             );
-
         } else {
-
             $filiacion->hijo_id =
                 $persona->id;
 
@@ -476,7 +472,6 @@ public function nuevo_progenitor($personaId)
      * Crear una persona nueva.
      */
     elseif (Input::hasPost('nombre')) {
-
         $progenitor->nombre =
             Input::post('nombre');
 
@@ -514,7 +509,6 @@ public function nuevo_progenitor($personaId)
             empty($progenitor->nombre) ||
             empty($progenitor->apellidos)
         ) {
-
             Flash::error(
                 'Nombre y apellidos son obligatorios.'
             );
@@ -548,37 +542,55 @@ public function nuevo_progenitor($personaId)
             $filiacion->notas =
                 Input::post('notas_filiacion');
 
-            if ($progenitor->save()) {
+            $progenitor->begin();
+
+            try {
+                if (!$progenitor->save()) {
+                    throw new Exception(
+                        'No se ha podido crear el progenitor.'
+                    );
+                }
 
                 $filiacion->progenitor_id =
                     $progenitor->id;
 
-                if ($filiacion->save()) {
-
-                    $usuario = Auth::usuario();
-
-                    $permisos =
-                        new UsuariosPersonas();
-
-                    $permisos->conceder(
-                        $usuario->id,
-                        $progenitor->id
-                    );
-
-                    Flash::valid(
-                        'Progenitor añadido correctamente.'
-                    );
-
-                    return Redirect::to(
-                        'personas/ver/' .
-                        $persona->id
+                if (!$filiacion->save()) {
+                    throw new Exception(
+                        'No se ha podido crear la filiación.'
                     );
                 }
-            }
 
-            Flash::error(
-                'No se ha podido añadir el progenitor.'
-            );
+                $usuario = Auth::usuario();
+
+                $permisos =
+                    new UsuariosPersonas();
+
+                if (!$permisos->conceder(
+                    $usuario->id,
+                    $progenitor->id
+                )) {
+                    throw new Exception(
+                        'No se han podido asignar los permisos.'
+                    );
+                }                    
+
+                $progenitor->commit();
+
+                Flash::valid(
+                    'Progenitor añadido correctamente.'
+                );
+
+                return Redirect::to(
+                    'personas/ver/' .
+                    $persona->id
+                );
+            } catch (Exception $e) {
+                $progenitor->rollback();
+
+                Flash::error(
+                    $e->getMessage()
+                );
+            }
         }
     }
 
@@ -598,7 +610,12 @@ public function nuevo_progenitor($personaId)
             return Redirect::to('personas');
         }
 
-        $persona = (new Personas())->find($personaId);
+        $persona = (new Personas())->find_first(
+            "conditions: arbol_id = " .
+            intval($arbol->id) .
+            " AND id = " .
+            intval($personaId)
+        );
 
         if (!$persona) {
             Flash::error('La persona no existe.');
@@ -624,7 +641,6 @@ public function nuevo_progenitor($personaId)
         $filiacion = new Filiaciones();
 
         if (Input::hasPost('nombre')) {
-
             $hijo->nombre =
                 Input::post('nombre');
 
@@ -658,6 +674,37 @@ public function nuevo_progenitor($personaId)
             $hijo->arbol_id =
                 $arbol->id;
             
+            $filiacion->progenitor_id =
+                $persona->id;
+
+            $filiacion->tipo =
+                Input::post('tipo_filiacion');
+
+            if ($filiacion->tipo == 'biologica') {
+                $filiacion->fecha_inicio =
+                    $hijo->fecha_nacimiento;
+            } elseif (
+                $filiacion->tipo == 'pre-adoptiva' ||
+                $filiacion->tipo == 'adoptiva'
+            ) {
+                $filiacion->fecha_inicio =
+                    Input::post('fecha_inicio');
+
+            } else {
+                Flash::valid(
+                    'Tipo de filiación no válido.'
+                );
+
+                $this->hijo = $hijo;
+                $this->filiacion = $filiacion;
+                return;
+            }
+
+            $filiacion->fecha_fin = null;
+
+            $filiacion->notas =
+                Input::post('notas_filiacion');
+
             if (
                 empty($hijo->nombre) ||
                 empty($hijo->apellidos)
@@ -665,72 +712,55 @@ public function nuevo_progenitor($personaId)
                 Flash::error(
                     'Nombre y apellidos son obligatorios.'
                 );
-            } elseif ($hijo->save()) {
+            } else {
+                $hijo->begin();
 
-                $filiacion->hijo_id =
-                    $hijo->id;
+                try {
+                    if (!$hijo->save()) {
+                        throw new Exception(
+                            'No se pudo guardar el hijo.'
+                        );
+                    }
 
-                $filiacion->progenitor_id =
-                    $persona->id;
+                    $filiacion->hijo_id = $hijo->id;
 
-                $filiacion->tipo =
-                    Input::post('tipo_filiacion');
+                    if (!$filiacion->save()) {
+                        throw new Exception(
+                            'No se ha podido crear la filiación.'
+                        );
+                    }
 
-                if ($filiacion->tipo == 'biologica') {
-                    $filiacion->fecha_inicio =
-                        $hijo->fecha_nacimiento;
-                } elseif (
-                    $filiacion->tipo == 'pre-adoptiva' ||
-                    $filiacion->tipo == 'adoptiva'
-                ) {
-                    $filiacion->fecha_inicio =
-                        Input::post('fecha_inicio');
-
-                } else {
-                    Flash::error(
-                        'Tipo de filiación no válido.'
-                    );
-
-                    $this->hijo = $hijo;
-                    $this->filiacion = $filiacion;
-                    return;
-                }
-
-                $filiacion->fecha_fin = null;
-
-                $filiacion->notas =
-                    Input::post('notas_filiacion');
-
-                if ($filiacion->save()) {
                     $usuario = Auth::usuario();
 
-                    $permisos =
-                        new UsuariosPersonas();
+                    $permisos = new UsuariosPersonas();
 
-                    if (
-                        $permisos->conceder(
+                    if (!$permisos->conceder(
                             $usuario->id,
                             $hijo->id
                         )
                     ) {
-                        Flash::valid(
-                            'Hijo añadido correctamente.'
-                        );
-
-                        return Redirect::to(
-                            'personas/ver/' .
-                            $persona->id
+                        throw new Exception(
+                            'No se pudieron asignar los permisos.'
                         );
                     }
-                }
 
-                Flash::error(
-                    'No se ha podido crear la filiación.'
-                );
-            } else {
-                Flash::error(
-                    'No se ha podido crear la persona.'
-                );
+                    $hijo->commit();
+
+                    Flash::valid(
+                        'Hijo añadido correctamente.'
+                    );
+
+                    return Redirect::to(
+                        'personas/ver/' .
+                        $persona->id
+                    );
+                } catch (Exception $e) {
+                    $hijo->rollback();
+
+                    Flash::error(
+                        $e->getMessage()
+                    );
+                }
             }
         }
 
