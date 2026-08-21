@@ -1,0 +1,714 @@
+<!-- app/views/shared/modelo.phtml -->
+<?php
+// Este es un modelo de página que puedes copiar y adaptar para cualquier vista
+// Variables esperadas:
+// - $titulo: Título de la página
+// - $items: Array de datos a mostrar
+// - $campos: Array con los campos a mostrar en la tabla
+// - $acciones: Array con las acciones disponibles (editar, eliminar, etc.)
+?>
+
+<style>
+    /* Estilos específicos para páginas con tablas */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e8e0d8;
+    }
+    
+    .page-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .page-header h2 i {
+        color: #4a6741;
+        margin-right: 10px;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    /* Barra de herramientas */
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .toolbar-left {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .toolbar-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    /* Tabla */
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .table-genealogia {
+        margin-bottom: 0;
+        width: 100%;
+    }
+    
+    .table-genealogia thead th {
+        background: #f8f5f0;
+        color: #2c3e50;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 12px 15px;
+        border-bottom: 2px solid #e8e0d8;
+        white-space: nowrap;
+    }
+    
+    .table-genealogia tbody td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0ece6;
+        color: #3d3d3d;
+    }
+    
+    .table-genealogia tbody tr:hover {
+        background-color: #f8f5f0;
+        transition: background 0.2s ease;
+    }
+    
+    .table-genealogia tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Badges y estados */
+    .badge-estado {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .badge-estado.activo {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .badge-estado.inactivo {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .badge-estado.pendiente {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .badge-estado.completado {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    /* Botones de acción en tabla */
+    .btn-accion {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-accion:hover {
+        background: rgba(0,0,0,0.05);
+        color: #2c3e50;
+    }
+    
+    .btn-accion.editar:hover {
+        color: #4a6741;
+        background: rgba(74, 103, 65, 0.1);
+    }
+    
+    .btn-accion.eliminar:hover {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .btn-accion.ver:hover {
+        color: #17a2b8;
+        background: rgba(23, 162, 184, 0.1);
+    }
+    
+    /* Botones principales */
+    .btn-genealogia-primary {
+        background: #4a6741;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-primary:hover {
+        background: #3d5635;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 103, 65, 0.3);
+    }
+    
+    .btn-genealogia-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .btn-genealogia-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-danger:hover {
+        background: #c82333;
+        color: white;
+    }
+    
+    .btn-genealogia-success {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-success:hover {
+        background: #218838;
+        color: white;
+    }
+    
+    .btn-genealogia-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-outline-secondary:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+    
+    /* Paginación */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .pagination-info {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .pagination {
+        margin: 0;
+        gap: 5px;
+    }
+    
+    .pagination .page-item .page-link {
+        border: none;
+        color: #2c3e50;
+        border-radius: 6px;
+        padding: 8px 14px;
+        transition: all 0.2s ease;
+    }
+    
+    .pagination .page-item .page-link:hover {
+        background: #f0ece6;
+        color: #4a6741;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: #4a6741;
+        color: white;
+        border-radius: 6px;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: #ced4da;
+        background: transparent;
+    }
+    
+    /* Formulario de búsqueda */
+    .search-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .search-form .form-control {
+        border-radius: 8px;
+        border: 1px solid #e0d8d0;
+        padding: 8px 15px;
+        min-width: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    .search-form .form-control:focus {
+        border-color: #4a6741;
+        box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .toolbar-left, .toolbar-right {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .search-form .form-control {
+            min-width: 150px;
+        }
+        
+        .pagination-container {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- ENCABEZADO DE LA PÁGINA                     -->
+<!-- ============================================ -->
+<div class="page-header">
+    <h2>
+        <i class="bi bi-<?= isset($icono) ? $icono : 'list' ?>"></i>
+        <?= isset($titulo) ? $titulo : 'Listado' ?>
+    </h2>
+    <div class="page-actions">
+        <!-- Botón para exportar -->
+        <a href="<?= PUBLIC_PATH . (isset($exportarUrl) ? $exportarUrl : '#') ?>" 
+           class="btn-genealogia-secondary">
+            <i class="bi bi-download"></i> Exportar
+        </a>
+        <!-- Botón para agregar nuevo -->
+        <a href="<?= PUBLIC_PATH . (isset($nuevoUrl) ? $nuevoUrl : '#') ?>" 
+           class="btn-genealogia-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- BARRA DE HERRAMIENTAS                        -->
+<!-- ============================================ -->
+<div class="toolbar">
+    <div class="toolbar-left">
+        <!-- Botones de filtro rápido -->
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrar('todos')">
+            <i class="bi bi-list"></i> Todos
+        </button>
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrar('activos')">
+            <i class="bi bi-check-circle"></i> Activos
+        </button>
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrar('inactivos')">
+            <i class="bi bi-x-circle"></i> Inactivos
+        </button>
+    </div>
+    <div class="toolbar-right">
+        <!-- Formulario de búsqueda -->
+        <form class="search-form" method="get" action="<?= PUBLIC_PATH . (isset($buscarUrl) ? $buscarUrl : '#') ?>">
+            <input type="search" name="q" class="form-control form-control-sm" 
+                   placeholder="Buscar..." value="<?= isset($busqueda) ? $busqueda : '' ?>">
+            <button type="submit" class="btn-genealogia-primary btn-sm">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+        <!-- Botón de limpiar filtros -->
+        <a href="<?= PUBLIC_PATH . (isset($limpiarUrl) ? $limpiarUrl : '#') ?>" 
+           class="btn-genealogia-outline-secondary btn-sm">
+            <i class="bi bi-arrow-counterclockwise"></i>
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TABLA DE DATOS                              -->
+<!-- ============================================ -->
+<div class="table-container">
+    <table class="table-genealogia table">
+        <thead>
+            <tr>
+                <?php if (isset($campos) && is_array($campos)): ?>
+                    <?php foreach ($campos as $campo => $etiqueta): ?>
+                        <th>
+                            <a href="<?= PUBLIC_PATH . (isset($ordenarUrl) ? $ordenarUrl . '&orden=' . $campo : '#') ?>" 
+                               style="color: #2c3e50; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                <?= $etiqueta ?>
+                                <?php if (isset($ordenActual) && $ordenActual == $campo): ?>
+                                    <i class="bi bi-chevron-<?= isset($ordenDir) && $ordenDir == 'asc' ? 'up' : 'down' ?>"></i>
+                                <?php endif; ?>
+                            </a>
+                        </th>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <!-- Campos por defecto -->
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                <?php endif; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (isset($items) && is_array($items) && count($items) > 0): ?>
+                <?php foreach ($items as $item): ?>
+                    <tr>
+                        <?php if (isset($campos) && is_array($campos)): ?>
+                            <?php foreach (array_keys($campos) as $campo): ?>
+                                <td>
+                                    <?php
+                                    // Obtener el valor del campo
+                                    $valor = is_object($item) ? ($item->$campo ?? '') : ($item[$campo] ?? '');
+                                    
+                                    // Si el campo es 'estado' o similar, mostrar badge
+                                    if ($campo == 'estado' || $campo == 'status' || $campo == 'activo') {
+                                        $clase = $valor == 'activo' || $valor == '1' || $valor == true ? 'activo' : 'inactivo';
+                                        echo '<span class="badge-estado ' . $clase . '">' . ucfirst($valor) . '</span>';
+                                    } else {
+                                        echo htmlspecialchars($valor);
+                                    }
+                                    ?>
+                                </td>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <!-- Campos por defecto -->
+                            <td><?= is_object($item) ? $item->id : $item['id'] ?? '#' ?></td>
+                            <td><?= is_object($item) ? $item->nombre : $item['nombre'] ?? 'Sin nombre' ?></td>
+                            <td><?= is_object($item) ? $item->fecha : $item['fecha'] ?? '' ?></td>
+                            <td>
+                                <span class="badge-estado <?= (is_object($item) ? $item->activo ?? false : $item['activo'] ?? false) ? 'activo' : 'inactivo' ?>">
+                                    <?= (is_object($item) ? $item->activo ?? false : $item['activo'] ?? false) ? 'Activo' : 'Inactivo' ?>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <!-- Acciones -->
+                                <a href="<?= PUBLIC_PATH . (isset($verUrl) ? str_replace('{id}', is_object($item) ? $item->id : $item['id'], $verUrl) : '#') ?>" 
+                                   class="btn-accion ver" title="Ver">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="<?= PUBLIC_PATH . (isset($editarUrl) ? str_replace('{id}', is_object($item) ? $item->id : $item['id'], $editarUrl) : '#') ?>" 
+                                   class="btn-accion editar" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="#" class="btn-accion eliminar" title="Eliminar" 
+                                   onclick="return confirmarEliminar('<?= is_object($item) ? $item->id : $item['id'] ?>')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="<?= isset($campos) ? count($campos) + 1 : 5 ?>" class="text-center" style="padding: 40px 20px; color: #6c757d;">
+                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        No hay registros para mostrar
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGINACIÓN                                  -->
+<!-- ============================================ -->
+<div class="pagination-container">
+    <div class="pagination-info">
+        Mostrando <?= isset($desde) ? $desde : '0' ?> - <?= isset($hasta) ? $hasta : '0' ?> 
+        de <?= isset($total) ? $total : '0' ?> registros
+    </div>
+    <nav>
+        <ul class="pagination">
+            <!-- Aquí va la paginación generada por KumbiaPHP o manual -->
+            <?php if (isset($paginacion) && is_array($paginacion)): ?>
+                <?php foreach ($paginacion as $pagina): ?>
+                    <li class="page-item <?= $pagina['activa'] ? 'active' : '' ?> <?= $pagina['deshabilitada'] ? 'disabled' : '' ?>">
+                        <a class="page-link" href="<?= $pagina['url'] ?>">
+                            <?= $pagina['texto'] ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- Paginación simple de ejemplo -->
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link">1</span>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Siguiente</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+</div>
+
+<!-- ============================================ -->
+<!-- JAVASCRIPT                                  -->
+<!-- ============================================ -->
+<script>
+    /**
+     * Confirmar eliminación
+     */
+    function confirmarEliminar(id) {
+        if (confirm('¿Estás seguro de eliminar este registro? Esta acción no se puede deshacer.')) {
+            // Aquí puedes hacer una petición AJAX o redirigir
+            window.location.href = '<?= PUBLIC_PATH . (isset($eliminarUrl) ? $eliminarUrl : '#') ?>'.replace('{id}', id);
+            return false;
+        }
+        return false;
+    }
+    
+    /**
+     * Filtrar por estado
+     */
+    function filtrar(tipo) {
+        const filas = document.querySelectorAll('.table-genealogia tbody tr');
+        const botones = document.querySelectorAll('.toolbar-left .btn-genealogia-outline-secondary');
+        
+        // Actualizar botones activos
+        botones.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.color = '#6c757d';
+        });
+        
+        const evento = event || window.event;
+        if (evento && evento.target) {
+            const btn = evento.target.closest('button');
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.background = '#4a6741';
+                btn.style.color = 'white';
+            }
+        }
+        
+        // Filtrar filas
+        filas.forEach(fila => {
+            const estadoCell = fila.querySelector('td:nth-child(4)');
+            if (!estadoCell) return;
+            
+            const estado = estadoCell.textContent.trim().toLowerCase();
+            
+            if (tipo === 'todos') {
+                fila.style.display = '';
+            } else if (tipo === 'activos' && (estado === 'activo' || estado === 'activos')) {
+                fila.style.display = '';
+            } else if (tipo === 'inactivos' && (estado === 'inactivo' || estado === 'inactivos')) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+    
+    /**
+     * Resaltar fila al pasar el mouse
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        const filas = document.querySelectorAll('.table-genealogia tbody tr');
+        filas.forEach(fila => {
+            fila.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f8f5f0';
+            });
+            fila.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+    });
+</script>
+
+
+1. Crear una vista nueva copiando el modelo
+bash
+# Copia el modelo a tu vista
+cp app/views/shared/modelo.phtml app/views/personas/index.phtml
+2. Adaptar la vista con tus datos
+php
+<!-- app/views/personas/index.phtml -->
+<?php
+// Configurar la página
+$titulo = 'Lista de Personas';
+$icono = 'people';
+$campos = [
+    'id' => 'ID',
+    'nombre_completo' => 'Nombre',
+    'fecha_nacimiento' => 'Nacimiento',
+    'fecha_defuncion' => 'Defunción',
+    'activo' => 'Estado'
+];
+
+// URLs para acciones
+$nuevoUrl = 'personas/nuevo';
+$editarUrl = 'personas/editar/{id}';
+$eliminarUrl = 'personas/eliminar/{id}';
+$buscarUrl = 'personas/buscar';
+?>
+
+<!-- Incluir el modelo -->
+<?php include APP_PATH . 'views/shared/modelo.phtml'; ?>
+3. En el controlador
+php
+class PersonasController extends AppController {
+    
+    public function index() {
+        // Obtener datos
+        $this->personas = Persona::find('all', 'order: nombre ASC');
+        
+        // Pasar variables al modelo
+        $this->items = $this->personas;
+        $this->total = count($this->personas);
+        $this->desde = 1;
+        $this->hasta = count($this->personas);
+        
+        // Configurar vista
+        $this->titulo = 'Lista de Personas';
+    }
+}
+?? Vista previa del modelo
+text
+????????????????????????????????????????????????????????????????????????
+?  ?? Lista de Personas         [?? Exportar] [? Nuevo]             ?
+????????????????????????????????????????????????????????????????????????
+?  [Todos] [Activos] [Inactivos]    [?? Buscar...] [?]                ?
+????????????????????????????????????????????????????????????????????????
+?  ID ? Nombre       ? Nacimiento ? Defunción ? Estado    ? Acciones ?
+??????????????????????????????????????????????????????????????????????
+?  1  ? Juan Pérez   ? 1980-05-15 ?           ? Activo    ? ?????     ?
+?  2  ? Ana Gómez    ? 1975-12-23 ? 2020-03-10? Inactivo  ? ?????     ?
+?  3  ? Carlos Ruiz  ? 1990-08-07 ?           ? Activo    ? ?????     ?
+????????????????????????????????????????????????????????????????????????
+?  Mostrando 1 - 3 de 3 registros    [1]                               ?
+????????????????????????????????????????????????????????????????????????
+? Personalización rápida
+Cambiar campos de la tabla
+php
+$campos = [
+    'id' => 'ID',
+    'nombre' => 'Nombre Completo',
+    'fecha_nacimiento' => 'Fecha de Nacimiento',
+    'lugar_nacimiento' => 'Lugar de Nacimiento'
+];
+Agregar un filtro personalizado
+html
+<button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrarPorRango('1900-1950')">
+    <i class="bi bi-clock"></i> 1900-1950
+</button>
+Cambiar colores del tema
+css
+/* En el archivo, modifica estas variables */
+:root {
+    --primary-color: #4a6741;
+    --secondary-color: #6c757d;
+    --accent-color: #c9a86a;
+    --bg-light: #f8f5f0;
+    --text-dark: #2c3e50;
+}
