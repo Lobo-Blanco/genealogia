@@ -1,0 +1,49 @@
+```php
+<h2>Finalizar pre-adopción</h2>
+
+<p>
+    <strong>Hijo:</strong>
+    <?= h($hijo->nombre . ' ' . $hijo->apellidos) ?>
+</p>
+
+<p>
+    <strong>Progenitor:</strong>
+    <?= h($progenitor->nombre . ' ' . $progenitor->apellidos) ?>
+</p>
+
+<p>
+    <strong>Inicio de la pre-adopción:</strong>
+    <?= h($filiacion->fecha_inicio) ?>
+</p>
+
+<?= Form::open() ?>
+
+<div class="form-group">
+    <?= Form::label('fecha_fin', 'Fecha de finalización') ?>
+
+    <?= Form::date(
+        'fecha_fin',
+        array(
+            'required' => 'required'
+        )
+    ) ?>
+</div>
+
+<div class="form-actions">
+    <?= Form::submit(
+        'Finalizar pre-adopción',
+        array(
+            'class' => 'btn btn-primary'
+        )
+    ) ?>
+
+    <?= Html::link(
+        'Cancelar',
+        'personas/familia/' . $hijo->id,
+        array(
+            'class' => 'btn btn-secondary'
+        )
+    ) ?>
+</div>
+
+<?= Form::close() ?>

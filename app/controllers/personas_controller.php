@@ -1428,14 +1428,16 @@ public function guardar_familiar($id, $tipo)
                     Genealogia::crearFiliacion(
                         $persona->id,
                         $familiar->id,
-                        $tipoFiliacion
+                        $tipoFiliacion,
+                        $fecha_inicio
                     );
             } else {
                 $resultado =
                     Genealogia::crearFiliacion(
                         $familiar->id,
                         $persona->id,
-                        $tipoFiliacion
+                        $tipoFiliacion,
+                        $fecha_inicio
                     );
             }
 
@@ -2399,5 +2401,137 @@ private function anadirUnion($progenitorIds, &$datosUniones, &$links, $hijoId) {
     //    $datosPersonas["id{$hijoId}"]['parent_union'] = $unionId;
     //}
     $links[] = array($unionId, "id{$hijoId}");
+}
+
+public function finalizar_pre_adopcion($filiacionId)
+{
+    if (!Auth::estaAutenticado()) {
+        Flash::error(
+            'Debe iniciar sesión.'
+        );
+
+        return Redirect::to('login');
+    }
+
+    $arbol = Auth::arbolActual();
+
+    if (!$arbol) {
+        Flash::error(
+            'No hay un árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    $filiaciones = new Filiaciones();
+
+    $filiacion = $filiaciones->find_first(
+        'conditions: id = ' .
+        intval($filiacionId)
+    );
+
+    if (!$filiacion) {
+        Flash::error(
+            'La filiación no existe.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if ($filiacion->tipo != 'pre-adoptiva') {
+        Flash::error(
+            'La filiación no es pre-adoptiva.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' .
+            intval($filiacion->hijo_id)
+        );
+    }
+
+    if (!empty($filiacion->fecha_fin)) {
+        Flash::error(
+            'La pre-adopción ya ha finalizado.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' .
+            intval($filiacion->hijo_id)
+        );
+    }
+
+    $personas = new Personas();
+
+    $hijo = $personas->find_first(
+        'conditions: arbol_id = ' .
+        intval($arbol->id) .
+        ' AND id = ' .
+        intval($filiacion->hijo_id)
+    );
+
+    $progenitor = $personas->find_first(
+        'conditions: arbol_id = ' .
+        intval($arbol->id) .
+        ' AND id = ' .
+        intval($filiacion->progenitor_id)
+    );
+
+    if (!$hijo || !$progenitor) {
+        Flash::error(
+            'La filiación no pertenece al árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    $fechaFin = Input::post('fecha_fin');
+
+    if (!$fechaFin) {
+        Flash::error(
+            'Debe indicar la fecha de finalización.'
+        );
+
+        return Redirect::to(
+            'personas/finalizar_pre_adopcion/' .
+            intval($filiacionId)
+        );
+    }
+
+    if (
+        !empty($filiacion->fecha_inicio) &&
+        $fechaFin < $filiacion->fecha_inicio
+    ) {
+        Flash::error(
+            'La fecha de finalización no puede ser anterior ' .
+            'a la fecha de inicio.'
+        );
+
+        return Redirect::to(
+            'personas/finalizar_pre_adopcion/' .
+            intval($filiacionId)
+        );
+    }
+
+    $filiacion->fecha_fin = $fechaFin;
+
+    if (!$filiacion->save()) {
+        Flash::error(
+            'No se ha podido finalizar la pre-adopción.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' .
+            intval($hijo->id)
+        );
+    }
+
+    Flash::valid(
+        'Pre-adopción finalizada correctamente.'
+    );
+
+    return Redirect::to(
+        'personas/familia/' .
+        intval($hijo->id)
+    );
 }
 }
