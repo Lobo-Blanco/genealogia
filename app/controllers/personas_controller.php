@@ -195,7 +195,7 @@ class PersonasController extends AppController
 
                         if (!$pareja) {
                             throw new Exception(
-                                'La persona vinculada a la unmión no pertenece al árbol actual.'
+                                'La persona vinculada a la unión no pertenece al árbol actual.'
                             );
                         }
 
