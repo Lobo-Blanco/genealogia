@@ -12,7 +12,7 @@
             <th>Tipo</th>
             <th>Inicio</th>
             <th>Fin</th>
-            <th>Finalización</th>
+            <th>Estado</th>
         </tr>
     </thead>
 
@@ -52,10 +52,9 @@
 
             <td>
                 <?php if ($union->fecha_fin): ?>
-                    <?= $union->fecha_fin ?>
-                    (<?= ucfirst($union->fin_tipo) ?>)
+                    <?= ucfirst($union->fin_tipo) ?>
                 <?php else: ?>
-                    Actualmente
+                    Actual
                 <?php endif; ?>
             </td>
             <td>
@@ -65,16 +64,10 @@
                     Auth::puedeEditarUnion($union->id)
                 ): ?>
 
-                <?php if (
-                    Auth::puedeEditarUnion($union->id)
-                ): ?>
-
                     <?= Html::link(
                         'personas/editar_union/' . $union->id . '/' . $estaPersonaId,
                         'Editar'
                     ) ?>
-
-                <?php endif; ?>
 
                     <?php if ($union->tipo == 'pareja'): ?>
 

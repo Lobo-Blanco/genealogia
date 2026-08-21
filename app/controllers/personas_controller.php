@@ -105,7 +105,7 @@ class PersonasController extends AppController
             );
         }
 
-        if (Input::hasPost()) {
+        if (Input::Post()) {
 
             /*
             * Conservamos la fecha anterior para saber si
@@ -173,19 +173,18 @@ class PersonasController extends AppController
 
                     $uniones = new Uniones();
 
-                    $matrimonio = $uniones->find_first(
+                    $union = $uniones->find_first(
                         "conditions: " .
                         "(persona1_id = " . intval($persona->id) .
                         " OR persona2_id = " . intval($persona->id) . ")" .
-                        " AND tipo = 'matrimonio'" .
                         " AND fecha_fin IS NULL"
                     );
 
-                    if ($matrimonio) {
+                    if ($union) {
                         $parejaId =
-                            ($matrimonio->persona1_id == $persona->id)
-                                ? $matrimonio->persona2_id
-                                : $matrimonio->persona1_id;
+                            ($union->persona1_id == $persona->id)
+                                ? $union->persona2_id
+                                : $union->persona1_id;
 
                         $pareja = (new Personas())->find_first(
                             "conditions: arbol_id = " .
@@ -196,19 +195,19 @@ class PersonasController extends AppController
 
                         if (!$pareja) {
                             throw new Exception(
-                                'La persona vinculada al matrimonio no pertenece al árbol actual.'
+                                'La persona vinculada a la unmión no pertenece al árbol actual.'
                             );
                         }
 
-                        $matrimonio->fecha_fin =
+                        $union->fecha_fin =
                             $persona->fecha_defuncion;
 
-                        $matrimonio->fin_tipo =
+                        $union->fin_tipo =
                             'fallecimiento';
 
-                        if (!$matrimonio->save()) {
+                        if (!$union->save()) {
                             throw new Exception(
-                                'No se ha podido finalizar el matrimonio.'
+                                'No se ha podido finalizar la unión.'
                             );
                         }
                     }
@@ -1525,7 +1524,21 @@ public function disolver_pareja($unionId, $origenId)
         return Redirect::to('personas');
     }
 
-    if ($union->arbol_id != $arbol->id) {
+    $persona1 = (new Personas())->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($union->persona1_id)
+    );
+
+    $persona2 = (new Personas())->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($union->persona2_id)
+    );
+
+    if (!$persona1 || !$persona2) {
         Flash::error(
             'La unión no pertenece al árbol actual.'
         );
@@ -1534,27 +1547,6 @@ public function disolver_pareja($unionId, $origenId)
             'personas/ver/' . $origenId
         );
     }
-
-    $persona = (new personal)->find_first($origenId);
-
-    if (!$persona) {
-        Flash::error(
-            'La persona no existe.'
-        );
-
-        return Redirect::to('personas');
-    }
-
-    if ($persona->arbol_id != $arbol->id) {
-        Flash::error(
-            'La persona no pertenece al árbol actual.'
-        );
-
-        return Redirect::to(
-            'personas/ver/' . $origenId
-        );
-    }
-
 
     if (!Auth::puedeEditarUnion($union->id)) {
         Flash::error(
@@ -1630,29 +1622,23 @@ public function divorciar($unionId, $origenId)
         return Redirect::to('personas');
     }
 
-    if ($union->arbol_id != $arbol->id) {
+    $persona1 = (new Personas())->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($union->persona1_id)
+    );
+
+    $persona2 = (new Personas())->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($union->persona2_id)
+    );
+
+    if (!$persona1 || !$persona2) {
         Flash::error(
             'La unión no pertenece al árbol actual.'
-        );
-
-        return Redirect::to(
-            'personas/ver/' . $origenId
-        );
-    }
-
-    $persona = (new personal)->find_first($origenId);
-
-    if (!$persona) {
-        Flash::error(
-            'La persona no existe.'
-        );
-
-        return Redirect::to('personas');
-    }
-
-    if ($persona->arbol_id != $arbol->id) {
-        Flash::error(
-            'La persona no pertenece al árbol actual.'
         );
 
         return Redirect::to(
@@ -1671,7 +1657,6 @@ public function divorciar($unionId, $origenId)
     }
 
     if (Input::hasPost('fecha')) {
-
         $resultado =
             Genealogia::registrarDivorcio(
                 $union->id,
