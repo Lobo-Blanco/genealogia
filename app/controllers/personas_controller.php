@@ -73,28 +73,25 @@ class PersonasController extends AppController
 
     public function editar($id)
     {
+        if (!Auth::estaAutenticado()) {
+            Flash::error('Debe iniciar sesión.');
+            return Redirect::to('login');
+        }
+
         $arbol = Auth::arbolActual();
 
         if (!$arbol) {
-            Flash::error(
-                'No hay un árbol activo.'
-            );
-
+            Flash::error('No hay un árbol activo.');
             return Redirect::to('personas');
         }
 
-        $personas = new Personas();
-
-        $persona = $personas->find_first(
-            "conditions: arbol_id = " .
-            $arbol->id .
-            " AND id = " .
-            intval($id)
+        $persona = (new Personas())->find_first(
+            "conditions: arbol_id = " . intval($arbol->id) .
+            " AND id = " . intval($id)
         );
 
         if (!$persona) {
-            Flash::error('La persona no existe');
-
+            Flash::error('La persona no existe.');
             return Redirect::to('personas');
         }
 
@@ -108,7 +105,14 @@ class PersonasController extends AppController
             );
         }
 
-        if (Input::hasPost('nombre')) {
+        if (Input::hasPost()) {
+
+            /*
+            * Conservamos la fecha anterior para saber si
+            * realmente se está registrando ahora la defunción.
+            */
+            $fechaDefuncionAnterior =
+                $persona->fecha_defuncion;
 
             $persona->nombre =
                 Input::post('nombre');
@@ -134,9 +138,86 @@ class PersonasController extends AppController
             $persona->notas =
                 Input::post('notas');
 
-            $persona->updated_at = date('Y-m-d H:i:s');
+            $persona->updated_at =
+                date('Y-m-d H:i:s');
 
-            if ($persona->save()) {
+            /*
+            * Sólo consideramos nueva defunción cuando antes
+            * no había fecha y ahora sí la hay.
+            */
+            $nuevaDefuncion =
+                empty($fechaDefuncionAnterior) &&
+                !empty($persona->fecha_defuncion);
+
+            $persona->begin();
+
+            try {
+
+                /*
+                * Guardamos primero la persona.
+                */
+                if (!$persona->save()) {
+                    throw new Exception(
+                        'No se ha podido guardar la persona.'
+                    );
+                }
+
+                /*
+                * Si acaba de registrarse la defunción,
+                * buscamos un matrimonio activo de esta persona.
+                *
+                * Las parejas que no sean matrimonio no se
+                * modifican por fallecimiento.
+                */
+                if ($nuevaDefuncion) {
+
+                    $uniones = new Uniones();
+
+                    $matrimonio = $uniones->find_first(
+                        "conditions: " .
+                        "(persona1_id = " . intval($persona->id) .
+                        " OR persona2_id = " . intval($persona->id) . ")" .
+                        " AND tipo = 'matrimonio'" .
+                        " AND fecha_fin IS NULL"
+                    );
+
+                    if ($matrimonio) {
+                        $parejaId =
+                            ($matrimonio->persona1_id == $persona->id)
+                                ? $matrimonio->persona2_id
+                                : $matrimonio->persona1_id;
+
+                        $pareja = (new Personas())->find_first(
+                            "conditions: arbol_id = " .
+                            intval($arbol->id) .
+                            " AND id = " .
+                            intval($parejaId)
+                        );
+
+                        if (!$pareja) {
+                            throw new Exception(
+                                'La persona vinculada al matrimonio no pertenece al árbol actual.'
+                            );
+                        }
+
+                        $matrimonio->fecha_fin =
+                            $persona->fecha_defuncion;
+
+                        $matrimonio->fin_tipo =
+                            'fallecimiento';
+
+                        if (!$matrimonio->save()) {
+                            throw new Exception(
+                                'No se ha podido finalizar el matrimonio.'
+                            );
+                        }
+                    }
+                }
+
+                /*
+                * Todo ha ido correctamente.
+                */
+                $persona->commit();
 
                 Flash::valid(
                     'La persona se ha actualizado correctamente.'
@@ -145,11 +226,15 @@ class PersonasController extends AppController
                 return Redirect::to(
                     'personas/ver/' . $persona->id
                 );
-            }
 
-            Flash::error(
-                'No se ha podido guardar la persona.'
-            );
+            } catch (Exception $e) {
+
+                $persona->rollback();
+
+                Flash::error(
+                    $e->getMessage()
+                );
+            }
         }
 
         $this->persona = $persona;
