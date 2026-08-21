@@ -126,7 +126,7 @@
 
 <p>
     <?= Form::label(
-        'tipo',
+        'tipo_filiacion',
         'Tipo de filiación'
     ) ?>
 
@@ -138,6 +138,19 @@
             'adoptiva'  => 'Adoptiva'
         ),
         'biologica'
+    ) ?>
+</p>
+
+<p id="fecha-inicio-filiacion">
+    <?= Form::label(
+        'fecha_inicio',
+        'Fecha de inicio de la filiación'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_inicio',
+        '',
+        $filiacion->fecha_inicio
     ) ?>
 </p>
 
@@ -166,3 +179,31 @@
 </p>
 
 <?= Form::close() ?>
+<script>
+    function actualizarFechaFiliacion() {
+        const tipo = document.querySelector('[name="tipo"]');
+        const campo = document.getElementById('fecha-inicio-filiacion');
+
+        if (!tipo || !campo) {
+            return;
+        }
+
+        campo.style.display =
+            tipo.value === 'biologica'
+                ? 'none'
+                : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipo = document.querySelector('[name="tipo"]');
+
+        if (tipo) {
+            tipo.addEventListener(
+                'change',
+                actualizarFechaFiliacion
+            );
+        }
+
+        actualizarFechaFiliacion();
+    });
+</script>

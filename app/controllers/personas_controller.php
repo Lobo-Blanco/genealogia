@@ -431,13 +431,25 @@ public function nuevo_progenitor($personaId)
                 $progenitor->id;
 
             $filiacion->tipo =
-                Input::post('tipo');
+                Input::post('tipo_filiacion');
 
-            $filiacion->fecha_inicio =
-                Input::post('fecha_inicio');
+            if ($filiacion->tipo == 'biologica') {
+                $filiacion->fecha_inicio = $persona->fecha_nacimiento;
+            } elseif (
+                $filiacion->tipo == 'pre-adoptiva' ||
+                $filiacion->tipo == 'adoptiva'
+            ) {
+                $filiacion->fecha_inicio = Input::post('fecha_inicio');
+            } else {
+                Flash::error(
+                    'Tipo de filiación no válido.'
+                );
 
-            $filiacion->fecha_fin =
-                Input::post('fecha_fin');
+                $this->filiacion = $filiacion;
+                return;
+            }
+
+            $filiacion->fecha_fin = null;
 
             $filiacion->notas =
                 Input::post('notas_filiacion');
@@ -508,18 +520,30 @@ public function nuevo_progenitor($personaId)
             );
 
         } else {
-
             $filiacion->hijo_id =
                 $persona->id;
-
             $filiacion->tipo =
-                Input::post('tipo');
+                Input::post('tipo_filiacion');
+            if ($filiacion->tipo == 'biologica') {
+                $filiacion->fecha_inicio =
+                    $persona->fecha_nacimiento;
+            } elseif (
+                $filiacion->tipo == 'pre-adoptiva' ||
+                $filiacion->tipo == 'adoptiva'
+            ) {
+                $filiacion->fecha_inicio =
+                    Input::post('fecha_inicio');
+            } else {
+                Flash::error(
+                    'Tipo de filiación no válido.'
+                );
 
-            $filiacion->fecha_inicio =
-                Input::post('fecha_inicio');
+                $this->progenitor = $progenitor;
+                $this->filiacion = $filiacion;
+                return;
+            }
 
-            $filiacion->fecha_fin =
-                Input::post('fecha_fin');
+            $filiacion->fecha_fin = null;
 
             $filiacion->notas =
                 Input::post('notas_filiacion');
@@ -638,11 +662,9 @@ public function nuevo_progenitor($personaId)
                 empty($hijo->nombre) ||
                 empty($hijo->apellidos)
             ) {
-
                 Flash::error(
                     'Nombre y apellidos son obligatorios.'
                 );
-
             } elseif ($hijo->save()) {
 
                 $filiacion->hijo_id =
@@ -652,13 +674,34 @@ public function nuevo_progenitor($personaId)
                     $persona->id;
 
                 $filiacion->tipo =
-                    Input::post('tipo');
+                    Input::post('tipo_filiacion');
+
+                if ($filiacion->tipo == 'biologica') {
+                    $filiacion->fecha_inicio =
+                        $hijo->fecha_nacimiento;
+                } elseif (
+                    $filiacion->tipo == 'pre-adoptiva' ||
+                    $filiacion->tipo == 'adoptiva'
+                ) {
+                    $filiacion->fecha_inicio =
+                        Input::post('fecha_inicio');
+
+                } else {
+                    Flash::error(
+                        'Tipo de filiación no válido.'
+                    );
+
+                    $this->hijo = $hijo;
+                    $this->filiacion = $filiacion;
+                    return;
+                }
+
+                $filiacion->fecha_fin = null;
 
                 $filiacion->notas =
                     Input::post('notas_filiacion');
 
                 if ($filiacion->save()) {
-
                     $usuario = Auth::usuario();
 
                     $permisos =
@@ -670,7 +713,6 @@ public function nuevo_progenitor($personaId)
                             $hijo->id
                         )
                     ) {
-
                         Flash::valid(
                             'Hijo añadido correctamente.'
                         );
@@ -685,9 +727,7 @@ public function nuevo_progenitor($personaId)
                 Flash::error(
                     'No se ha podido crear la filiación.'
                 );
-
             } else {
-
                 Flash::error(
                     'No se ha podido crear la persona.'
                 );
@@ -1973,8 +2013,8 @@ public function editar_filiacion($id, $origenId)
         return Redirect::to("personas/familia/$origenId");
     }
 
-    if (Input::hasPost('tipo')) {
-        $tipo = Input::post('tipo');
+    if (Input::hasPost('tipo_filiacion')) {
+        $tipo = Input::post('tipo_filiacion');
 
         if (
             $tipo != 'biologica' &&
