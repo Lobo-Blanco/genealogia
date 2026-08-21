@@ -35,7 +35,8 @@
     <?= Form::submit(
         'Finalizar pre-adopción',
         array(
-            'class' => 'btn btn-primary'
+            'class' => 'btn btn-primary',
+            'onclick' => 'return confirm("¿Está seguro de que desea finalizar esta pre-adopción?");'
         )
     ) ?>
 

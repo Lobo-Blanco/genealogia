@@ -148,7 +148,7 @@
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
                         <?= Html::link(
                             'personas/editar_filiacion/' .
-                            $hijo->id . '/' . $estaPersonaId,
+                            $filiacion->id . '/' . $estaPersonaId,
                             'Editar'
                         ) ?>
  
@@ -156,7 +156,7 @@
                                 empty($filiacion->fecha_fin)): ?>
                             <?= Html::link(
                                 'personas/finalizar_pre_adopcion/' . $filiacion->id,
-                                'Finalizar Pre-adopción'
+                                'Finalizar pre-adopción'
                             ) ?>
 
                             <?= Html::link(

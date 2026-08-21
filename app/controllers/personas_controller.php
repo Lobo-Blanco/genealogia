@@ -448,7 +448,7 @@ public function nuevo_progenitor($personaId)
             $filiacion->fecha_fin = null;
 
             $filiacion->usuario_id = Auth::usuario()->id;
-            
+
             $filiacion->notas =
                 Input::post('notas_filiacion');
 
@@ -1939,7 +1939,23 @@ public function eliminar_filiacion($id, $origenId)
             'La filiación no existe.'
         );
 
-        return Redirect::to('personas/familia/' . $origenId);
+        return Redirect::to(
+            'personas/familia/' . $origenId
+        );
+    }
+
+    /*
+     * Una filiación finalizada forma parte del
+     * historial genealógico y no debe eliminarse.
+     */
+    if (!empty($filiacion->fecha_fin)) {
+        Flash::error(
+            'No se puede eliminar una filiación que ya ha finalizado.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' . $origenId
+        );
     }
 
     if (!Auth::puedeEditarFiliacion(
@@ -1973,7 +1989,9 @@ public function eliminar_filiacion($id, $origenId)
             'La filiación no pertenece al árbol actual.'
         );
 
-        return Redirect::to('personas/familia/' . $origenId);
+        return Redirect::to(
+            'personas/familia/' . $origenId
+        );
     }
 
     /*
@@ -1991,7 +2009,9 @@ public function eliminar_filiacion($id, $origenId)
             'El progenitor no pertenece al árbol actual.'
         );
 
-        return Redirect::to('personas/familia/' . $origenId);
+        return Redirect::to(
+            'personas/familia/' . $origenId
+        );
     }
 
     if ($filiacion->delete()) {
