@@ -1,0 +1,52 @@
+<h2>Formalizar adopción</h2>
+
+<p>
+    <strong>Progenitor:</strong>
+    <?= $progenitor->nombre ?>
+    <?= $progenitor->apellidos ?>
+</p>
+
+<p>
+    <strong>Hijo:</strong>
+    <?= $hijo->nombre ?>
+    <?= $hijo->apellidos ?>
+</p>
+
+<p>
+    <strong>Inicio de la pre-adopción:</strong>
+    <?= $filiacion->fecha_inicio ?>
+</p>
+
+<?= Form::open() ?>
+    <div class="form-group">
+        <?= Form::label('fecha_adopcion', 'Fecha de adopción') ?>
+
+        <?= Form::date(
+            'fecha_adopcion',
+            array(
+                'min' => "$filiacion->fecha_inicio",
+                'max' => date('Y-m-d'),
+                'required' => 'required'
+            ),
+            "$filiacion->fecha_inicio"
+        ) ?>
+    </div>
+
+    <div class="form-actions">
+        <?= Form::submit(
+            'Formalizar adopción',
+            array(
+                'class' => 'btn btn-primary'
+            )
+        ) ?>
+
+        <?= Html::link(
+            'personas/familia/' . $hijo->id,
+            'Cancelar',
+            array(
+                'class' => 'btn btn-primary'
+            )
+        ) ?>
+    </div>
+<?= Form::close() ?>
+

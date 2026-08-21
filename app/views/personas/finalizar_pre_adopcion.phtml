@@ -24,10 +24,10 @@
         'fecha_fin',
         array(
             'min' => "$filiacion->fecha_inicio",
-            'max' => "date('Y-m-d')",
+            'max' => date('Y-m-d'),
             'required' => 'required'
         ),
-        "<?= $filiacion->fecha_inicio ?>"
+        "$filiacion->fecha_inicio"
     ) ?>
 </div>
 

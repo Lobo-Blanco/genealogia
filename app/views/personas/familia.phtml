@@ -155,9 +155,13 @@
                         <?php if ($filiacion->tipo === "pre-adoptiva" &&
                                 empty($filiacion->fecha_fin)): ?>
                             <?= Html::link(
-                                'personas/finalizar_pre_adopcion/' .
-                                $filiacion->id,
+                                'personas/finalizar_pre_adopcion/' . $filiacion->id,
                                 'Finalizar Pre-adopción'
+                            ) ?>
+
+                            <?= Html::link(
+                                'personas/formalizar_adopcion/' . $filiacion->id,
+                                'Formalizar adopción'
                             ) ?>
                         <?php endif; ?>
 

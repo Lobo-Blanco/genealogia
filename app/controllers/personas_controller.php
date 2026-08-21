@@ -2577,4 +2577,210 @@ public function finalizar_pre_adopcion($filiacionId)
         'personas/familia/' . $hijo->id
     );
 }
+
+public function formalizar_adopcion($filiacionId)
+{
+    if (!Auth::estaAutenticado()) {
+        Flash::error(
+            'Debe iniciar sesión.'
+        );
+
+        return Redirect::to('login');
+    }
+
+    $arbol = Auth::arbolActual();
+
+    if (!$arbol) {
+        Flash::error(
+            'No hay un árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    $filiaciones = new Filiaciones();
+
+    $filiacion = $filiaciones->find_first(
+        "conditions: id = " .
+        intval($filiacionId)
+    );
+
+    if (!$filiacion) {
+        Flash::error(
+            'La filiación no existe.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if ($filiacion->tipo != 'pre-adoptiva') {
+        Flash::error(
+            'La filiación no es pre-adoptiva.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' .
+            intval($filiacion->hijo_id)
+        );
+    }
+
+    if (!empty($filiacion->fecha_fin)) {
+        Flash::error(
+            'La pre-adopción ya ha finalizado.'
+        );
+
+        return Redirect::to(
+            'personas/familia/' .
+            intval($filiacion->hijo_id)
+        );
+    }
+
+    $personas = new Personas();
+
+    $hijo = $personas->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($filiacion->hijo_id)
+    );
+
+    $progenitor = $personas->find_first(
+        "conditions: arbol_id = " .
+        intval($arbol->id) .
+        " AND id = " .
+        intval($filiacion->progenitor_id)
+    );
+
+    if (!$hijo || !$progenitor) {
+        Flash::error(
+            'La filiación no pertenece al árbol activo.'
+        );
+
+        return Redirect::to('personas');
+    }
+
+    if (!Auth::puedeEditar($hijo->id)) {
+        Flash::error(
+            'No tiene permiso para modificar esta filiación.'
+        );
+
+        return Redirect::to(
+            'personas/ver/' . $hijo->id
+        );
+    }
+
+    /*
+     * GET: mostrar formulario.
+     */
+    if (!Input::Post()) {
+
+        $this->filiacion = $filiacion;
+        $this->hijo = $hijo;
+        $this->progenitor = $progenitor;
+
+        return;
+    }
+
+    $fechaAdopcion =
+        Input::post('fecha_adopcion');
+
+    if (empty($fechaAdopcion)) {
+        Flash::error(
+            'Debe indicar la fecha de adopción.'
+        );
+
+        return Redirect::to(
+            'personas/formalizar_adopcion/' .
+            intval($filiacionId)
+        );
+    }
+
+    if (
+        !empty($filiacion->fecha_inicio) &&
+        $fechaAdopcion < $filiacion->fecha_inicio
+    ) {
+        Flash::error(
+            'La fecha de adopción no puede ser anterior ' .
+            'a la fecha de inicio de la pre-adopción.'
+        );
+
+        return Redirect::to(
+            'personas/formalizar_adopcion/' .
+            intval($filiacionId)
+        );
+    }
+
+    /*
+     * Una sola transacción para cerrar la pre-adopción
+     * y crear la adopción.
+     */
+    $hijo->begin();
+
+    try {
+
+        /*
+         * Cerramos la pre-adopción.
+         */
+        $filiacion->fecha_fin =
+            $fechaAdopcion;
+
+        if (!$filiacion->save()) {
+            throw new Exception(
+                'No se ha podido finalizar la pre-adopción.'
+            );
+        }
+
+        /*
+         * Creamos la nueva filiación adoptiva.
+         */
+        $adopcion = new Filiaciones();
+
+        $adopcion->hijo_id =
+            $filiacion->hijo_id;
+
+        $adopcion->progenitor_id =
+            $filiacion->progenitor_id;
+
+        $adopcion->tipo =
+            'adoptiva';
+
+        $adopcion->fecha_inicio =
+            $fechaAdopcion;
+
+        $adopcion->fecha_fin =
+            null;
+
+        $adopcion->notas =
+            $filiacion->notas;
+
+        if (!$adopcion->save()) {
+            throw new Exception(
+                'No se ha podido crear la filiación adoptiva.'
+            );
+        }
+
+        $hijo->commit();
+
+    } catch (Exception $e) {
+
+        $hijo->rollback();
+
+        Flash::error(
+            $e->getMessage()
+        );
+
+        return Redirect::to(
+            'personas/formalizar_adopcion/' .
+            intval($filiacionId)
+        );
+    }
+
+    Flash::valid(
+        'Adopción formalizada correctamente.'
+    );
+
+    return Redirect::to(
+        'personas/familia/' . $hijo->id
+    );
+}
 }
