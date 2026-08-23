@@ -13,7 +13,7 @@ class LoginController extends AppController
         $usuarios = new Usuarios();
 
         if ($usuarios->count() == 0) {
-            Redirect::to("usuarios_crear_admin");
+            Redirect::to("admin/usuarios/crear_admin");
         }
 
         if (Input::hasPost('username')) {
