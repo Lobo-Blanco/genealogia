@@ -6,14 +6,25 @@ class LoginController extends AppController
 {
     public function index()
     {
+        $crear_admin = false;
+
         if (!Auth::estaAutenticado()) {
-            return Redirect::to('login');
+            if ((new Usuarios)->count() == 0) {
+                $crear_admin = true;
+            } else {{
+                return Redirect::to('login');
+            }
         }
 
         if (Input::hasPost('username')) {
 
             $username = Input::post('username');
             $password = Input::post('password');
+
+            if ($cread_admin) {
+                // ir a crear administrador
+                return Redirect::lo("login");
+            }
 
             $usuarios = new Usuarios();
 
