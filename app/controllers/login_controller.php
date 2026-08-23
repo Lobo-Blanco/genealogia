@@ -6,8 +6,8 @@ class LoginController extends AppController
 {
     public function index()
     {
-        if (Auth::estaAutenticado()) {
-            return Redirect::to('personas');
+        if (!Auth::estaAutenticado()) {
+            return Redirect::to('login');
         }
 
         if (Input::hasPost('username')) {
