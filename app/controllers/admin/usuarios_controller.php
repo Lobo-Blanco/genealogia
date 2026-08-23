@@ -15,6 +15,31 @@ class UsuariosController extends AdminController
             return Redirect::to("login");
         }
 
-        // Creación de usuario con rol_id = 1
+        if (Input::hasPost('username')) {
+            $usuarios = new Usuarios();
+
+            $usuarios->nombre = Input::post('nombre');
+            $usuarios->apellidos = Input::post('apellidos');
+            $usuarios->email = Input::post('email');
+            $usuarios->username = Input::post('username');
+            $usuarios->password = password_hash(
+                Input::post('password'),
+                PASSWORD_DEFAULT
+            );
+            $usuarios->rol_id = 1;
+            $usuarios->persona_referencia_id = null;
+            $usuarios->activo = 1;
+
+            $usuarios->save();
+
+            Auth::login($usuario);
+
+            Flash::valid(
+                'Bienvenido, ' .
+                $usuario->nombre
+            );
+
+            return Redirect::to('personas');
+        }
     }
 }

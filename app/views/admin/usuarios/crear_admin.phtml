@@ -1,0 +1,71 @@
+<h1>Genealogía</h1>
+
+<h2>Iniciar sesión</h2>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label(
+        'nombre',
+        'Nombre'
+    ) ?>
+
+    <?= Form::text(
+        'nombre',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'apellidos',
+        'Apellidos'
+    ) ?>
+
+    <?= Form::text(
+        'apellidos',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'email',
+        'Correo electrónico'
+    ) ?>
+
+    <?= Form::text(
+        'email',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'username',
+        'Usuario'
+    ) ?>
+
+    <?= Form::text(
+        'username',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'password',
+        'Contraseña'
+    ) ?>
+
+    <?= Form::password(
+        'password',
+        ''
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit('Entrar') ?>
+</p>
+
+<?= Form::close() ?>
