@@ -9,7 +9,7 @@ class LoginController extends AppController
         $usuarios = new Usuarios();
 
         if (!$usuarios->find_first()) {
-            return Redirect::to('login/crear_administrador');
+            return Redirect::to('login/crear_usuario');
         }
 
         if (Auth::estaAutenticado()) {
@@ -45,7 +45,7 @@ class LoginController extends AppController
      * Crea el primer usuario de la aplicación.
      * Este usuario adquiere automáticamente el rol de administrador.
      */
-    public function crear_administrador()
+    public function crear_usuario()
     {
         if (Auth::estaAutenticado()) {
             return Redirect::to('personas');
