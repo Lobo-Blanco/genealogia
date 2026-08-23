@@ -11,7 +11,7 @@ class LoginController extends AppController
         if (!Auth::estaAutenticado()) {
             if ((new Usuarios)->count() == 0) {
                 $crear_admin = true;
-            } else {{
+            } else {
                 return Redirect::to('login');
             }
         }
@@ -21,9 +21,10 @@ class LoginController extends AppController
             $username = Input::post('username');
             $password = Input::post('password');
 
-            if ($cread_admin) {
+            if ($crear_admin) {
                 // ir a crear administrador
-                return Redirect::lo("login");
+                return Redirect::to("usuarios/crear_usuario");
+                return Redirect::to("login");
             }
 
             $usuarios = new Usuarios();

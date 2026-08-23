@@ -8,9 +8,15 @@ class IndexController extends AppController
 {
     public function index()
     {
+        if (!Auth::estaAutenticado()) {
+            return Redirect::to('login');
+        }
+
         $arbol = Auth::arbolActual();
 
-        $this->totalPersonas = (new personas)->count("conditions: arbol_id = {$arbol->id}");
-        $this->totalFamilias = (new filiaciones)->count();
+        if ($arbol !== null ) {
+            $this->totalPersonas = (new personas)->count("conditions: arbol_id = {$arbol->id}");
+            $this->totalFamilias = (new filiaciones)->count();
+        }
     }
 }
