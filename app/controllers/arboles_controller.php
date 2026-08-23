@@ -16,8 +16,7 @@ class ArbolesController extends AppController
             return Redirect::to('login');
         }
 
-        $this->arboles =
-            Auth::arboles();
+        $this->arboles = Auth::arboles();
     }
 
 
@@ -34,10 +33,6 @@ class ArbolesController extends AppController
             return Redirect::to('login');
         }
 
-        /*
-         * De momento solamente el administrador
-         * puede crear árboles.
-         */
         if (!Auth::esAdministrador()) {
             Flash::error(
                 'No tiene permiso para crear árboles.'
@@ -72,45 +67,25 @@ class ArbolesController extends AppController
             return Redirect::to('arboles');
         }
 
-        $nombre =
-            trim(Input::post('nombre'));
-
-        $descripcion =
-            Input::post('descripcion');
+        $nombre = trim(Input::post('nombre'));
+        $descripcion = Input::post('descripcion');
 
         if ($nombre == '') {
             Flash::error(
                 'El nombre del árbol es obligatorio.'
             );
 
-            return Redirect::to(
-                'arboles/nuevo'
-            );
+            return Redirect::to('arboles/nuevo');
         }
 
-        $usuario =
-            Auth::usuario();
+        $usuario = Auth::usuario();
+        $arbol = new Arboles();
 
-        $arbol =
-            new Arboles();
+        $arbol->nombre = $nombre;
+        $arbol->descripcion = $descripcion;
+        $arbol->created_at = date('Y-m-d H:i:s');
+        $arbol->updated_at = date('Y-m-d H:i:s');
 
-        $arbol->nombre =
-            $nombre;
-
-        $arbol->descripcion =
-            $descripcion;
-
-        $arbol->created_at =
-            date('Y-m-d H:i:s');
-
-        $arbol->updated_at =
-            date('Y-m-d H:i:s');
-
-
-        /*
-         * Árbol y relación con el usuario forman
-         * una única operación.
-         */
         $arbol->begin();
 
         try {
@@ -120,36 +95,9 @@ class ArbolesController extends AppController
                 );
             }
 
-            $usuarioArbol =
-                new UsuariosArboles();
-
-            $usuarioArbol->usuario_id =
-                $usuario->id;
-
-            $usuarioArbol->arbol_id =
-                $arbol->id;
-
-            $usuarioArbol->rol =
-                'administrador';
-
-            $usuarioArbol->activo =
-                1;
-
-            $usuarioArbol->created_at =
-                date('Y-m-d H:i:s');
-
-            $usuarioArbol->updated_at =
-                date('Y-m-d H:i:s');
-
-            /*
-             * Desactivamos los demás árboles
-             * antes de activar el nuevo.
-             */
-            $registros =
-                (new UsuariosArboles())->find(
-                    "usuario_id = " .
-                    intval($usuario->id)
-                );
+            $registros = (new UsuariosArboles())->find(
+                'usuario_id = ' . intval($usuario->id)
+            );
 
             foreach ($registros as $registro) {
                 $registro->activo = 0;
@@ -161,6 +109,13 @@ class ArbolesController extends AppController
                 }
             }
 
+            $usuarioArbol = new UsuariosArboles();
+            $usuarioArbol->usuario_id = $usuario->id;
+            $usuarioArbol->arbol_id = $arbol->id;
+            $usuarioArbol->rol = 'administrador';
+            $usuarioArbol->activo = 1;
+            $usuarioArbol->created_at = date('Y-m-d H:i:s');
+            $usuarioArbol->updated_at = date('Y-m-d H:i:s');
 
             if (!$usuarioArbol->save()) {
                 throw new Exception(
@@ -168,15 +123,263 @@ class ArbolesController extends AppController
                 );
             }
 
-
             $arbol->commit();
 
             Flash::valid(
                 'Árbol creado correctamente.'
             );
 
+            return Redirect::to('arboles');
+
+        } catch (Exception $e) {
+            $arbol->rollback();
+
+            Flash::error($e->getMessage());
+
+            $this->arbol = $arbol;
+        }
+    }
+
+
+    /**
+     * Formulario para editar un árbol.
+     */
+    public function editar($id)
+    {
+        if (!Auth::estaAutenticado()) {
+            Flash::error(
+                'Debe iniciar sesión.'
+            );
+
+            return Redirect::to('login');
+        }
+
+        if (!Auth::esAdministrador()) {
+            Flash::error(
+                'No tiene permiso para modificar árboles.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $arbol = (new Arboles())->find_first(
+            'conditions: id = ' . intval($id)
+        );
+
+        if (!$arbol) {
+            Flash::error(
+                'El árbol no existe.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        if (!Auth::tieneAccesoArbol($arbol->id)) {
+            Flash::error(
+                'No tiene acceso a ese árbol.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $this->arbol = $arbol;
+    }
+
+
+    /**
+     * Actualiza los datos de un árbol.
+     */
+    public function actualizar($id)
+    {
+        if (!Auth::estaAutenticado()) {
+            Flash::error(
+                'Debe iniciar sesión.'
+            );
+
+            return Redirect::to('login');
+        }
+
+        if (!Auth::esAdministrador()) {
+            Flash::error(
+                'No tiene permiso para modificar árboles.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $arbol = (new Arboles())->find_first(
+            'conditions: id = ' . intval($id)
+        );
+
+        if (!$arbol) {
+            Flash::error(
+                'El árbol no existe.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        if (!Auth::tieneAccesoArbol($arbol->id)) {
+            Flash::error(
+                'No tiene acceso a ese árbol.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $nombre = trim(Input::post('nombre'));
+
+        if ($nombre == '') {
+            Flash::error(
+                'El nombre del árbol es obligatorio.'
+            );
+
             return Redirect::to(
-                'arboles'
+                'arboles/editar/' . $arbol->id
+            );
+        }
+
+        $arbol->nombre = $nombre;
+        $arbol->descripcion = Input::post('descripcion');
+        $arbol->updated_at = date('Y-m-d H:i:s');
+
+        if (!$arbol->save()) {
+            Flash::error(
+                'No se ha podido actualizar el árbol.'
+            );
+
+            return Redirect::to(
+                'arboles/editar/' . $arbol->id
+            );
+        }
+
+        Flash::valid(
+            'Árbol actualizado correctamente.'
+        );
+
+        return Redirect::to('arboles');
+    }
+
+
+    /**
+     * Elimina un árbol y todos sus datos genealógicos.
+     */
+    public function borrar($id)
+    {
+        if (!Auth::estaAutenticado()) {
+            Flash::error(
+                'Debe iniciar sesión.'
+            );
+
+            return Redirect::to('login');
+        }
+
+        if (!Auth::esAdministrador()) {
+            Flash::error(
+                'No tiene permiso para eliminar árboles.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $arbol = (new Arboles())->find_first(
+            'conditions: id = ' . intval($id)
+        );
+
+        if (!$arbol) {
+            Flash::error(
+                'El árbol no existe.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        if (!Auth::tieneAccesoArbol($arbol->id)) {
+            Flash::error(
+                'No tiene acceso a ese árbol.'
+            );
+
+            return Redirect::to('arboles');
+        }
+
+        $arbol->begin();
+
+        try {
+            /*
+             * Primero eliminamos las relaciones y datos
+             * dependientes del árbol.
+             */
+            $personas = new Personas();
+            $listaPersonas = $personas->find(
+                'arbol_id = ' . intval($arbol->id)
+            );
+
+            foreach ($listaPersonas as $persona) {
+                $filiaciones = new Filiaciones();
+
+                $filacionesPersona = $filiaciones->find(
+                    'hijo_id = ' . intval($persona->id) .
+                    ' OR progenitor_id = ' . intval($persona->id)
+                );
+
+                foreach ($filacionesPersona as $filiacion) {
+                    $filiacion->delete();
+                }
+
+                $uniones = new Uniones();
+
+                $unionesPersona = $uniones->find(
+                    'persona1_id = ' . intval($persona->id) .
+                    ' OR persona2_id = ' . intval($persona->id)
+                );
+
+                foreach ($unionesPersona as $union) {
+                    $divorcios = new Divorcios();
+
+                    $divorciosUnion = $divorcios->find(
+                        'union_id = ' . intval($union->id)
+                    );
+
+                    foreach ($divorciosUnion as $divorcio) {
+                        $divorcio->delete();
+                    }
+
+                    $union->delete();
+                }
+
+                $usuariosPersonas = new UsuariosPersonas();
+
+                $permisosPersona = $usuariosPersonas->find(
+                    'persona_id = ' . intval($persona->id)
+                );
+
+                foreach ($permisosPersona as $permiso) {
+                    $permiso->delete();
+                }
+
+                $persona->delete();
+            }
+
+            $usuariosArboles = new UsuariosArboles();
+
+            $relacionesArbol = $usuariosArboles->find(
+                'arbol_id = ' . intval($arbol->id)
+            );
+
+            foreach ($relacionesArbol as $relacion) {
+                $relacion->delete();
+            }
+
+            if (!$arbol->delete()) {
+                throw new Exception(
+                    'No se ha podido eliminar el árbol.'
+                );
+            }
+
+            $arbol->commit();
+
+            Flash::valid(
+                'Árbol eliminado correctamente.'
             );
 
         } catch (Exception $e) {
@@ -185,11 +388,9 @@ class ArbolesController extends AppController
             Flash::error(
                 $e->getMessage()
             );
-
-            $this->arbol = $arbol;
-
-            return;
         }
+
+        return Redirect::to('arboles');
     }
 
 
@@ -213,9 +414,7 @@ class ArbolesController extends AppController
                 'No tiene acceso a ese árbol.'
             );
 
-            return Redirect::to(
-                'arboles'
-            );
+            return Redirect::to('arboles');
         }
 
         if (Auth::cambiarArbol(
@@ -230,8 +429,6 @@ class ArbolesController extends AppController
             );
         }
 
-        return Redirect::to(
-            'arboles'
-        );
+        return Redirect::to('arboles');
     }
 }
