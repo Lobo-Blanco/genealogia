@@ -14,11 +14,14 @@ class PersonasController extends AppController
                 'No hay un árbol activo.'
             );
 
-            return Redirect::to('personas');
+            return Redirect::to('arboles/index');
         }
 
         $this->personas = (new Personas)->find(
             "conditions: arbol_id = " . $arbol->id); //, "order: apellidos, nombre" );
+    }
+
+    public function crearnuevoArbol() {
     }
 
     /**
@@ -165,9 +168,6 @@ class PersonasController extends AppController
                 /*
                 * Si acaba de registrarse la defunción,
                 * buscamos un matrimonio activo de esta persona.
-                *
-                * Las parejas que no sean matrimonio no se
-                * modifican por fallecimiento.
                 */
                 if ($nuevaDefuncion) {
 

@@ -1,0 +1,86 @@
+<h1>Mis árboles genealógicos</h1>
+
+<?php if (empty($arboles)): ?>
+
+```
+<p>
+    No tiene ningún árbol genealógico.
+</p>
+
+<?php if (Auth::esAdministrador()): ?>
+
+    <p>
+        <a href="<?= PUBLIC_PATH ?>arboles/nuevo">
+            Crear mi primer árbol
+        </a>
+    </p>
+
+<?php endif; ?>
+
+<?php else: ?>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <?php foreach ($arboles as $arbol): ?>
+            <tr>
+                <td>
+                    <?= htmlspecialchars(
+                        $arbol->nombre
+                    ) ?>
+                </td>
+
+                <td>
+                    <?= htmlspecialchars(
+                        $arbol->descripcion
+                    ) ?>
+                </td>
+
+                <td>
+                    <?php if ($arbol->activo): ?>
+
+                        <strong>
+                            Activo
+                        </strong>
+
+                    <?php else: ?>
+
+                        Inactivo
+
+                    <?php endif; ?>
+                </td>
+
+                <td>
+                    <?php if (!$arbol->activo): ?>
+                        <a href="<?= PUBLIC_PATH ?>arboles/seleccionar/<?= $arbol->arbol_id ?>">
+                            Seleccionar
+                        </a>
+                    <?php else: ?>
+                        <span>
+                            Árbol actual
+                        </span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<?php if (Auth::esAdministrador()): ?>
+    <p>
+        <a href="<?= PUBLIC_PATH ?>arboles/nuevo">
+            Crear nuevo árbol
+        </a>
+    </p>
+<?php endif; ?>
+
+<?php endif; ?>
