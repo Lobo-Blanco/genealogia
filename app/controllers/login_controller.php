@@ -23,7 +23,6 @@ class LoginController extends AppController
             if ($crear_admin) {
                 // ir a crear administrador
                 return Redirect::to("usuarios/crear_admin");
-                return Redirect::to("login");
             }
 
             $usuarios = new Usuarios();
