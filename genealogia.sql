@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-08-2026 a las 13:29:28
+-- Tiempo de generación: 23-08-2026 a las 19:53:28
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -93,13 +93,21 @@ INSERT INTO `filiaciones` (`id`, `usuario_id`, `hijo_id`, `progenitor_id`, `tipo
 (11, 4, 2, 6, 'biologica', NULL, NULL, NULL),
 (13, 4, 4, 6, 'biologica', NULL, NULL, NULL),
 (14, 4, 7, 4, 'biologica', NULL, NULL, NULL),
-(15, NULL, 9, 8, 'biologica', NULL, NULL, NULL),
+(15, 4, 9, 8, 'biologica', NULL, NULL, NULL),
 (16, 4, 9, 4, 'biologica', NULL, NULL, NULL),
 (17, 4, 11, 1, 'biologica', NULL, NULL, NULL),
 (18, 4, 12, 1, 'biologica', NULL, NULL, NULL),
-(19, NULL, 12, 13, 'biologica', NULL, NULL, NULL),
+(19, 4, 12, 13, 'biologica', NULL, NULL, NULL),
 (20, 4, 15, 14, 'biologica', NULL, NULL, NULL),
-(21, 4, 15, 1, 'biologica', NULL, NULL, NULL);
+(21, 4, 15, 1, 'biologica', NULL, NULL, NULL),
+(22, 4, 18, 10, 'biologica', '2005-12-04', NULL, NULL),
+(24, 4, 20, 10, 'pre-adoptiva', '2009-11-12', '2010-01-01', NULL),
+(25, 4, 10, 21, 'adoptiva', '2011-01-01', NULL, NULL),
+(26, 4, 10, 22, 'biologica', '2010-01-01', NULL, NULL),
+(29, 4, 1, 30, 'biologica', '1975-01-01', NULL, NULL),
+(30, 4, 31, 1, 'adoptiva', '1965-05-15', NULL, NULL),
+(33, 4, 19, 10, 'biologica', '2006-04-01', NULL, NULL),
+(34, 4, 20, 10, 'adoptiva', '2010-01-01', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -141,7 +149,15 @@ INSERT INTO `personas` (`id`, `nombre`, `apellidos`, `sexo`, `fecha_nacimiento`,
 (12, 'Luis', 'hijo de Juan y Carmen', 'H', '1995-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:26:06', '2026-08-20 11:26:06'),
 (13, 'Carmen', 'Pareja anterior de Juan', 'M', '1978-01-01', NULL, '1997-10-01', NULL, NULL, 2, '2026-08-20 11:26:57', '2026-08-20 11:26:57'),
 (14, 'Ana', 'otra pareja de Juan', 'M', '1979-01-01', 'Murcia', '2026-01-28', 'Albacete', NULL, 2, '2026-08-20 11:43:18', '2026-08-21 11:08:04'),
-(15, 'Ana', 'Hija de Juan y Ana', 'M', '1994-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:44:17', '2026-08-20 11:44:17');
+(15, 'Ana', 'Hija de Juan y Ana', 'M', '1994-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-20 11:44:17', '2026-08-20 11:44:17'),
+(18, 'Alonso', 'hijo de Juana', NULL, '2005-12-04', 'Murcia', NULL, NULL, NULL, 2, '2026-08-21 15:19:27', '2026-08-21 15:19:27'),
+(19, 'Robeerto', 'hijo de Juana', NULL, '2006-04-01', NULL, NULL, NULL, NULL, 2, '2026-08-21 15:24:18', '2026-08-21 15:24:18'),
+(20, 'Alejandra', 'hija de Juana', 'M', '2007-05-14', NULL, NULL, NULL, NULL, 2, '2026-08-21 15:25:32', '2026-08-21 15:25:32'),
+(21, 'Lucas', 'Padre de Juana', 'H', '1990-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-21 15:28:14', '2026-08-21 15:28:14'),
+(22, 'Josefa', 'madre de Juana', 'M', '1990-05-01', NULL, NULL, NULL, NULL, 2, '2026-08-21 15:30:31', '2026-08-21 15:30:31'),
+(30, 'Josele', 'padre de Juan', 'H', '1945-01-01', NULL, NULL, NULL, NULL, 2, '2026-08-21 16:25:50', '2026-08-21 16:25:50'),
+(31, 'Felipe', 'Hijo de Juan', 'H', '1960-05-14', NULL, NULL, NULL, NULL, 2, '2026-08-21 16:28:30', '2026-08-21 16:28:30'),
+(32, 'Perico', 'Hijo de juana', 'H', '2006-05-04', NULL, NULL, NULL, NULL, 2, '2026-08-21 17:27:53', '2026-08-21 17:27:53');
 
 -- --------------------------------------------------------
 
@@ -278,7 +294,15 @@ INSERT INTO `usuarios_personas` (`usuario_id`, `persona_id`) VALUES
 (4, 12),
 (4, 13),
 (4, 14),
-(4, 15);
+(4, 15),
+(4, 18),
+(4, 19),
+(4, 20),
+(4, 21),
+(4, 22),
+(4, 30),
+(4, 31),
+(4, 32);
 
 --
 -- Índices para tablas volcadas
@@ -378,13 +402,13 @@ ALTER TABLE `divorcios`
 -- AUTO_INCREMENT de la tabla `filiaciones`
 --
 ALTER TABLE `filiaciones`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de la tabla `personas`
 --
 ALTER TABLE `personas`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
