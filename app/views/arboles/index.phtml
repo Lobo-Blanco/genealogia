@@ -13,6 +13,7 @@
         </a>
     </p>
 <?php endif; ?>
+
 <?php else: ?>
 <table>
     <thead>
@@ -57,6 +58,23 @@
                         <span>
                             Árbol actual
                         </span>
+                    <?php endif; ?>
+
+                    <?php if (Auth::esAdministrador()): ?>
+
+                        |
+                        <a href="<?= PUBLIC_PATH ?>arboles/editar/<?= $arbol->arbol_id ?>">
+                            Editar
+                        </a>
+
+                        |
+                        <a
+                            href="<?= PUBLIC_PATH ?>arboles/borrar/<?= $arbol->arbol_id ?>"
+                            onclick="return confirm('¿Está seguro de que desea eliminar este árbol y todos sus datos genealógicos?');"
+                        >
+                            Eliminar
+                        </a>
+
                     <?php endif; ?>
                 </td>
             </tr>
