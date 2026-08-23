@@ -763,3 +763,146 @@ Juan ? María ? sus progenitores ? sus hijos ? etc.
 sin cargar todo el árbol de una vez.
 
 El siguiente paso ya sí sería interesante: dejar de mostrar estos bloques uno debajo de otro y construir la representación visual del árbol, con la persona central en medio, progenitores arriba, hijos abajo y parejas a los lados.
+
+Este el el texto con nuestra conversación en otro chat
+Este es el repositorio github donde están todos los fuentes y que actualizaré cada vez que modifique algo: 
+Lobo-Blanco/genealogia
+genealogia.zip
+Archivo Zip
+
+Perfecto. Entonces seguimos por ahí.
+
+El siguiente paso será revisar nuevo_hijo, nuevo_progenitor y nuevo_familiar y comprobar que las reglas de fechas que acabamos de definir están realmente cubiertas en los tres puntos de entrada.
+
+Especialmente:
+
+biológica ? fecha de inicio automática;
+pre-adoptiva ? fecha de inicio introducida por el usuario;
+adoptiva ? fecha de inicio introducida por el usuario;
+usuario_id correctamente asignado;
+ninguna fecha posterior a la defunción del hijo o del progenitor;
+y que no hayamos creado diferencias de comportamiento entre las tres vistas.
+
+Después pasamos a las uniones.
+
+No modificaría nada hasta comprobar esos tres métodos.
+
+compruebalos
+
+Sí. Y aquí sí he encontrado cosas importantes. No tocaría todavía las fechas: antes hay que corregir dos incoherencias que han quedado en personas_controller.php.
+
+1. nuevo_progenitor: persona nueva
+
+Cuando el progenitor es nuevo, haces correctamente:
+
+$filiacion->hijo_id = $persona->id;
+$filiacion->tipo = Input::post('tipo_filiacion');
+
+y para biológica asignas automáticamente la fecha de nacimiento del hijo.
+
+Pero falta:
+
+$filiacion->usuario_id = Auth::usuario()->id;
+
+En el caso de progenitor existente sí lo tienes. Por tanto, hay una diferencia entre ambos caminos.
+
+2. nuevo_hijo: hay un error real
+
+Aquí aparece:
+
+$adopcion->hijo_id = $hijo->id;
+$adopcion->usuario_id = Auth::usuario()->id;
+
+pero el objeto que estamos creando es:
+
+$filiacion = new Filiaciones();
+
+Por tanto, esas dos líneas deberían ser:
+
+$filiacion->hijo_id = $hijo->id;
+$filiacion->usuario_id = Auth::usuario()->id;
+
+Y además ya tienes correctamente:
+
+$filiacion->progenitor_id = $persona->id;
+
+Este cambio sí lo haría antes de continuar.
+
+3. nuevo_familiar: conceptualmente está bien
+
+Aquí la situación es distinta porque utilizas:
+
+Genealogia::crearFiliacion(...)
+
+tanto para familiar existente como para familiar nuevo.
+
+Por tanto, no debemos añadir a ciegas usuario_id aquí hasta comprobar qué hace Genealogia::crearFiliacion().
+
+Además, la lógica que acabamos de decidir está bien reflejada:
+
+si el familiar es un progenitor, la filiación es automáticamente biologica;
+si el familiar es un hijo, se pide tipo_filiacion;
+biológica ? fecha de nacimiento automática;
+adoptiva/pre-adoptiva ? fecha introducida.
+
+Eso está muy bien.
+
+4. Y todavía no hemos puesto las validaciones de fechas
+
+Pero ahora veo que no debemos hacerlo todavía.
+
+Primero corregiría:
+
+nuevo_progenitor
+
+Añadir:
+
+$filiacion->usuario_id = Auth::usuario()->id;
+
+en el camino de creación de progenitor nuevo.
+
+nuevo_hijo
+
+Sustituir:
+
+$adopcion->hijo_id = $hijo->id;
+$adopcion->usuario_id = Auth::usuario()->id;
+
+por:
+
+$filiacion->hijo_id = $hijo->id;
+$filiacion->usuario_id = Auth::usuario()->id;
+
+Esto último es importante, porque tal como está ahora no está asignando el hijo_id a $filiacion.
+
+Después de esos dos cambios, hacemos una pasada por Genealogia::crearFiliacion(). Ahí probablemente esté precisamente el lugar común donde podemos comprobar las fechas y usuario_id para nuevo_familiar, agregar_hijo y agregar_progenitor sin duplicar código.
+
+Así que el siguiente paso es localizar ese método. No añadiría todavía ninguna validación de fechas.
+
+corregido
+
+Perfecto. Entonces seguimos con el siguiente punto: Genealogia::crearFiliacion().
+
+Ese método es ahora especialmente importante porque lo utilizan varios caminos:
+
+agregar_progenitor()
+agregar_hijo()
+nuevo_familiar() cuando la persona ya existe.
+nuevo_familiar() cuando creamos una persona nueva.
+
+Si centralizamos ahí las reglas comunes, evitamos que mañana un cambio en una de las tres rutas deje un comportamiento diferente.
+
+Quiero comprobar especialmente:
+
+Que usuario_id se asigna siempre.
+Que tipo sólo acepta:
+biologica
+pre-adoptiva
+adoptiva
+Que una filiación biológica recibe la fecha de nacimiento correspondiente.
+Que pre-adoptiva y adoptiva reciben la fecha proporcionada.
+Que no permite crear una filiación con una fecha incompatible con el nacimiento.
+Que comprueba que hijo y progenitor pertenecen al árbol actual.
+Que evita duplicar una filiación existente.
+
+Y sólo después decidiremos qué validaciones merece la pena añadir.

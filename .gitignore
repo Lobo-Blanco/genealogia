@@ -1,3 +1,5 @@
 /.vscode/
 workspace.code-workspace
 composer.*
+app/config/texto.txt
+app/config/texto.zip
