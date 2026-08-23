@@ -21,9 +21,6 @@ class PersonasController extends AppController
             "conditions: arbol_id = " . $arbol->id); //, "order: apellidos, nombre" );
     }
 
-    public function crearnuevoArbol() {
-    }
-
     /**
      * Muestra una persona.
      *

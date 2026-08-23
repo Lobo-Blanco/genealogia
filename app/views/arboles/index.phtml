@@ -1,15 +1,15 @@
-<h1>Mis ·rboles genealÛgicos</h1>
+<h1>Mis √°rboles geneal√≥gicos</h1>
 
 <?php if (empty($arboles)): ?>
 
 <p>
-    No tiene ning˙n ·rbol genealÛgico.
+    No tiene ning√∫n √°rbol geneal√≥gico.
 </p>
 
 <?php if (Auth::esAdministrador()): ?>
     <p>
         <a href="<?= PUBLIC_PATH ?>arboles/nuevo">
-            Crear mi primer ·rbol
+            Crear mi primer √°rbol
         </a>
     </p>
 <?php endif; ?>
@@ -18,7 +18,7 @@
     <thead>
         <tr>
             <th>Nombre</th>
-            <th>DescripciÛn</th>
+            <th>Descripci√≥n</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -55,7 +55,7 @@
                         </a>
                     <?php else: ?>
                         <span>
-                            ¡rbol actual
+                            √Årbol actual
                         </span>
                     <?php endif; ?>
                 </td>
@@ -67,7 +67,7 @@
 <?php if (Auth::esAdministrador()): ?>
     <p>
         <a href="<?= PUBLIC_PATH ?>arboles/nuevo">
-            Crear nuevo ·rbol
+            Crear nuevo √°rbol
         </a>
     </p>
 <?php endif; ?>

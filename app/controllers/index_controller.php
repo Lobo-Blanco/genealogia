@@ -12,8 +12,6 @@ class IndexController extends AppController
             return Redirect::to('login');
         }
 
-        $arbol = Auth::arbolActual();
-
         if ($arbol !== null ) {
             $this->totalPersonas = (new personas)->count("conditions: arbol_id = {$arbol->id}");
             $this->totalFamilias = (new filiaciones)->count();

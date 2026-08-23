@@ -3,15 +3,14 @@
 class ArbolesController extends AppController
 {
     /**
-     * Lista los ·rboles a los que tiene acceso
+     * Lista los √°rboles a los que tiene acceso
      * el usuario actual.
      */
     public function index()
     {
         if (!Auth::estaAutenticado()) {
-
             Flash::error(
-                'Debe iniciar sesiÛn.'
+                'Debe iniciar sesi√≥n.'
             );
 
             return Redirect::to('login');
@@ -23,14 +22,13 @@ class ArbolesController extends AppController
 
 
     /**
-     * Formulario para crear un ·rbol.
+     * Formulario para crear un √°rbol.
      */
     public function nuevo()
     {
         if (!Auth::estaAutenticado()) {
-
             Flash::error(
-                'Debe iniciar sesiÛn.'
+                'Debe iniciar sesi√≥n.'
             );
 
             return Redirect::to('login');
@@ -38,12 +36,11 @@ class ArbolesController extends AppController
 
         /*
          * De momento solamente el administrador
-         * puede crear ·rboles.
+         * puede crear √°rboles.
          */
         if (!Auth::esAdministrador()) {
-
             Flash::error(
-                'No tiene permiso para crear ·rboles.'
+                'No tiene permiso para crear √°rboles.'
             );
 
             return Redirect::to('arboles');
@@ -54,24 +51,22 @@ class ArbolesController extends AppController
 
 
     /**
-     * Guarda un nuevo ·rbol y asigna al usuario
+     * Guarda un nuevo √°rbol y asigna al usuario
      * actual como administrador del mismo.
      */
     public function guardar()
     {
         if (!Auth::estaAutenticado()) {
-
             Flash::error(
-                'Debe iniciar sesiÛn.'
+                'Debe iniciar sesi√≥n.'
             );
 
             return Redirect::to('login');
         }
 
         if (!Auth::esAdministrador()) {
-
             Flash::error(
-                'No tiene permiso para crear ·rboles.'
+                'No tiene permiso para crear √°rboles.'
             );
 
             return Redirect::to('arboles');
@@ -84,9 +79,8 @@ class ArbolesController extends AppController
             Input::post('descripcion');
 
         if ($nombre == '') {
-
             Flash::error(
-                'El nombre del ·rbol es obligatorio.'
+                'El nombre del √°rbol es obligatorio.'
             );
 
             return Redirect::to(
@@ -114,20 +108,17 @@ class ArbolesController extends AppController
 
 
         /*
-         * ¡rbol y relaciÛn con el usuario forman
-         * una ˙nica operaciÛn.
+         * √Årbol y relaci√≥n con el usuario forman
+         * una √∫nica operaci√≥n.
          */
         $arbol->begin();
 
         try {
-
             if (!$arbol->save()) {
-
                 throw new Exception(
-                    'No se ha podido crear el ·rbol.'
+                    'No se ha podido crear el √°rbol.'
                 );
             }
-
 
             $usuarioArbol =
                 new UsuariosArboles();
@@ -150,9 +141,8 @@ class ArbolesController extends AppController
             $usuarioArbol->updated_at =
                 date('Y-m-d H:i:s');
 
-
             /*
-             * Desactivamos los dem·s ·rboles
+             * Desactivamos los dem√°s √°rboles
              * antes de activar el nuevo.
              */
             $registros =
@@ -162,22 +152,19 @@ class ArbolesController extends AppController
                 );
 
             foreach ($registros as $registro) {
-
                 $registro->activo = 0;
 
                 if (!$registro->save()) {
-
                     throw new Exception(
-                        'No se ha podido actualizar el ·rbol activo.'
+                        'No se ha podido actualizar el √°rbol activo.'
                     );
                 }
             }
 
 
             if (!$usuarioArbol->save()) {
-
                 throw new Exception(
-                    'No se ha podido asignar el ·rbol al usuario.'
+                    'No se ha podido asignar el √°rbol al usuario.'
                 );
             }
 
@@ -185,7 +172,7 @@ class ArbolesController extends AppController
             $arbol->commit();
 
             Flash::valid(
-                '¡rbol creado correctamente.'
+                '√Årbol creado correctamente.'
             );
 
             return Redirect::to(
@@ -193,7 +180,6 @@ class ArbolesController extends AppController
             );
 
         } catch (Exception $e) {
-
             $arbol->rollback();
 
             Flash::error(
@@ -208,14 +194,13 @@ class ArbolesController extends AppController
 
 
     /**
-     * Selecciona un ·rbol como activo.
+     * Selecciona un √°rbol como activo.
      */
     public function seleccionar($id)
     {
         if (!Auth::estaAutenticado()) {
-
             Flash::error(
-                'Debe iniciar sesiÛn.'
+                'Debe iniciar sesi√≥n.'
             );
 
             return Redirect::to('login');
@@ -224,9 +209,8 @@ class ArbolesController extends AppController
         if (!Auth::tieneAccesoArbol(
             intval($id)
         )) {
-
             Flash::error(
-                'No tiene acceso a ese ·rbol.'
+                'No tiene acceso a ese √°rbol.'
             );
 
             return Redirect::to(
@@ -237,15 +221,12 @@ class ArbolesController extends AppController
         if (Auth::cambiarArbol(
             intval($id)
         )) {
-
             Flash::valid(
-                '¡rbol seleccionado correctamente.'
+                '√Årbol seleccionado correctamente.'
             );
-
         } else {
-
             Flash::error(
-                'No se ha podido seleccionar el ·rbol.'
+                'No se ha podido seleccionar el √°rbol.'
             );
         }
 
