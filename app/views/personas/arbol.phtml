@@ -147,6 +147,76 @@ $datosArbolJson = json_encode(
         return;
     }
 
+    var personaActiva = null;
+
+    /*
+     * ---------------------------------------------------------
+     *  FAMILY TREE
+     * ---------------------------------------------------------
+     */
+    var familyTree = new FT.FamilyTree(data, container, {
+        /*
+         * Conservamos el comportamiento original de la
+         * biblioteca: expandir/contraer el nodo.
+         *
+         * Después mostramos nuestra ficha.
+         */
+
+        nodeClickFunction: function (node, ft) {
+            ft.nodeClickHandler(node);
+
+            if (node.isPerson) {
+                mostrarFicha(node.data.id);
+            }
+        },
+
+        /*
+         * Tooltip propio.
+         */
+        nodeTooltipFunction: function (node) {
+            if (!node || !node.isPerson) {
+                return '';
+            }
+
+            var persona =
+                data.persons[node.data.id];
+
+            if (!persona) {
+                return '';
+            }
+
+            var html =
+                '<strong>' +
+                escapeHtml(persona.name) +
+                '</strong>';
+
+            if (persona.birthyear) {
+                html +=
+                    '<br>Nacimiento: ' +
+                    escapeHtml(persona.birthyear);
+            }
+
+            if (persona.birthplace) {
+                html +=
+                    '<br>Lugar: ' +
+                    escapeHtml(persona.birthplace);
+            }
+
+            if (persona.deathyear) {
+                html +=
+                    '<br>Defunción: ' +
+                    escapeHtml(persona.deathyear);
+            }
+            if (persona.deathplace) {
+                html +=
+                    '<br>Lugar: ' +
+                    escapeHtml(persona.deathplace);
+            }
+
+            return html;
+        }
+    });
+
     /*
      * ---------------------------------------------------------
      *  UTILIDADES
@@ -446,7 +516,8 @@ $datosArbolJson = json_encode(
                 var personaId =
                     this.getAttribute('data-persona-id');
 
-                mostrarFicha(personaId);
+                //mostrarFicha(personaId);
+                seleccionarPersona(personaId);
             });
         });
 
@@ -462,80 +533,30 @@ $datosArbolJson = json_encode(
                 var personaId =
                     this.getAttribute('data-persona-id');
 
+                var url = window.location.href;
                 window.location.href =
-                    'personas/ver/' + personaId;
+                    url.replace(/\/arbol\/\d*/, '/ver/') + persona.Id;
             });
         }        
     }
 
-    /*
-     * ---------------------------------------------------------
-     *  FAMILY TREE
-     * ---------------------------------------------------------
-     */
-    new FT.FamilyTree(data, container, {
-        /*
-         * Conservamos el comportamiento original de la
-         * biblioteca: expandir/contraer el nodo.
-         *
-         * Después mostramos nuestra ficha.
-         */
+    function seleccionarPersona(personaId) {
+        personaId = String(personaId);
 
-        nodeClickFunction: function (node, ft) {
-            ft.nodeClickHandler(node);
-
-            if (node.isPerson) {
-                mostrarFicha(node.data.id);
-            }
-        },
-
-        /*
-         * Tooltip propio.
-         */
-        nodeTooltipFunction: function (node) {
-            if (!node || !node.isPerson) {
-                return '';
-            }
-
-            var persona =
-                data.persons[node.data.id];
-
-            if (!persona) {
-                return '';
-            }
-
-            var html =
-                '<strong>' +
-                escapeHtml(persona.name) +
-                '</strong>';
-
-            if (persona.birthyear) {
-                html +=
-                    '<br>Nacimiento: ' +
-                    escapeHtml(persona.birthyear);
-            }
-
-            if (persona.birthplace) {
-                html +=
-                    '<br>Lugar: ' +
-                    escapeHtml(persona.birthplace);
-            }
-
-            if (persona.deathyear) {
-                html +=
-                    '<br>Defunción: ' +
-                    escapeHtml(persona.deathyear);
-            }
-            if (persona.deathplace) {
-                html +=
-                    '<br>Lugar: ' +
-                    escapeHtml(persona.deathplace);
-            }
-
-            return html;
+        if (!data.persons[personaId]) {
+            return;
         }
-    });
 
+        personaActiva = personaId;
+
+        /*
+        * Mostrar la ficha.
+        */
+        mostrarFicha(personaId);
+
+        //familyTree.draw();
+    }
+    
     /*
      * ---------------------------------------------------------
      *  CLICS DENTRO DE LA FICHA
