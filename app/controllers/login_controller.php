@@ -17,13 +17,12 @@ class LoginController extends AppController
         }
 
         if (Input::hasPost('username')) {
-
             $username = Input::post('username');
             $password = Input::post('password');
 
             if ($crear_admin) {
                 // ir a crear administrador
-                return Redirect::to("usuarios/crear_usuario");
+                return Redirect::to("usuarios/crear_admin");
                 return Redirect::to("login");
             }
 

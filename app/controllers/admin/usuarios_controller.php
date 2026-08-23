@@ -10,7 +10,11 @@ class UsuariosController extends AdminController
     {
     }
 
-    public function crear_usuario() {
+    public function crear_admin() {
+        if ((new Usuarios)->count() > 0) {
+            return Redirect::to("login");
+        }
 
+        // Creación de usuario con rol_id = 1
     }
 }
