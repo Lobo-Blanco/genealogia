@@ -1,0 +1,43 @@
+<h1>Crear árbol genealógico</h1>
+
+<?= Form::open('arboles/guardar', 'post') ?>
+
+<p>
+    <label for="nombre">
+        Nombre del árbol:
+    </label>
+
+    <?= Form::text(
+        'nombre',
+        array(
+            'id' => 'nombre',
+            'required' => 'required'
+        ),
+        $arbol->nombre
+    ) ?>
+</p>
+
+<p>
+    <label for="descripcion">
+        Descripción:
+    </label>
+
+    <?= Form::textarea(
+        'descripcion',
+        array(
+            'id' => 'descripcion',
+            'rows' => 5
+        ),
+        $arbol->descripcion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit('Crear árbol') ?>
+
+    <a href="<?= PUBLIC_PATH ?>arboles">
+        Cancelar
+    </a>
+</p>
+
+<?= Form::close() ?>
