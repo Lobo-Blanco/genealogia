@@ -1176,6 +1176,84 @@ public static function crearFiliacion(
         );
     }
 
+    if (
+        $progenitor->fecha_nacimiento &&
+        $fechaInicio &&
+        $fechaInicio < $progenitor->fecha_nacimiento
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede comenzar antes ' .
+                'del nacimiento del progenitor.'
+        );
+    }
+
+    if (
+        $progenitor->fecha_nacimiento &&
+        $fechaFin &&
+        $fechaFin < $progenitor->fecha_nacimiento
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede finalizar antes ' .
+                'del nacimiento del progenitor.'
+        );
+    }
+
+    if (
+        $hijo->fecha_defuncion &&
+        $fechaInicio &&
+        $fechaInicio > $hijo->fecha_defuncion
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede comenzar después ' .
+                'de la defunción del hijo.'
+        );
+    }
+
+    if (
+        $hijo->fecha_defuncion &&
+        $fechaFin &&
+        $fechaFin > $hijo->fecha_defuncion
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede finalizar después ' .
+                'de la defunción del hijo.'
+        );
+    }
+
+    if (
+        $progenitor->fecha_defuncion &&
+        $fechaInicio &&
+        $fechaInicio > $progenitor->fecha_defuncion
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede comenzar después ' .
+                'de la defunción del progenitor.'
+        );
+    }
+
+    if (
+        $progenitor->fecha_defuncion &&
+        $fechaFin &&
+        $fechaFin > $progenitor->fecha_defuncion
+    ) {
+        return array(
+            'ok' => false,
+            'mensaje' =>
+                'La filiación no puede finalizar después ' .
+                'de la defunción del progenitor.'
+        );
+    }
+
     /*
      * Crear filiación.
      */
