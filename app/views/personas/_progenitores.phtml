@@ -20,7 +20,7 @@ if ($arbol) {
 
         foreach ($relaciones as $relacion) {
             $progenitor = $modeloPersonas->find_first(
-                'conditions: arbol_id = ' . intval($arbol->arbol_id) .
+                'conditions: arbol_id = ' . intval($arbol->id) .
                 ' AND id = ' . intval($relacion->progenitor_id)
             );
 
