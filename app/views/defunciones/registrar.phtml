@@ -1,0 +1,49 @@
+<h1>Registrar defunción</h1>
+
+<h2>
+    <?= htmlspecialchars($persona->nombre) ?>
+    <?= htmlspecialchars($persona->apellidos) ?>
+</h2>
+
+<?= Form::open() ?>
+
+<p>
+    <?= Form::label(
+        'fecha_defuncion',
+        'Fecha de defunción'
+    ) ?>
+
+    <?= Form::date(
+        'fecha_defuncion',
+        '',
+        $persona->fecha_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::label(
+        'lugar_defuncion',
+        'Lugar de defunción'
+    ) ?>
+
+    <?= Form::text(
+        'lugar_defuncion',
+        '',
+        $persona->lugar_defuncion
+    ) ?>
+</p>
+
+<p>
+    <?= Form::submit(
+        empty($persona->fecha_defuncion)
+            ? 'Registrar defunción'
+            : 'Actualizar defunción'
+    ) ?>
+
+    <?= Html::link(
+        'personas/ver/' . $persona->id,
+        'Cancelar'
+    ) ?>
+</p>
+
+<?= Form::close() ?>
