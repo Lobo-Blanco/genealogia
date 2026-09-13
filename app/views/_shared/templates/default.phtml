@@ -89,7 +89,7 @@
                         $url = isset($item['url']) ? $item['url'] : '#';
                         $id = 'menu_' . $nivel . '_' . substr(md5($item['texto'] . $nivel), 0, 8);
                         ?>
-                        <li class="<?= $tieneHijos ? 'dropdown-submenu' : 'nav-item' ?>">
+                        <li class="<?= $tieneHijos ? 'dropdown-submenu' : 'nav-item dropbox' ?>">
                             <a class="<?= $nivel === 0 ? 'nav-link' : 'dropdown-item' ?> <?= $tieneHijos ? 'dropdown-toggle' : '' ?>"
                                href="<?= PUBLIC_PATH . $url ?>"
                                <?= $tieneHijos ? 'id="'.$id.'" data-bs-toggle="dropdown" aria-expanded="false"' : '' ?>>
