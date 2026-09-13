@@ -2,9 +2,6 @@
 
 class Usuarios extends ActiveRecord
 {
-    /**
-     * Busca un usuario por su nombre de usuario.
-     */
     public function buscarPorUsername($username)
     {
         return $this->find_first(
@@ -12,21 +9,8 @@ class Usuarios extends ActiveRecord
         );
     }
 
-    /**
-     * Comprueba si el usuario tiene un determinado rol.
-     */
-    public function esAdministrador()
-    {
-        return $this->rol_id == 1;
-    }
-
-    public function esVisualizador()
-    {
-        return $this->rol_id == 2;
-    }
-
-    public function esEditor()
-    {
-        return $this->rol_id == 3;
-    }
+    public function esAdministrador() { return $this->rol_id == 1; }
+    public function esVisualizador() { return $this->rol_id == 2; }
+    public function esEditor() { return $this->rol_id == 3; }
+    public function esSupervisor() { return $this->rol_id == 4; }
 }
