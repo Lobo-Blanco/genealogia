@@ -19,7 +19,6 @@
                         $progenitor->nombre . ' ' . $progenitor->apellidos
                     ) ?>
                 </td>
-<<<<<<< HEAD
 
                 <!--<td>
                     <?= ucfirst(
@@ -35,8 +34,6 @@
                     <?= $filiacion->fecha_fin ? date('d/m/Y', strtotime($filiacion->fecha_fin)) : '' ?>
                 </td>-->
 
-=======
->>>>>>> 125464144bdf7c213beb5e83b7c007c59b3ab923
                 <td>
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
                         <?= Html::link('personas/editar_filiacion/' . $filiacion->id . '/' . $estaPersonaId, 'Editar') ?>
@@ -84,7 +81,6 @@
                         $hijo->nombre . ' ' . $hijo->apellidos
                     ) ?>
                 </td>
-<<<<<<< HEAD
 
                 <td>
                     <?= ucfirst(
@@ -99,11 +95,6 @@
                 <td>
                     <?= $filiacion->fecha_fin ? date('d/m/Y', strtotime($filiacion->fecha_fin)) : '' ?>
                 </td>
-=======
-                <td><?= ucfirst($filiacion->tipo) ?></td>
-                <td><?= $filiacion->fecha_inicio ?></td>
-                <td><?= $filiacion->fecha_fin ?></td>
->>>>>>> 125464144bdf7c213beb5e83b7c007c59b3ab923
                 <td>
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>
                         <?= Html::link('personas/editar_filiacion/' . $filiacion->id . '/' . $estaPersonaId, 'Editar') ?>
