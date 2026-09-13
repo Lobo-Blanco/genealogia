@@ -61,29 +61,22 @@
     ) ?>
 </p>
 
-<p>
-    <?= Form::label(
-        'fecha_defuncion',
-        'Fecha de defunción'
-    ) ?>
+<!--
+ * La defunción ya no se modifica desde esta ficha.
+ * Conservamos los valores existentes para que una edición
+ * normal de la persona no los borre.
+ -->
+<input
+    type="hidden"
+    name="fecha_defuncion"
+    value="<?= htmlspecialchars($persona->fecha_defuncion ?? '') ?>"
+>
 
-    <?= Form::date(
-        'fecha_defuncion','',
-        $persona->fecha_defuncion
-    ) ?>
-</p>
-
-<p>
-    <?= Form::label(
-        'lugar_defuncion',
-        'Lugar de defunción'
-    ) ?>
-
-    <?= Form::text(
-        'lugar_defuncion','',
-        $persona->lugar_defuncion
-    ) ?>
-</p>
+<input
+    type="hidden"
+    name="lugar_defuncion"
+    value="<?= htmlspecialchars($persona->lugar_defuncion ?? '') ?>"
+>
 
 <p>
     <?= Form::label('notas', 'Notas') ?>
