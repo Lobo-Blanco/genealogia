@@ -94,6 +94,19 @@
  
     </tbody>
 </table>
+
+<?php if (
+    !Genealogia::unionActiva($persona->id) &&
+    Auth::puedeEditar($persona->id)
+): ?>
+    <p>
+        <?= Html::link(
+            'personas/nueva_pareja/' . $estaPersonaId,
+            'Añadir pareja o matrimonio'
+        ) ?>
+    </p>
+<?php endif; ?>
+
 <p>
     <?= Html::link('personas', 'Volver al listado') ?>
 </p>
