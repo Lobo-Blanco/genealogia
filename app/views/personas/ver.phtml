@@ -49,6 +49,15 @@
         'Editar'
     ) ?>
 
+    &nbsp;|&nbsp;
+
+    <?= Html::link(
+        'defunciones/registrar/' . $persona->id,
+        empty($persona->fecha_defuncion)
+            ? 'Registrar defunción'
+            : 'Editar defunción'
+    ) ?>
+
 <?php endif; ?>
 
 <h2>Progenitores</h2>
