@@ -1,0 +1,89 @@
+<div class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-person-plus"></i> Nuevo usuario</h1>
+
+    <form method="post" action="<?= PUBLIC_PATH ?>admin/usuarios/guardar">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Datos de acceso</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Usuario</label>
+                        <input class="form-control" name="username" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contraseña</label>
+                        <input class="form-control" type="password" name="password" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="nombre">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos</label>
+                        <input class="form-control" name="apellidos">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Correo electrónico</label>
+                        <input class="form-control" type="email" name="email">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" name="rol_id" required>
+                            <?php foreach ($roles as $id => $nombre): ?>
+                                <option value="<?= $id ?>"><?= htmlspecialchars($nombre) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Ámbito genealógico</h5>
+                <p class="text-muted">Selecciona el árbol y la persona que será la raíz de su ámbito de trabajo.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Árbol</label>
+                        <select class="form-select" name="arbol_id" id="arbol_id" required>
+                            <option value="">Seleccione un árbol...</option>
+                            <?php foreach ($arboles as $arbol): ?>
+                                <option value="<?= $arbol->id ?>"><?= htmlspecialchars($arbol->nombre) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Persona raíz</label>
+                        <select class="form-select" name="persona_referencia_id" id="persona_referencia_id" required>
+                            <option value="">Seleccione primero un árbol...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a class="btn btn-secondary" href="<?= PUBLIC_PATH ?>admin/usuarios">Cancelar</a>
+        <button class="btn btn-primary" type="submit">Crear usuario</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('arbol_id').addEventListener('change', function () {
+    var arbolId = this.value;
+    var select = document.getElementById('persona_referencia_id');
+    select.innerHTML = '<option value="">Cargando...</option>';
+    if (!arbolId) return;
+
+    fetch('<?= PUBLIC_PATH ?>admin/usuarios/personas_arbol/' + arbolId)
+        .then(function (r) { return r.json(); })
+        .then(function (personas) {
+            select.innerHTML = '<option value="">Seleccione una persona...</option>';
+            personas.forEach(function (persona) {
+                var option = document.createElement('option');
+                option.value = persona.id;
+                option.textContent = persona.texto;
+                select.appendChild(option);
+            });
+        });
+});
+</script>
