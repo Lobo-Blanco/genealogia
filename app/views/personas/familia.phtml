@@ -50,11 +50,11 @@
                 </td>
 
                 <td>
-                    <?= $filiacion->fecha_inicio ?>
+                    <?= $filiacion->fecha_inicio ? date('d/m/Y', strtotime($filiacion->fecha_inicio)) : '' ?>
                 </td>
 
                 <td>
-                    <?= $filiacion->fecha_fin ?>
+                    <?= $filiacion->fecha_fin ? date('d/m/Y', strtotime($filiacion->fecha_fin)) : '' ?>
                 </td>-->
 
                 <td>
@@ -138,11 +138,11 @@
                 </td>
 
                 <td>
-                    <?= $filiacion->fecha_inicio ?>
+                    <?= $filiacion->fecha_inicio ? date('d/m/Y', strtotime($filiacion->fecha_inicio)) : '' ?>
                 </td>
 
                 <td>
-                    <?= $filiacion->fecha_fin ?>
+                    <?= $filiacion->fecha_fin ? date('d/m/Y', strtotime($filiacion->fecha_fin)) : '' ?>
                 </td>
                 <td>
                     <?php if (Auth::puedeEditarFiliacion($filiacion->id)): ?>

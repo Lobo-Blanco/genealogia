@@ -60,11 +60,11 @@ Flash::error(
             </td>
 
             <td>
-                <?= htmlspecialchars($persona->fecha_nacimiento ?? '') ?>
+                <?= $persona->fecha_nacimiento ? date('d/m/Y', strtotime($persona->fecha_nacimiento)) : '' ?>
             </td>
 
             <td>
-                <?= htmlspecialchars($persona->fecha_defuncion ?? '') ?>
+                <?= $persona->fecha_defuncion ? date('d/m/Y', strtotime($persona->fecha_defuncion)) : '' ?>
             </td>
 
             <td>

@@ -43,11 +43,11 @@
             </td>
 
             <td>
-                <?= $union->fecha_inicio ?>
+                <?= $union->fecha_inicio ? date('d/m/Y', strtotime($union->fecha_inicio)) : '' ?>
             </td>
 
             <td>
-                <?= $union->fecha_fin ?>
+                <?= $union->fecha_fin ? date('d/m/Y', strtotime($union->fecha_fin)) : '' ?>
             </td>
 
             <td>

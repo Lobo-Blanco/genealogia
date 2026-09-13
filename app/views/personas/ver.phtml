@@ -23,7 +23,7 @@
 
     <tr>
         <th>Fecha de nacimiento</th>
-        <td><?= htmlspecialchars($persona->fecha_nacimiento ?? '') ?></td>
+        <td><?= $persona->fecha_nacimiento ? date('d/m/Y', strtotime($persona->fecha_nacimiento)) : '' ?></td>
     </tr>
 
     <tr>
@@ -33,7 +33,7 @@
 
     <tr>
         <th>Fecha de defunción</th>
-        <td><?= htmlspecialchars($persona->fecha_defuncion ?? '') ?></td>
+        <td><?= $persona->fecha_defuncion ? date('d/m/Y', strtotime($persona->fecha_defuncion)) : '' ?></td>
     </tr>
 
     <tr>
@@ -194,12 +194,12 @@ $uniones = array_merge(
 
                 <?php if ($union->fecha_inicio): ?>
                     desde
-                    <?= htmlspecialchars($union->fecha_inicio) ?>
+                    <?= $union->fecha_inicio ? date('d/m/Y', strtotime($union->fecha_inicio)) : '' ?>
                 <?php endif; ?>
 
                 <?php if ($union->fecha_fin): ?>
                     hasta
-                    <?= htmlspecialchars($union->fecha_fin) ?>
+                    <?= $union->fecha_fin ? date('d/m/Y', strtotime($union->fecha_fin)) : '' ?>
                 <?php endif; ?>
 
             </li>
