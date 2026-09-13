@@ -2,411 +2,200 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= isset($titulo) ? $titulo : 'Genealogía' ?></title>
-    
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
     <style>
-        /* Estilos personalizados */
-        body {
-            padding-top: 70px;
-            background-color: #f5f0eb;
-        }
-        
-        /* Menú fijo en la parte superior */
-        .navbar-genealogia {
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            padding: 0.8rem 0;
-            min-height: 70px;
-        }
-        
-        .navbar-genealogia .navbar-brand {
-            color: #d4c9a8;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .navbar-genealogia .navbar-brand i {
-            color: #c9a86a;
-            margin-right: 10px;
-        }
-        
-        .navbar-genealogia .nav-link {
-            color: rgba(255,255,255,0.85) !important;
-            font-size: 1rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .navbar-genealogia .nav-link:hover {
-            color: #d4c9a8 !important;
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .navbar-genealogia .nav-link.active {
-            color: #d4c9a8 !important;
-            background: rgba(212, 201, 168, 0.2);
-        }
-        
-        .navbar-genealogia .nav-link i {
-            margin-right: 8px;
-        }
-        
-        /* Dropdown personalizado */
-        .navbar-genealogia .dropdown-menu {
-            background: #2c3e50;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .navbar-genealogia .dropdown-item {
-            color: rgba(255,255,255,0.85);
-            padding: 0.5rem 1.5rem;
-            transition: all 0.2s ease;
-        }
-        
-        .navbar-genealogia .dropdown-item:hover {
-            background: rgba(212, 201, 168, 0.2);
-            color: #d4c9a8;
-        }
-        
-        .navbar-genealogia .dropdown-item i {
-            margin-right: 10px;
-            color: #c9a86a;
-        }
-        
-        /* Contenedor principal */
-        .main-content {
-            padding: 20px;
-            min-height: calc(100vh - 70px);
-        }
-        
-        /* Tarjetas y estilos de genealogía */
-        .genealogy-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .genealogy-card:hover {
-            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-        }
-        
-        /* Toogle del menú móvil */
-        .navbar-toggler {
-            border-color: rgba(255,255,255,0.3);
-        }
-        
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-        
-        /* Footer */
-        .footer-genealogia {
-            background: #2c3e50;
-            color: rgba(255,255,255,0.6);
-            padding: 1.5rem 0;
-            margin-top: 30px;
-            text-align: center;
-            border-top: 3px solid #4a6741;
-        }
-        
-        .footer-genealogia a {
-            color: #d4c9a8;
-            text-decoration: none;
-        }
-        
-        .footer-genealogia a:hover {
-            color: #c9a86a;
+        body { padding-top: 70px; background-color: #f5f0eb; }
+        .navbar-genealogia { background: linear-gradient(135deg,#2c3e50 0%,#4a6741 100%); box-shadow: 0 2px 10px rgba(0,0,0,.3); padding: .8rem 0; min-height: 70px; }
+        .navbar-genealogia .navbar-brand { color:#d4c9a8; font-weight:bold; font-size:1.5rem; }
+        .navbar-genealogia .navbar-brand i { color:#c9a86a; margin-right:10px; }
+        .navbar-genealogia .nav-link { color:rgba(255,255,255,.85)!important; font-size:1rem; padding:.6rem 1.2rem; border-radius:5px; transition:all .3s ease; position:relative; }
+        .navbar-genealogia .nav-link:hover,.navbar-genealogia .nav-link.active { color:#d4c9a8!important; background:rgba(212,201,168,.15); }
+        .navbar-genealogia .nav-link i { margin-right:8px; }
+        .navbar-genealogia .dropdown-menu { background:#2c3e50; border:none; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,.3); padding:.35rem 0; }
+        .navbar-genealogia .dropdown-item { color:rgba(255,255,255,.85); padding:.5rem 1.5rem; transition:all .2s ease; white-space:nowrap; }
+        .navbar-genealogia .dropdown-item:hover,.navbar-genealogia .dropdown-item:focus { background:rgba(212,201,168,.2); color:#d4c9a8; }
+        .navbar-genealogia .dropdown-item i { margin-right:10px; color:#c9a86a; }
+        .navbar-genealogia .dropdown-submenu { position:relative; }
+        .navbar-genealogia .dropdown-submenu > .dropdown-menu { top:0; left:100%; margin-left:.15rem; }
+        .navbar-genealogia .dropdown-submenu > .dropdown-item::after { content:'›'; float:right; margin-left:1.5rem; }
+        .main-content { padding:20px; min-height:calc(100vh - 70px); }
+        .genealogy-card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); padding:25px; margin-bottom:20px; }
+        .navbar-toggler { border-color:rgba(255,255,255,.3); }
+        .navbar-toggler-icon { background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        .footer-genealogia { background:#2c3e50; color:rgba(255,255,255,.6); padding:1.5rem 0; margin-top:30px; text-align:center; border-top:3px solid #4a6741; }
+        .footer-genealogia a { color:#d4c9a8; text-decoration:none; }
+        @media (max-width:991.98px) {
+            .navbar-genealogia .dropdown-submenu > .dropdown-menu { position:static; margin-left:1rem; box-shadow:none; border-left:1px solid rgba(212,201,168,.2); border-radius:0; }
+            .navbar-genealogia .dropdown-submenu > .dropdown-item::after { content:'⌄'; }
         }
     </style>
 </head>
 <body>
-
-<!-- ============================================ -->
-<!-- MENÚ SUPERIOR HORIZONTAL                      -->
-<!-- ============================================ -->
 <nav class="navbar navbar-expand-lg navbar-genealogia fixed-top">
     <div class="container-fluid">
-        <!-- Logo / Brand -->
-        <a class="navbar-brand" href="<?= PUBLIC_PATH ?>">
-            <i class="bi bi-tree"></i> MiGenealogía
-        </a>
-        
-        <!-- Botón para menú móvil -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
-                data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" 
-                aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="<?= PUBLIC_PATH ?>"><i class="bi bi-tree"></i>MiGenealogía</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
             <span class="navbar-toggler-icon"></span>
         </button>
-        
-        <!-- Menú principal -->
         <div class="collapse navbar-collapse" id="menuPrincipal">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- Inicio -->
+                <!-- Personas es deliberadamente una opción fija de primer nivel. -->
                 <li class="nav-item">
-                    <a class="nav-link <?= ($controller == 'index') ? 'active' : '' ?>" 
-                       href="<?= PUBLIC_PATH ?>">
-                        <i class="bi bi-house"></i> Inicio
-                    </a>
+                    <a class="nav-link <?= ($controller == 'personas') ? 'active' : '' ?>" href="<?= PUBLIC_PATH ?>personas"><i class="bi bi-people"></i>Personas</a>
                 </li>
-                
-                <!-- Personas -->
-                <li class="nav-item">
-                    <a class="nav-link <?= ($controller == 'personas') ? 'active' : '' ?>" 
-                       href="<?= PUBLIC_PATH ?>personas">
-                        <i class="bi bi-people"></i> Personas
-                    </a>
-                </li>
-                
-                <!-- Familias -->
-                <li class="nav-item">
-                    <a class="nav-link <?= ($controller == 'familias') ? 'active' : '' ?>" 
-                       href="<?= PUBLIC_PATH ?>familias">
-                        <i class="bi bi-diagram-2"></i> Familias
-                    </a>
-                </li>
-                
-                <!-- Árbol genealógico -->
-                <li class="nav-item">
-                    <a class="nav-link <?= ($controller == 'arbol') ? 'active' : '' ?>" 
-                       href="<?= PUBLIC_PATH ?>arboles">
-                        <i class="bi bi-tree"></i> Árbol
-                    </a>
-                </li>
-                
-                <!-- Eventos (dropdown) -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= ($controller == 'eventos') ? 'active' : '' ?>" 
-                       href="#" id="menuEventos" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-calendar-event"></i> Eventos
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="menuEventos">
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>eventos/nacimientos">
-                                <i class="bi bi-gift"></i> Nacimientos
+
+                <?php
+                /*
+                 * Estructura provisional del menú. La jerarquía es independiente
+                 * de los permisos: cada elemento puede declarar una condición.
+                 * Cuando definamos el menú definitivo bastará con reorganizar este
+                 * árbol, sin cambiar el código que lo representa.
+                 */
+                $menu = array(
+                    array(
+                        'texto' => 'Genealogía', 'icono' => 'bi-diagram-3',
+                        'hijos' => array(
+                            array('texto'=>'Árboles', 'icono'=>'bi-tree', 'url'=>'arboles', 'visible'=>Auth::estaAutenticado()),
+                            array(
+                                'texto'=>'Eventos', 'icono'=>'bi-calendar-event',
+                                'hijos'=>array(
+                                    array('texto'=>'Nacimientos', 'icono'=>'bi-gift', 'url'=>'nacimientos'),
+                                    array('texto'=>'Matrimonios', 'icono'=>'bi-hearts', 'url'=>'uniones'),
+                                    array('texto'=>'Defunciones', 'icono'=>'bi-cross', 'url'=>'defunciones')
+                                )
+                            )
+                        )
+                    )
+                );
+
+                if (Auth::puedeAdministrarUsuarios()) {
+                    $menu[] = array(
+                        'texto' => 'Administración', 'icono' => 'bi-shield-lock',
+                        'hijos' => array(
+                            array('texto'=>'Usuarios', 'icono'=>'bi-person-gear', 'url'=>'admin/usuarios'),
+                            array('texto'=>'Árboles', 'icono'=>'bi-tree', 'url'=>'arboles'),
+                        )
+                    );
+                }
+
+                $renderMenu = function($items, $nivel = 0) use (&$renderMenu) {
+                    foreach ($items as $item) {
+                        if (isset($item['visible']) && !$item['visible']) continue;
+                        $hijos = isset($item['hijos']) ? $item['hijos'] : array();
+                        $tieneHijos = count($hijos) > 0;
+                        $url = isset($item['url']) ? $item['url'] : '#';
+                        $id = 'menu_' . $nivel . '_' . substr(md5($item['texto'] . $nivel), 0, 8);
+                        ?>
+                        <li class="<?= $tieneHijos ? 'dropdown-submenu' : 'nav-item' ?>">
+                            <a class="<?= $nivel === 0 ? 'nav-link' : 'dropdown-item' ?> <?= $tieneHijos ? 'dropdown-toggle' : '' ?>"
+                               href="<?= PUBLIC_PATH . $url ?>"
+                               <?= $tieneHijos ? 'id="'.$id.'" data-bs-toggle="dropdown" aria-expanded="false"' : '' ?>>
+                                <?php if (isset($item['icono'])): ?><i class="bi <?= $item['icono'] ?>"></i><?php endif; ?><?= htmlspecialchars($item['texto'], ENT_QUOTES, 'UTF-8') ?>
                             </a>
+                            <?php if ($tieneHijos): ?>
+                                <ul class="dropdown-menu" aria-labelledby="<?= $id ?>">
+                                    <?php $renderMenu($hijos, $nivel + 1); ?>
+                                </ul>
+                            <?php endif; ?>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>eventos/matrimonios">
-                                <i class="bi bi-hearts"></i> Matrimonios
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>eventos/defunciones">
-                                <i class="bi bi-cross"></i> Defunciones
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                
-                <!-- Lugares -->
-                <li class="nav-item">
-                    <a class="nav-link <?= ($controller == 'lugares') ? 'active' : '' ?>" 
-                       href="<?= PUBLIC_PATH ?>lugares">
-                        <i class="bi bi-geo-alt"></i> Lugares
-                    </a>
-                </li>
+                        <?php
+                    }
+                };
+                $renderMenu($menu);
+                ?>
             </ul>
-            
-            <!-- Barra de búsqueda -->
-            <form class="d-flex" role="search" method="get" action="<?= PUBLIC_PATH ?>buscar">
-                <input class="form-control me-2" type="search" name="q" 
-                       placeholder="Buscar persona..." aria-label="Buscar">
-                <button class="btn btn-outline-light" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
+
+            <form class="d-flex" role="search" method="get" action="<?= PUBLIC_PATH ?>personas">
+                <input class="form-control me-2" type="search" name="q" placeholder="Buscar persona..." aria-label="Buscar">
+                <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
             </form>
-            
-            <!-- Avatar / Usuario -->
+
+            <?php if (Auth::estaAutenticado()): ?>
             <ul class="navbar-nav ms-2">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="menuUsuario" 
-                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i>
+                    <a class="nav-link dropdown-toggle" href="#" id="menuUsuario" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i><?= htmlspecialchars(Auth::usuario()->nombre, ENT_QUOTES, 'UTF-8') ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuUsuario">
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>usuario/perfil">
-                                <i class="bi bi-person"></i> Mi Perfil
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>usuario/configuracion">
-                                <i class="bi bi-gear"></i> Configuración
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="<?= PUBLIC_PATH ?>personas/login/logout">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                            </a>
-                        </li>
+                        <li><a class="dropdown-item" href="<?= PUBLIC_PATH ?>login/logout"><i class="bi bi-box-arrow-right"></i>Cerrar sesión</a></li>
                     </ul>
                 </li>
             </ul>
+            <?php endif; ?>
         </div>
     </div>
 </nav>
 
-<!-- ============================================ -->
-<!-- CONTENIDO PRINCIPAL                          -->
-<!-- ============================================ -->
 <div class="main-content container-fluid">
-    <!-- Mostrar mensajes Flash (si existen)
-    <?php //if (Flash::hasMessages()): ?>
-        <div class="row">
-            <div class="col-12">
-                <?php //Flash::getMessages() ?>
-            </div>
-        </div>
-    <?php //endif; ?>
-     -->
-    <!-- Contenido de la vista -->
-    <?= View::content()  ?>
+    <?= View::content() ?>
 </div>
 
-<!-- ============================================ -->
-<!-- FOOTER                                       -->
-<!-- ============================================ -->
 <footer class="footer-genealogia">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <p>
-                    <i class="bi bi-tree"></i> 
-                    MiGenealogía &copy; <?= date('Y') ?> | 
-                    Construyendo tu historia familiar
-                </p>
-                <small>
-                    <i class="bi bi-code"></i> 
-                    Desarrollado con KumbiaPHP & Bootstrap
-                </small>
-            </div>
-        </div>
+        <p><i class="bi bi-tree"></i> MiGenealogía &copy; <?= date('Y') ?> | Construyendo tu historia familiar</p>
+        <small><i class="bi bi-code"></i> Desarrollado con KumbiaPHP &amp; Bootstrap</small>
     </div>
 </footer>
 
-<!-- ============================================ -->
-<!-- SCRIPTS                                      -->
-<!-- ============================================ -->
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-</script>
-
-<!-- JavaScript personalizado -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    (function() {
-        'use strict';
-        
-        // 1. Marcar el enlace activo automáticamente
-        // KumbiaPHP ya lo hace con la clase 'active', pero esto es un respaldo
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            
-            navLinks.forEach(function(link) {
-                // Obtener href del enlace
-                const href = link.getAttribute('href');
-                if (href && href !== '#' && href !== '') {
-                    // Comparar con la ruta actual
-                    if (currentPath === href || 
-                        (href !== '/' && currentPath.startsWith(href))) {
-                        link.classList.add('active');
-                    }
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var currentPath = window.location.pathname;
+        document.querySelectorAll('.navbar-genealogia a.nav-link').forEach(function (link) {
+            var href = link.getAttribute('href');
+            if (href && href !== '#' && href !== '/' && currentPath.indexOf(href) === 0) {
+                link.classList.add('active');
+                var parent = link.closest('.dropdown-submenu');
+                while (parent) {
+                    var toggle = parent.querySelector(':scope > .dropdown-toggle');
+                    if (toggle) toggle.classList.add('active');
+                    parent = parent.parentElement ? parent.parentElement.closest('.dropdown-submenu') : null;
+                }
+            }
+        });
+
+        document.querySelectorAll('.dropdown-submenu > .dropdown-toggle').forEach(function (toggle) {
+            toggle.addEventListener('click', function (event) {
+                if (window.innerWidth < 992) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var submenu = this.nextElementSibling;
+                    if (!submenu) return;
+                    var abierto = submenu.classList.contains('show');
+                    this.closest('.dropdown-menu').querySelectorAll('.dropdown-menu.show').forEach(function (menu) {
+                        if (menu !== submenu) menu.classList.remove('show');
+                    });
+                    submenu.classList.toggle('show', !abierto);
                 }
             });
         });
-        
-        // 2. Toggle para dropdowns (mejora la experiencia móvil)
-        document.querySelectorAll('.dropdown-toggle').forEach(function(element) {
-            element.addEventListener('click', function(e) {
-                const dropdown = this.closest('.dropdown');
-                if (dropdown && window.innerWidth < 992) {
-                    e.preventDefault();
-                    const menu = dropdown.querySelector('.dropdown-menu');
-                    if (menu) {
-                        const isOpen = menu.classList.contains('show');
-                        // Cerrar otros dropdowns
-                        document.querySelectorAll('.dropdown-menu.show').forEach(function(m) {
-                            if (m !== menu) {
-                                m.classList.remove('show');
-                            }
-                        });
-                        if (!isOpen) {
-                            menu.classList.add('show');
-                        } else {
-                            menu.classList.remove('show');
-                        }
-                    }
-                }
-            });
-        });
-        
-        // 3. Cerrar dropdowns al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.navbar-genealogia .dropdown')) {
+                document.querySelectorAll('.navbar-genealogia .dropdown-menu.show').forEach(function (menu) {
                     menu.classList.remove('show');
                 });
             }
         });
-        
-        // 4. Función para buscar (si hay campo de búsqueda)
-        const searchForm = document.querySelector('form[role="search"]');
+
+        var searchForm = document.querySelector('form[role="search"]');
         if (searchForm) {
-            searchForm.addEventListener('submit', function(e) {
-                const input = this.querySelector('input[name="q"]');
+            searchForm.addEventListener('submit', function (event) {
+                var input = this.querySelector('input[name="q"]');
                 if (input && input.value.trim() === '') {
-                    e.preventDefault();
+                    event.preventDefault();
                     input.focus();
-                    input.classList.add('is-invalid');
-                    setTimeout(function() {
-                        input.classList.remove('is-invalid');
-                    }, 2000);
                 }
             });
         }
-        
-        // 5. Efecto de scroll en el menú
-        let lastScrollTop = 0;
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar-genealogia');
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // Scroll hacia abajo: esconder menú ligeramente
-                navbar.style.transform = 'translateY(-10px)';
-                navbar.style.transition = 'transform 0.3s ease';
-            } else {
-                // Scroll hacia arriba: mostrar menú
-                navbar.style.transform = 'translateY(0)';
-            }
-            lastScrollTop = scrollTop;
-        }, { passive: true });
-        
-        // 6. Tooltips (si los necesitas)
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-        
-        console.log('🐦 MiGenealogía cargado exitosamente');
-        
-    })();
+    });
+}());
 </script>
-
 </body>
 </html>
