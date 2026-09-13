@@ -9,24 +9,14 @@
 <?= Form::open() ?>
 
 <p>
-    <?= Form::text(
-        'buscar',
-        '',
-        ''
-    ) ?>
-
-    <?= Form::submit(
-        'buscar',
-        'Buscar'
-    ) ?>
+    <?= Form::text('buscar', '', '') ?>
+    <?= Form::submit('buscar', 'Buscar') ?>
 </p>
 
 <?= Form::close() ?>
 
 <?php if ($resultados): ?>
-
     <h3>Personas encontradas</h3>
-
     <table>
         <thead>
             <tr>
@@ -36,42 +26,21 @@
                 <th>Acción</th>
             </tr>
         </thead>
-
         <tbody>
-
         <?php foreach ($resultados as $resultado): ?>
-
             <tr>
-
+                <td><?= $resultado->nombre ?></td>
+                <td><?= $resultado->apellidos ?></td>
+                <td><?= $resultado->fecha_nacimiento ?></td>
                 <td>
-                    <?= $resultado->nombre ?>
-                </td>
-
-                <td>
-                    <?= $resultado->apellidos ?>
-                </td>
-
-                <td>
-                    <?= $resultado->fecha_nacimiento ?>
-                </td>
-
-                <td>
-
                     <?= Form::open(
-                        'personas/guardar_familiar/' .
-                        $persona->id . '/' .
-                        $tipo
+                        $tipo == 'hijo'
+                            ? 'personas_familia/guardar_hijo_existente/' . $persona->id
+                            : 'personas/guardar_familiar/' . $persona->id . '/' . $tipo
                     ) ?>
 
-                    <?= Form::hidden(
-                        'persona_existente', '',
-                        $resultado->id
-                    ) ?>
-
-                    <?= Form::hidden(
-                        'tipo_filiacion', '',
-                        'biologica'
-                    ) ?>
+                    <?= Form::hidden('persona_existente', '', $resultado->id) ?>
+                    <?= Form::hidden('tipo_filiacion', '', 'biologica') ?>
 
                     <?= Form::submit(
                         'seleccionar',
@@ -81,30 +50,18 @@
                     ) ?>
 
                     <?= Form::close() ?>
-
                 </td>
-
             </tr>
-
         <?php endforeach; ?>
-
         </tbody>
     </table>
-
-<?php elseif (
-    Input::hasPost('buscar')
-): ?>
-
-    <p>
-        No se han encontrado personas.
-    </p>
-
+<?php elseif (Input::hasPost('buscar')): ?>
+    <p>No se han encontrado personas.</p>
 <?php endif; ?>
 
 <p>
     <?= Html::link(
-        'personas/nuevo_familiar/' .
-        $persona->id . '/' . $tipo,
+        'personas/nuevo_familiar/' . $persona->id . '/' . $tipo,
         'Crear nueva persona'
     ) ?>
 </p>

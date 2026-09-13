@@ -1,32 +1,25 @@
 <h2>
     Crear
-    <?= $tipo == 'progenitor'
-        ? 'progenitor'
-        : 'hijo'
-    ?>
+    <?= $tipo == 'progenitor' ? 'progenitor' : 'hijo' ?>
     de
     <?= $persona->nombre ?>
     <?= $persona->apellidos ?>
 </h2>
 
-<?= Form::open("personas/guardar_familiar/{$persona->id}/$tipo") ?>
+<?= Form::open(
+    $tipo == 'hijo'
+        ? 'personas_familia/guardar_hijo_nuevo/' . $persona->id
+        : "personas/guardar_familiar/{$persona->id}/$tipo"
+) ?>
 
 <p>
     Nombre
-    <?= Form::text(
-        'nombre',
-        '',
-        ''
-    ) ?>
+    <?= Form::text('nombre', '', '') ?>
 </p>
 
 <p>
     Apellidos
-    <?= Form::text(
-        'apellidos',
-        '',
-        ''
-    ) ?>
+    <?= Form::text('apellidos', '', '') ?>
 </p>
 
 <p>
@@ -45,26 +38,16 @@
 
 <p>
     Fecha de nacimiento
-    <?= Form::date(
-        'fecha_nacimiento',
-        '',
-        ''
-    ) ?>
+    <?= Form::date('fecha_nacimiento', '', '') ?>
 </p>
 
 <p>
     Lugar de nacimiento
-    <?= Form::text(
-        'lugar_nacimiento',
-        '',
-        ''
-    ) ?>
+    <?= Form::text('lugar_nacimiento', '', '') ?>
 </p>
 
-<?php if ($tipo === "hijo"): ?>
-<p>
-    Tipo de filiación
-</p>
+<?php if ($tipo === 'hijo'): ?>
+<p>Tipo de filiación</p>
 
 <?= Form::select(
     'tipo_filiacion',
@@ -77,39 +60,18 @@
 ) ?>
 
 <p id="fecha-inicio-filiacion">
-    <?= Form::label(
-        'fecha_inicio',
-        'Fecha de inicio de la filiación'
-    ) ?>
-
-    <?= Form::date(
-        'fecha_inicio',
-        ''
-    ) ?>
+    <?= Form::label('fecha_inicio', 'Fecha de inicio de la filiación') ?>
+    <?= Form::date('fecha_inicio', '') ?>
 </p>
 <?php endif; ?>
 
-<p>
-    Notas
-</p>
+<p>Notas</p>
+<?= Form::textarea('notas', '', '') ?>
 
-<?= Form::textarea(
-    'notas',
-    '',
-    ''
-) ?>
-
-<?= Form::hidden(
-    'tipo',
-    $tipo
-) ?>
-
-<?= Form::submit(
-    'guardar',
-    'Crear y añadir'
-) ?>
-
+<?= Form::hidden('tipo', $tipo) ?>
+<?= Form::submit('guardar', 'Crear y añadir') ?>
 <?= Form::close() ?>
+
 <script>
     function actualizarFechaFiliacion() {
         const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
@@ -120,19 +82,14 @@
         }
 
         campo.style.display =
-            tipo_filiacion.value === 'biologica'
-                ? 'none'
-                : '';
+            tipo_filiacion.value === 'biologica' ? 'none' : '';
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         const tipo_filiacion = document.querySelector('[name="tipo_filiacion"]');
 
         if (tipo_filiacion) {
-            tipo_filiacion.addEventListener(
-                'change',
-                actualizarFechaFiliacion
-            );
+            tipo_filiacion.addEventListener('change', actualizarFechaFiliacion);
         }
 
         actualizarFechaFiliacion();

@@ -10,32 +10,26 @@
         <th>Nombre</th>
         <td><?= htmlspecialchars($persona->nombre) ?></td>
     </tr>
-
     <tr>
         <th>Apellidos</th>
         <td><?= htmlspecialchars($persona->apellidos) ?></td>
     </tr>
-
     <tr>
         <th>Sexo</th>
         <td><?= htmlspecialchars($persona->sexo ?? '') ?></td>
     </tr>
-
     <tr>
         <th>Fecha de nacimiento</th>
         <td><?= $persona->fecha_nacimiento ? date('d/m/Y', strtotime($persona->fecha_nacimiento)) : '' ?></td>
     </tr>
-
     <tr>
         <th>Lugar de nacimiento</th>
         <td><?= htmlspecialchars($persona->lugar_nacimiento ?? '') ?></td>
     </tr>
-
     <tr>
         <th>Fecha de defunción</th>
         <td><?= $persona->fecha_defuncion ? date('d/m/Y', strtotime($persona->fecha_defuncion)) : '' ?></td>
     </tr>
-
     <tr>
         <th>Lugar de defunción</th>
         <td><?= htmlspecialchars($persona->lugar_defuncion ?? '') ?></td>
@@ -43,190 +37,102 @@
 </table>
 
 <?php if (Auth::puedeEditar($persona->id)): ?>
-
-    <?= Html::link(
-        'personas/editar/' . $persona->id,
-        'Editar'
-    ) ?>
-
+    <?= Html::link('personas/editar/' . $persona->id, 'Editar') ?>
     &nbsp;|&nbsp;
-
     <?= Html::link(
         'defunciones/registrar/' . $persona->id,
-        empty($persona->fecha_defuncion)
-            ? 'Registrar defunción'
-            : 'Editar defunción'
+        empty($persona->fecha_defuncion) ? 'Registrar defunción' : 'Editar defunción'
     ) ?>
-
 <?php endif; ?>
 
 <h2>Progenitores</h2>
 
 <?php if ($progenitores): ?>
-
     <ul>
-
     <?php foreach ($progenitores as $filiacion): ?>
-
-        <?php
-        $progenitor = (new Personas())->find(
-            $filiacion->progenitor_id
-        );
-        ?>
-
+        <?php $progenitor = (new Personas())->find($filiacion->progenitor_id); ?>
         <?php if ($progenitor): ?>
-
             <li>
                 <?= htmlspecialchars($progenitor->nombre) ?>
                 <?= htmlspecialchars($progenitor->apellidos) ?>
-
                 (<?= htmlspecialchars($filiacion->tipo) ?>)
             </li>
-
         <?php endif; ?>
-
     <?php endforeach; ?>
-
     </ul>
-
 <?php else: ?>
-
     <p>No constan progenitores.</p>
-
 <?php endif; ?>
 
-<?php if (Auth::puedeEditar($persona->id)): ?>
-
+<?php if (Auth::puedeEditar($persona->id) && count($progenitores) < 2): ?>
     <p>
-        <?= Html::link(
-            'personas/nuevo_progenitor/' . $persona->id,
-            '+ Añadir progenitor'
-        ) ?>
+        <?= Html::link('personas/nuevo_progenitor/' . $persona->id, '+ Añadir progenitor') ?>
     </p>
-
 <?php endif; ?>
 
 <h2>Hijos</h2>
 
 <?php if ($hijos): ?>
-
     <ul>
-
     <?php foreach ($hijos as $filiacion): ?>
-
-        <?php
-        $hijo = (new Personas())->find(
-            $filiacion->hijo_id
-        );
-        ?>
-
+        <?php $hijo = (new Personas())->find($filiacion->hijo_id); ?>
         <?php if ($hijo): ?>
-
             <li>
                 <?= htmlspecialchars($hijo->nombre) ?>
                 <?= htmlspecialchars($hijo->apellidos) ?>
-
                 (<?= htmlspecialchars($filiacion->tipo) ?>)
             </li>
-
         <?php endif; ?>
-
     <?php endforeach; ?>
-
     </ul>
-
 <?php else: ?>
-
     <p>No constan hijos.</p>
-
 <?php endif; ?>
 
 <?php if (Auth::puedeEditar($persona->id)): ?>
-
     <p>
-        <?= Html::link(
-            'personas/nuevo_hijo/' . $persona->id,
-            '+ Añadir hijo'
-        ) ?>
+        <?= Html::link('personas/nuevo_hijo/' . $persona->id, '+ Añadir hijo') ?>
     </p>
-
 <?php endif; ?>
 
 <h2>Parejas y matrimonios</h2>
 
-<?php
-$uniones = array_merge(
-    $uniones1,
-    $uniones2
-);
-?>
+<?php $uniones = array_merge($uniones1, $uniones2); ?>
 
 <?php if ($uniones): ?>
-
     <ul>
-
     <?php foreach ($uniones as $union): ?>
-
         <?php
-
-        if ($union->persona1_id == $persona->id) {
-            $otraPersonaId = $union->persona2_id;
-        } else {
-            $otraPersonaId = $union->persona1_id;
-        }
-
-        $otraPersona = (new Personas())->find(
-            $otraPersonaId
-        );
-
+        $otraPersonaId = $union->persona1_id == $persona->id
+            ? $union->persona2_id
+            : $union->persona1_id;
+        $otraPersona = (new Personas())->find($otraPersonaId);
         ?>
-
         <?php if ($otraPersona): ?>
-
             <li>
-
                 <?= htmlspecialchars($otraPersona->nombre) ?>
                 <?= htmlspecialchars($otraPersona->apellidos) ?>
-
-                —
-
-                <?= htmlspecialchars($union->tipo) ?>
-
+                — <?= htmlspecialchars($union->tipo) ?>
                 <?php if ($union->fecha_inicio): ?>
                     desde
-                    <?= $union->fecha_inicio ? date('d/m/Y', strtotime($union->fecha_inicio)) : '' ?>
+                    <?= htmlspecialchars($union->fecha_inicio) ?>
                 <?php endif; ?>
-
                 <?php if ($union->fecha_fin): ?>
                     hasta
-                    <?= $union->fecha_fin ? date('d/m/Y', strtotime($union->fecha_fin)) : '' ?>
+                    <?= htmlspecialchars($union->fecha_fin) ?>
                 <?php endif; ?>
-
             </li>
-
         <?php endif; ?>
-
     <?php endforeach; ?>
-
     </ul>
-
 <?php else: ?>
-
     <p>No constan parejas.</p>
-
 <?php endif; ?>
 
 <?php if (Auth::puedeEditar($persona->id)): ?>
-
     <p>
-        <?= Html::link(
-            'personas/nueva_pareja/' . $persona->id,
-            '+ Añadir pareja'
-        ) ?>
+        <?= Html::link('personas/nueva_pareja/' . $persona->id, '+ Añadir pareja') ?>
     </p>
-
 <?php endif; ?>
 
-<p>
-    <?= Html::link('personas', 'Volver al listado') ?>
-</p>
+<p><?= Html::link('personas', 'Volver al listado') ?></p>
