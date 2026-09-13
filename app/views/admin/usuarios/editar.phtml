@@ -1,0 +1,92 @@
+<div class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-person-gear"></i> Editar usuario</h1>
+
+    <form method="post" action="<?= PUBLIC_PATH ?>admin/usuarios/actualizar/<?= $usuario->id ?>">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Usuario</label>
+                        <input class="form-control" value="<?= htmlspecialchars($usuario->username) ?>" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nueva contraseña</label>
+                        <input class="form-control" type="password" name="password" placeholder="Dejar vacía para conservarla">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="nombre" value="<?= htmlspecialchars($usuario->nombre) ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos</label>
+                        <input class="form-control" name="apellidos" value="<?= htmlspecialchars($usuario->apellidos) ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Correo electrónico</label>
+                        <input class="form-control" type="email" name="email" value="<?= htmlspecialchars($usuario->email) ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" name="rol_id" required>
+                            <?php foreach ($roles as $id => $nombre): ?>
+                                <option value="<?= $id ?>" <?= $usuario->rol_id == $id ? 'selected' : '' ?>><?= htmlspecialchars($nombre) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" name="activo" value="1" id="activo" <?= $usuario->activo ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="activo">Usuario activo</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5>Ámbito genealógico</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Árbol</label>
+                        <select class="form-select" name="arbol_id" id="arbol_id" required>
+                            <?php foreach ($arboles as $arbol): ?>
+                                <option value="<?= $arbol->id ?>" <?= $arbolUsuario && $arbolUsuario->arbol_id == $arbol->id ? 'selected' : '' ?>><?= htmlspecialchars($arbol->nombre) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Persona raíz</label>
+                        <select class="form-select" name="persona_referencia_id" id="persona_referencia_id" required>
+                            <?php foreach ($personas as $persona): ?>
+                                <option value="<?= $persona->id ?>" <?= $usuario->persona_referencia_id == $persona->id ? 'selected' : '' ?>><?= htmlspecialchars($persona->apellidos . ', ' . $persona->nombre) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a class="btn btn-secondary" href="<?= PUBLIC_PATH ?>admin/usuarios">Cancelar</a>
+        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('arbol_id').addEventListener('change', function () {
+    var arbolId = this.value;
+    var select = document.getElementById('persona_referencia_id');
+    select.innerHTML = '<option value="">Cargando...</option>';
+    fetch('<?= PUBLIC_PATH ?>admin/usuarios/personas_arbol/' + arbolId)
+        .then(function (r) { return r.json(); })
+        .then(function (personas) {
+            select.innerHTML = '<option value="">Seleccione una persona...</option>';
+            personas.forEach(function (persona) {
+                var option = document.createElement('option');
+                option.value = persona.id;
+                option.textContent = persona.texto;
+                select.appendChild(option);
+            });
+        });
+});
+</script>
