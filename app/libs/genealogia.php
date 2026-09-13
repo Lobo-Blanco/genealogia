@@ -131,7 +131,7 @@ public static function crearUnion(
         );
     }
 
-    if (!$persona1->fecha_nacimiento > $fechaInicio || !$persona2->fecha_nacimiento > $fechaInicio) {
+    if ($fechaInicio && (!$persona1->fecha_nacimiento > $fechaInicio || !$persona2->fecha_nacimiento > $fechaInicio)) {
         return array(
             'ok' => false,
             'mensaje' =>

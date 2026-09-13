@@ -70,7 +70,7 @@ class Personas extends ActiveRecord
 
     /**
      * Obtiene las uniones en las que la persona
-     * es persona1.
+     * está involucrada como persona1.
      */
     public function unionesComoPersona1()
     {
@@ -81,7 +81,7 @@ class Personas extends ActiveRecord
 
     /**
      * Obtiene las uniones en las que la persona
-     * es persona2.
+     * está involucrada como persona2.
      */
     public function unionesComoPersona2()
     {
