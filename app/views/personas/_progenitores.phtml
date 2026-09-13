@@ -1,0 +1,184 @@
+<?php
+$arbol = Auth::arbolActual();
+$listaProgenitores = array();
+$padreActual = null;
+$madreActual = null;
+
+if ($arbol) {
+    $modeloPersonas = new Personas();
+    $listaProgenitores = $modeloPersonas->find(
+        'conditions: arbol_id = ' . intval($arbol->id) .
+        ' AND id != ' . intval($persona->id),
+        'order: apellidos, nombre'
+    );
+
+    if (!empty($persona->id)) {
+        $filiaciones = new Filiaciones();
+        $relaciones = $filiaciones->find(
+            'conditions: hijo_id = ' . intval($persona->id)
+        );
+
+        foreach ($relaciones as $relacion) {
+            $progenitor = $modeloPersonas->find_first(
+                'conditions: arbol_id = ' . intval($arbol->id) .
+                ' AND id = ' . intval($relacion->progenitor_id)
+            );
+
+            if (!$progenitor) {
+                continue;
+            }
+
+            if ($progenitor->sexo == 'H' && !$padreActual) {
+                $padreActual = $progenitor;
+            } elseif ($progenitor->sexo == 'M' && !$madreActual) {
+                $madreActual = $progenitor;
+            }
+        }
+    }
+}
+?>
+
+<fieldset>
+    <legend>Progenitores</legend>
+
+    <p>
+        <strong>Padre:</strong>
+        <span id="padre_resumen"><?php if ($padreActual): ?><?= htmlspecialchars($padreActual->nombre . ' ' . $padreActual->apellidos) ?><?php else: ?>No establecido<?php endif; ?></span>
+        <?php if (!$padreActual): ?><button type="button" onclick="abrirProgenitor('padre')">Establecer padre</button><?php endif; ?>
+    </p>
+
+    <p>
+        <strong>Madre:</strong>
+        <span id="madre_resumen"><?php if ($madreActual): ?><?= htmlspecialchars($madreActual->nombre . ' ' . $madreActual->apellidos) ?><?php else: ?>No establecida<?php endif; ?></span>
+        <?php if (!$madreActual): ?><button type="button" onclick="abrirProgenitor('madre')">Establecer madre</button><?php endif; ?>
+    </p>
+
+    <?php if ($padreActual): ?>
+        <input type="hidden" name="padre_modo" value="ninguno">
+    <?php else: ?>
+        <input type="hidden" id="padre_modo" name="padre_modo" value="ninguno">
+        <input type="hidden" id="padre_existente" name="padre_existente" value="">
+        <input type="hidden" id="padre_nombre" name="padre_nombre" value="">
+        <input type="hidden" id="padre_apellidos" name="padre_apellidos" value="">
+        <input type="hidden" id="padre_fecha_nacimiento" name="padre_fecha_nacimiento" value="">
+        <input type="hidden" id="padre_lugar_nacimiento" name="padre_lugar_nacimiento" value="">
+        <input type="hidden" id="padre_notas" name="padre_notas" value="">
+    <?php endif; ?>
+
+    <?php if ($madreActual): ?>
+        <input type="hidden" name="madre_modo" value="ninguno">
+    <?php else: ?>
+        <input type="hidden" id="madre_modo" name="madre_modo" value="ninguno">
+        <input type="hidden" id="madre_existente" name="madre_existente" value="">
+        <input type="hidden" id="madre_nombre" name="madre_nombre" value="">
+        <input type="hidden" id="madre_apellidos" name="madre_apellidos" value="">
+        <input type="hidden" id="madre_fecha_nacimiento" name="madre_fecha_nacimiento" value="">
+        <input type="hidden" id="madre_lugar_nacimiento" name="madre_lugar_nacimiento" value="">
+        <input type="hidden" id="madre_notas" name="madre_notas" value="">
+    <?php endif; ?>
+</fieldset>
+
+<div id="progenitor_modal" style="display:none; border:1px solid #888; padding:1em; margin:1em 0; background:#fff;">
+    <h3 id="progenitor_modal_titulo">Establecer progenitor</h3>
+
+    <p>
+        <label for="progenitor_busqueda">Buscar persona existente</label><br>
+        <input type="text" id="progenitor_busqueda" onkeyup="filtrarProgenitores()" autocomplete="off">
+    </p>
+
+    <div id="progenitor_resultados" style="max-height:15em; overflow:auto;">
+        <?php foreach ($listaProgenitores as $candidato): ?>
+            <button type="button" class="progenitor_candidato"
+                data-id="<?= intval($candidato->id) ?>"
+                data-sexo="<?= htmlspecialchars($candidato->sexo) ?>"
+                data-nombre="<?= htmlspecialchars($candidato->nombre . ' ' . $candidato->apellidos) ?>"
+                onclick="seleccionarProgenitorExistente(this)"
+                style="display:block; width:100%; text-align:left; margin:.2em 0;">
+                <?= htmlspecialchars($candidato->nombre . ' ' . $candidato->apellidos) ?>
+                <?php if ($candidato->fecha_nacimiento): ?>(<?= htmlspecialchars($candidato->fecha_nacimiento) ?>)<?php endif; ?>
+            </button>
+        <?php endforeach; ?>
+    </div>
+
+    <hr>
+    <h4>O crear una persona nueva</h4>
+
+    <p><label for="progenitor_nuevo_nombre">Nombre</label><br><input type="text" id="progenitor_nuevo_nombre"></p>
+    <p><label for="progenitor_nuevo_apellidos">Apellidos</label><br><input type="text" id="progenitor_nuevo_apellidos"></p>
+    <p><label for="progenitor_nuevo_fecha_nacimiento">Fecha de nacimiento</label><br><input type="date" id="progenitor_nuevo_fecha_nacimiento"></p>
+    <p><label for="progenitor_nuevo_lugar_nacimiento">Lugar de nacimiento</label><br><input type="text" id="progenitor_nuevo_lugar_nacimiento"></p>
+    <p><label for="progenitor_nuevo_notas">Notas</label><br><textarea id="progenitor_nuevo_notas"></textarea></p>
+
+    <p>
+        <button type="button" onclick="crearProgenitorNuevo()">Crear este progenitor</button>
+        <button type="button" onclick="cerrarProgenitor()">Cancelar</button>
+    </p>
+</div>
+
+<script type="text/javascript">
+var progenitorRolActual = null;
+
+function abrirProgenitor(rol) {
+    progenitorRolActual = rol;
+    document.getElementById('progenitor_modal_titulo').innerHTML = rol == 'padre' ? 'Establecer padre' : 'Establecer madre';
+    document.getElementById('progenitor_busqueda').value = '';
+    document.getElementById('progenitor_nuevo_nombre').value = '';
+    document.getElementById('progenitor_nuevo_apellidos').value = '';
+    document.getElementById('progenitor_nuevo_fecha_nacimiento').value = '';
+    document.getElementById('progenitor_nuevo_lugar_nacimiento').value = '';
+    document.getElementById('progenitor_nuevo_notas').value = '';
+    filtrarProgenitores();
+    document.getElementById('progenitor_modal').style.display = 'block';
+}
+
+function cerrarProgenitor() {
+    document.getElementById('progenitor_modal').style.display = 'none';
+    progenitorRolActual = null;
+}
+
+function filtrarProgenitores() {
+    var texto = document.getElementById('progenitor_busqueda').value.toLowerCase();
+    var botones = document.getElementsByClassName('progenitor_candidato');
+    var sexo = progenitorRolActual == 'padre' ? 'H' : 'M';
+
+    for (var i = 0; i < botones.length; i++) {
+        var nombre = botones[i].getAttribute('data-nombre').toLowerCase();
+        var coincide = botones[i].getAttribute('data-sexo') == sexo && nombre.indexOf(texto) != -1;
+        botones[i].style.display = coincide ? 'block' : 'none';
+    }
+}
+
+function seleccionarProgenitorExistente(boton) {
+    var rol = progenitorRolActual;
+    document.getElementById(rol + '_modo').value = 'existente';
+    document.getElementById(rol + '_existente').value = boton.getAttribute('data-id');
+    document.getElementById(rol + '_nombre').value = '';
+    document.getElementById(rol + '_apellidos').value = '';
+    document.getElementById(rol + '_fecha_nacimiento').value = '';
+    document.getElementById(rol + '_lugar_nacimiento').value = '';
+    document.getElementById(rol + '_notas').value = '';
+    document.getElementById(rol + '_resumen').innerHTML = boton.getAttribute('data-nombre');
+    cerrarProgenitor();
+}
+
+function crearProgenitorNuevo() {
+    var rol = progenitorRolActual;
+    var nombre = document.getElementById('progenitor_nuevo_nombre').value;
+    var apellidos = document.getElementById('progenitor_nuevo_apellidos').value;
+
+    if (!nombre || !apellidos) {
+        alert('Nombre y apellidos son obligatorios.');
+        return;
+    }
+
+    document.getElementById(rol + '_modo').value = 'nuevo';
+    document.getElementById(rol + '_existente').value = '';
+    document.getElementById(rol + '_nombre').value = nombre;
+    document.getElementById(rol + '_apellidos').value = apellidos;
+    document.getElementById(rol + '_fecha_nacimiento').value = document.getElementById('progenitor_nuevo_fecha_nacimiento').value;
+    document.getElementById(rol + '_lugar_nacimiento').value = document.getElementById('progenitor_nuevo_lugar_nacimiento').value;
+    document.getElementById(rol + '_notas').value = document.getElementById('progenitor_nuevo_notas').value;
+    document.getElementById(rol + '_resumen').innerHTML = nombre + ' ' + apellidos + ' (persona nueva)';
+    cerrarProgenitor();
+}
+</script>
