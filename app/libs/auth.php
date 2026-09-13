@@ -2,346 +2,100 @@
 
 class Auth
 {
-    /**
-     * Devuelve el usuario actualmente autenticado.
-     */
-    public static function usuario()
-    {
-        return Session::get('usuario');
-    }
-
-    /**
-     * Indica si existe una sesión autenticada.
-     */
-    public static function estaAutenticado()
-    {
-        return Session::has('usuario');
-    }
-
-    /**
-     * Inicia sesión con un usuario.
-     */
-    public static function login($usuario)
-    {
-        Session::set('usuario', $usuario);
-    }
-
-    /**
-     * Cierra la sesión.
-     */
-    public static function logout()
-    {
-        Session::delete('usuario');
-    }
-
-    public static function esAdministrador()
-    {
-        $usuario = self::usuario();
-
-        return $usuario && $usuario->rol_id == 1;
-    }
-
-    public static function esVisualizador()
-    {
-        $usuario = self::usuario();
-
-        return $usuario && $usuario->rol_id == 2;
-    }
-
-    public static function esEditor()
-    {
-        $usuario = self::usuario();
-
-        return $usuario && $usuario->rol_id == 3;
-    }
-
-    /**
-     * Comprueba si puede modificar una persona.
-     */
-    public static function puedeEditar($personaId)
-    {
-        $usuario = self::usuario();
-
-        if (!$usuario) {
-            return false;
-        }
-
-        // Administrador: puede modificar cualquier persona.
-        if ($usuario->rol_id == 1) {
-            return true;
-        }
-
-        // Visualizador: nunca puede modificar.
-        if ($usuario->rol_id == 2) {
-            return false;
-        }
-
-        // Editor: solamente su ámbito.
-        if ($usuario->rol_id == 3) {
-            $arbol = self::arbolActual();
-
-            if (!$arbol) {
-                return false;
-            }
-
-            $personas = new Personas();
-
-            $persona = $personas->find_first(
-                "conditions: id = " . intval($personaId)
-            );
-
-            if (!$persona) {
-                return false;
-            }
-
-            if ($persona->arbol_id != $arbol->id) {
-                return false;
-            }
-
-            $permisos = new UsuariosPersonas();
-
-            return $permisos->puedeEditar(
-                $usuario->id,
-                $personaId
-            );
-        }
-
+    public static function usuario() { return Session::get('usuario'); }
+    public static function estaAutenticado() { return Session::has('usuario'); }
+    public static function login($usuario) { Session::set('usuario', $usuario); }
+    public static function logout() { Session::delete('usuario'); Session::delete('arbol_id'); }
+    public static function esAdministrador() { $u=self::usuario(); return $u && $u->rol_id==1; }
+    public static function esVisualizador() { $u=self::usuario(); return $u && $u->rol_id==2; }
+    public static function esEditor() { $u=self::usuario(); return $u && $u->rol_id==3; }
+    public static function esSupervisor() { $u=self::usuario(); return $u && $u->rol_id==4; }
+    public static function puedeAdministrarUsuarios() { return self::esSupervisor()||self::esAdministrador()||self::esEditor(); }
+    public static function puedeCrearUsuario($rolId) {
+        $rolId=intval($rolId);
+        if(self::esSupervisor()) return in_array($rolId,array(1,2,3));
+        if(self::esAdministrador()) return in_array($rolId,array(2,3));
+        if(self::esEditor()) return $rolId==2;
         return false;
     }
-
-public static function arboles()
-{
-    $usuario = Auth::usuario();
-
-    if (!$usuario) {
-        return array();
+    public static function puedeGestionarUsuario($usuarioId) {
+        $actual=self::usuario(); $usuarioId=intval($usuarioId);
+        if(!$actual || $actual->id==$usuarioId) return false;
+        $objetivo=(new Usuarios())->find_first('conditions: id = '.$usuarioId);
+        if(!$objetivo) return false;
+        if(self::esSupervisor()) return true;
+        if(self::esAdministrador()) return in_array($objetivo->rol_id,array(2,3))&&self::usuarioTieneArbolDelActual($usuarioId);
+        if(self::esEditor()) return $objetivo->rol_id==2&&self::usuarioTieneArbolDelActual($usuarioId);
+        return false;
     }
-
-    $ua = new UsuariosArboles();
-
-    return $ua->find(
-        "usuario_id = {$usuario->id}"
-    );
-}
-
-public static function arbolActual()
-{
-    $arboles = Auth::arboles();
-
-    if (!$arboles) {
+    private static function usuarioTieneArbolDelActual($usuarioId) {
+        $arbol=self::arbolActual(); if(!$arbol) return false;
+        return (bool)(new UsuariosArboles())->find_first('usuario_id = '.intval($usuarioId).' AND arbol_id = '.intval($arbol->id));
+    }
+    public static function arboles() {
+        $u=self::usuario(); if(!$u) return array();
+        if(self::esSupervisor()) return (new Arboles())->find('order: nombre');
+        return (new UsuariosArboles())->find('usuario_id = '.intval($u->id));
+    }
+    public static function arbolActual() {
+        $arboles=self::arboles(); if(!$arboles) return null;
+        if(self::esSupervisor()) {
+            $id=Session::get('arbol_id');
+            if($id) {
+                $arbol=(new Arboles())->find_first('conditions: id = '.intval($id));
+                if($arbol) return $arbol;
+            }
+            $arbol=reset($arboles);
+            if($arbol) { Session::set('arbol_id',$arbol->id); return $arbol; }
+            return null;
+        }
+        foreach($arboles as $registro) if($registro->activo==1) return $registro->arboles;
         return null;
     }
-
-    $activos = array_filter($arboles, function($u) {
-        return $u->activo == 1;
-    });
-
-    if (!$activos) {
-        return null;
+    public static function tieneAccesoArbol($arbolId) {
+        $u=self::usuario(); if(!$u) return false;
+        if(self::esSupervisor()) return (bool)(new Arboles())->find_first('conditions: id = '.intval($arbolId));
+        return (bool)(new UsuariosArboles())->find_first('usuario_id = '.intval($u->id).' AND arbol_id = '.intval($arbolId));
     }
-
-    $activo = reset($activos);
-
-    return $activo->arboles;
-}
-
-public static function tieneAccesoArbol($arbolId)
-{
-    $usuario = Auth::usuario();
-
-    if (!$usuario) {
-        return false;
+    public static function cambiarArbol($arbolId) {
+        $u=self::usuario(); if(!$u||!self::tieneAccesoArbol($arbolId)) return false;
+        if(self::esSupervisor()) { Session::set('arbol_id',intval($arbolId)); return true; }
+        $ua=new UsuariosArboles();
+        foreach($ua->find('usuario_id = '.intval($u->id)) as $r) { $r->activo=0; $r->save(); }
+        $r=$ua->find_first('usuario_id = '.intval($u->id).' AND arbol_id = '.intval($arbolId));
+        if(!$r) return false; $r->activo=1; return $r->save();
     }
-
-    $ua = new UsuariosArboles();
-
-    return (bool) $ua->find_first(
-        "usuario_id = {$usuario->id}",
-        "arbol_id = {$arbolId}"
-    );
-}
-
-public static function cambiarArbol($arbolId)
-{
-    $usuario = Auth::usuario();
-
-    if (!$usuario) {
-        return false;
-    }
-
-    $ua = new UsuariosArboles();
-
-    // Primero desactivamos los árboles del usuario.
-    $registros = $ua->find(
-        "usuario_id = {$usuario->id}"
-    );
-
-    foreach ($registros as $registro) {
-        $registro->activo = 0;
-        $registro->save();
-    }
-
-    // Activamos el seleccionado.
-    $registro = $ua->find_first(
-        "usuario_id = {$usuario->id}",
-        "arbol_id = {$arbolId}"
-    );
-
-    if (!$registro) {
-        return false;
-    }
-
-    $registro->activo = 1;
-
-    return $registro->save();
-}
-
-/**
- * Comprueba si puede modificar dos personas.
- */
-public static function puedeEditarPersonas(
-    $persona1Id,
-    $persona2Id
-) {
-    $usuario = self::usuario();
-
-    if (!$usuario) {
-        return false;
-    }
-
-    // Administrador: puede modificar cualquier persona.
-    if ($usuario->rol_id == 1) {
-        return true;
-    }
-
-    // Visualizador: nunca puede modificar.
-    if ($usuario->rol_id == 2) {
-        return false;
-    }
-
-    // Editor: debe tener permiso sobre las dos personas.
-    if ($usuario->rol_id == 3) {
-
-        return self::puedeEditar($persona1Id)
-            && self::puedeEditar($persona2Id);
-    }
-
-    return false;
-}
-
-/**
- * Comprueba si puede modificar una unión.
- */
-public static function puedeEditarUnion($unionId)
-{
-    $usuario = self::usuario();
-
-    if (!$usuario) {
-        return false;
-    }
-
-    // Administrador: puede modificar cualquier unión.
-    if ($usuario->rol_id == 1) {
-        return true;
-    }
-
-    // Visualizador: nunca puede modificar.
-    if ($usuario->rol_id == 2) {
-        return false;
-    }
-
-    // Editor.
-    if ($usuario->rol_id == 3) {
-
-        $arbol = self::arbolActual();
-
-        if (!$arbol) {
-            return false;
+    public static function puedeEditar($personaId) {
+        $u=self::usuario(); if(!$u) return false;
+        if(self::esSupervisor()||self::esAdministrador()) return self::personaEnAmbito($personaId);
+        if(self::esVisualizador()) return false;
+        if(self::esEditor()) {
+            $p=self::buscarPersona($personaId); if(!$p||!self::personaEnArbolActual($p)) return false;
+            return (new UsuariosPersonas())->puedeEditar($u->id,$personaId)||self::personaEnRamaDesdeRaiz($personaId);
         }
-
-        $uniones = new Uniones();
-
-        $union = $uniones->find_first(
-            "conditions: id = " . intval($unionId)
-        );
-
-        if (!$union) {
-            return false;
-        }
-
-        // La unión debe haber sido creada por este usuario.
-        if ($union->usuario_id != $usuario->id) {
-            return false;
-        }
-
-        // Comprobamos que las dos personas existen.
-        $personas = new Personas();
-
-        $persona1 = $personas->find_first(
-            "conditions: id = " . intval($union->persona1_id)
-        );
-
-        $persona2 = $personas->find_first(
-            "conditions: id = " . intval($union->persona2_id)
-        );
-
-        if (!$persona1 || !$persona2) {
-            return false;
-        }
-
-        // Las dos personas deben pertenecer al árbol actual.
-        if (
-            $persona1->arbol_id != $arbol->id ||
-            $persona2->arbol_id != $arbol->id
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Comprueba si puede modificar una filiación.
- */
-public static function puedeEditarFiliacion($filiacionId)
-{
-    $usuario = self::usuario();
-
-    if (!$usuario) {
         return false;
     }
-
-    // Administrador.
-    if ($usuario->rol_id == 1) {
-        return true;
-    }
-
-    // Visualizador.
-    if ($usuario->rol_id == 2) {
+    private static function buscarPersona($id) { return (new Personas())->find_first('conditions: id = '.intval($id)); }
+    private static function personaEnArbolActual($p) { $a=self::arbolActual(); return $a&&$p->arbol_id==$a->id; }
+    private static function personaEnAmbito($id) { $p=self::buscarPersona($id); if(!$p)return false; return self::esSupervisor()||self::personaEnArbolActual($p); }
+    private static function personaEnRamaDesdeRaiz($id) {
+        $u=self::usuario(); if(!$u||!$u->persona_referencia_id)return false;
+        if(intval($id)==intval($u->persona_referencia_id))return true;
+        $raiz=self::buscarPersona($u->persona_referencia_id); $persona=self::buscarPersona($id);
+        if(!$raiz||!$persona||$raiz->arbol_id!=$persona->arbol_id)return false;
+        $visitados=array(); $pendientes=array($raiz->id); $f=new Filiaciones();
+        while($pendientes){ $actual=array_shift($pendientes); if(isset($visitados[$actual]))continue; $visitados[$actual]=true;
+            foreach($f->find('progenitor_id = '.intval($actual)) as $fil){ if(intval($fil->hijo_id)==intval($id))return true; if(!isset($visitados[$fil->hijo_id]))$pendientes[]=$fil->hijo_id; }
+        }
         return false;
     }
-
-    // Editor: solamente las filiaciones que ha creado.
-    if ($usuario->rol_id == 3) {
-
-        $filiaciones = new Filiaciones();
-
-        $filiacion = $filiaciones->find_first(
-            "conditions: id = " .
-            intval($filiacionId)
-        );
-
-        if (!$filiacion) {
-            return false;
-        }
-
-        return $filiacion->usuario_id ==
-            $usuario->id;
+    public static function puedeEditarPersonas($a,$b) { return self::puedeEditar($a)&&self::puedeEditar($b); }
+    public static function puedeEditarUnion($id) {
+        $u=self::usuario(); if(!$u)return false; $union=(new Uniones())->find_first('conditions: id = '.intval($id)); if(!$union)return false;
+        return (self::esSupervisor()||self::esAdministrador()||self::esEditor())&&self::puedeEditarPersonas($union->persona1_id,$union->persona2_id);
     }
-
-    return false;
-}
+    public static function puedeEditarFiliacion($id) {
+        $u=self::usuario(); if(!$u)return false; $f=(new Filiaciones())->find_first('conditions: id = '.intval($id)); if(!$f)return false;
+        return self::puedeEditar($f->hijo_id)&&self::puedeEditar($f->progenitor_id);
+    }
 }
