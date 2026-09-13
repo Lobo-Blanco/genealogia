@@ -1,0 +1,51 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-people"></i> Usuarios</h1>
+        <a class="btn btn-success" href="<?= PUBLIC_PATH ?>admin/usuarios/nuevo">
+            <i class="bi bi-person-plus"></i> Nuevo usuario
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($usuarios as $usuario): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($usuario->username) ?></td>
+                            <td><?= htmlspecialchars(trim($usuario->nombre . ' ' . $usuario->apellidos)) ?></td>
+                            <td><?= htmlspecialchars(ucfirst($usuario->rol_id == 4 ? 'supervisor' : ($usuario->rol_id == 1 ? 'administrador' : ($usuario->rol_id == 3 ? 'editor' : 'visualizador')))) ?></td>
+                            <td>
+                                <?php if ($usuario->activo): ?>
+                                    <span class="badge bg-success">Activo</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end">
+                                <?php if (Auth::puedeGestionarUsuario($usuario->id)): ?>
+                                    <a class="btn btn-sm btn-outline-primary" href="<?= PUBLIC_PATH ?>admin/usuarios/editar/<?= $usuario->id ?>">Editar</a>
+                                    <?php if ($usuario->activo): ?>
+                                        <a class="btn btn-sm btn-outline-warning" href="<?= PUBLIC_PATH ?>admin/usuarios/desactivar/<?= $usuario->id ?>">Desactivar</a>
+                                    <?php endif; ?>
+                                    <a class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar definitivamente este usuario?')" href="<?= PUBLIC_PATH ?>admin/usuarios/borrar/<?= $usuario->id ?>">Eliminar</a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
