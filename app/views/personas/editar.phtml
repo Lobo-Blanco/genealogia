@@ -2,29 +2,20 @@
     Editar persona
 </h1>
 
-<?= Form::open() ?>
+<?= Form::open('personas_formulario/guardar_editar/' . $persona->id) ?>
 
 <p>
     <?= Form::label('nombre', 'Nombre') ?>
-
-    <?= Form::text(
-        'nombre','',
-        $persona->nombre
-    ) ?>
+    <?= Form::text('nombre', '', $persona->nombre) ?>
 </p>
 
 <p>
     <?= Form::label('apellidos', 'Apellidos') ?>
-
-    <?= Form::text(
-        'apellidos','',
-        $persona->apellidos
-    ) ?>
+    <?= Form::text('apellidos', '', $persona->apellidos) ?>
 </p>
 
 <p>
     <?= Form::label('sexo', 'Sexo') ?>
-
     <?= Form::select(
         'sexo',
         array(
@@ -32,68 +23,32 @@
             'H' => 'Hombre',
             'M' => 'Mujer',
             'O' => 'Otro'
-        ),'',
+        ),
+        '',
         $persona->sexo
     ) ?>
 </p>
 
 <p>
-    <?= Form::label(
-        'fecha_nacimiento',
-        'Fecha de nacimiento'
-    ) ?>
-
-    <?= Form::date(
-        'fecha_nacimiento','',
-        $persona->fecha_nacimiento
-    ) ?>
+    <?= Form::label('fecha_nacimiento', 'Fecha de nacimiento') ?>
+    <?= Form::date('fecha_nacimiento', '', $persona->fecha_nacimiento) ?>
 </p>
 
 <p>
-    <?= Form::label(
-        'lugar_nacimiento',
-        'Lugar de nacimiento'
-    ) ?>
-
-    <?= Form::text(
-        'lugar_nacimiento','',
-        $persona->lugar_nacimiento
-    ) ?>
+    <?= Form::label('lugar_nacimiento', 'Lugar de nacimiento') ?>
+    <?= Form::text('lugar_nacimiento', '', $persona->lugar_nacimiento) ?>
 </p>
 
-<!--
- * La defunción ya no se modifica desde esta ficha.
- * Conservamos los valores existentes para que una edición
- * normal de la persona no los borre.
- -->
-<input
-    type="hidden"
-    name="fecha_defuncion"
-    value="<?= htmlspecialchars($persona->fecha_defuncion ?? '') ?>"
->
-
-<input
-    type="hidden"
-    name="lugar_defuncion"
-    value="<?= htmlspecialchars($persona->lugar_defuncion ?? '') ?>"
->
+<?php include APP_PATH . 'views/personas/_progenitores.phtml'; ?>
 
 <p>
     <?= Form::label('notas', 'Notas') ?>
-
-    <?= Form::textarea(
-        'notas','',
-        $persona->notas
-    ) ?>
+    <?= Form::textarea('notas', '', $persona->notas) ?>
 </p>
 
 <p>
     <?= Form::submit('Guardar cambios') ?>
-
-    <?= Html::link(
-        'personas/ver/' . $persona->id,
-        'Cancelar'
-    ) ?>
+    <?= Html::link('personas/ver/' . $persona->id, 'Cancelar') ?>
 </p>
 
 <?= Form::close() ?>
