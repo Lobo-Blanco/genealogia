@@ -1,0 +1,315 @@
+<!-- app/views/personas/nuevo.phtml -->
+<?php
+// Configurar la página
+$esNuevo = empty($persona->id);
+$titulo = $esNuevo ? 'Nueva persona' : 'Editar persona - ' . $persona->nombre . ' ' . $persona->apellidos;
+?>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e8e0d8;
+    }
+    .page-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+    .page-header h2 i {
+        color: #4a6741;
+        margin-right: 8px;
+    }
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        padding: 20px;
+        margin-bottom: 18px;
+    max-width: 900px;  /* ✅ Limita el ancho */
+    margin-left: auto;  /* ✅ Centra el contenido */
+    margin-right: auto; /* ✅ Centra el contenido */
+    }
+    .form-card h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0ece6;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .form-card h3 i {
+        color: #4a6741;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 3px;
+        font-size: 0.85rem;
+    }
+    .form-group label i {
+        color: #4a6741;
+        margin-right: 4px;
+    }
+    
+    .form-control, .form-select {
+        width: 100%;
+        max-width: 400px;
+        padding: 6px 12px;
+        border: 1px solid #e0d8d0;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: #faf8f6;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #4a6741;
+        box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.12);
+        background: white;
+        outline: none;
+    }
+    .form-control.textarea {
+        max-width: 500px;
+        min-height: 80px;
+        resize: vertical;
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .btn-genealogia-primary {
+        background: #4a6741;
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .btn-genealogia-primary:hover {
+        background: #3d5635;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 103, 65, 0.3);
+    }
+    .btn-genealogia-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .btn-genealogia-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        padding-top: 15px;
+        border-top: 2px solid #f0ece6;
+    }
+    
+    .text-muted {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    @media (max-width: 768px) {
+        .grid-2, .grid-3 {
+            grid-template-columns: 1fr;
+        }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .form-control, .form-select {
+            max-width: 100%;
+        }
+        .form-control.textarea {
+            max-width: 100%;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .form-actions a, .form-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- ENCABEZADO                                   -->
+<!-- ============================================ -->
+<div class="page-header">
+    <h2>
+        <i class="bi bi-person-plus"></i>
+        <?= $esNuevo ? 'Nueva persona' : 'Editar persona' ?>
+    </h2>
+    <div class="page-actions">
+        <a href="<?= PUBLIC_PATH ?>personas" class="btn-genealogia-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- FORMULARIO                                  -->
+<!-- ============================================ -->
+<div class="form-card">
+    <?= Form::open() ?>
+    
+    <!-- Datos personales - 3 columnas -->
+    <div class="grid-3">
+        <div class="form-group">
+            <?= Form::label('nombre', 'Nombre') ?>
+            <?= Form::text(
+                'nombre',
+                'class="form-control" placeholder="Nombre..."',
+                $persona->nombre ?? ''
+            ) ?>
+        </div>
+        
+        <div class="form-group">
+            <?= Form::label('apellidos', 'Apellidos') ?>
+            <?= Form::text(
+                'apellidos',
+                'class="form-control" placeholder="Apellidos..."',
+                $persona->apellidos ?? ''
+            ) ?>
+        </div>
+        
+        <div class="form-group">
+            <?= Form::label('sexo', 'Sexo') ?>
+            <?= Form::select(
+                'sexo',
+                [
+                    ''  => 'Sin especificar',
+                    'H' => 'Hombre',
+                    'M' => 'Mujer',
+                    'O' => 'Otro'
+                ],
+                'class="form-select"',
+                $persona->sexo ?? ''
+            ) ?>
+        </div>
+    </div>
+    
+    <!-- Fechas y lugares - 2 columnas -->
+    <div class="grid-2">
+        <div class="form-group">
+            <?= Form::label('fecha_nacimiento', 'Fecha de nacimiento') ?>
+            <?= Form::date(
+                'fecha_nacimiento',
+                'class="form-control"',
+                $persona->fecha_nacimiento ?? ''
+            ) ?>
+        </div>
+        
+        <div class="form-group">
+            <?= Form::label('lugar_nacimiento', 'Lugar de nacimiento') ?>
+            <?= Form::text(
+                'lugar_nacimiento',
+                'class="form-control" placeholder="Ciudad, país..."',
+                $persona->lugar_nacimiento ?? ''
+            ) ?>
+        </div>
+        
+        <div class="form-group">
+            <?= Form::label('fecha_defuncion', 'Fecha de defunción') ?>
+            <?= Form::date(
+                'fecha_defuncion',
+                'class="form-control"',
+                $persona->fecha_defuncion ?? ''
+            ) ?>
+        </div>
+        
+        <div class="form-group">
+            <?= Form::label('lugar_defuncion', 'Lugar de defunción') ?>
+            <?= Form::text(
+                'lugar_defuncion',
+                'class="form-control" placeholder="Ciudad, país..."',
+                $persona->lugar_defuncion ?? ''
+            ) ?>
+        </div>
+    </div>
+    
+    <!-- Notas -->
+    <div class="form-group">
+        <?= Form::label('notas', 'Notas') ?>
+        <?= Form::textarea(
+            'notas',
+            'class="form-control textarea" placeholder="Observaciones sobre esta persona..."',
+            $persona->notas ?? ''
+        ) ?>
+    </div>
+    
+    <!-- Acciones -->
+    <div class="form-actions">
+        <?= Form::submit(
+            $esNuevo ? 'Guardar persona' : 'Actualizar persona',
+            'class="btn-genealogia-primary"'
+        ) ?>
+        
+        <a href="<?= PUBLIC_PATH ?>personas" class="btn-genealogia-secondary">
+            Cancelar
+        </a>
+        
+        <?php if (!$esNuevo): ?>
+            <span class="text-muted">
+                <i class="bi bi-info-circle"></i>
+                ID: <?= $persona->id ?>
+            </span>
+        <?php endif; ?>
+    </div>
+    
+    <?= Form::close() ?>
+</div>

@@ -1,0 +1,613 @@
+<!-- app/views/personas/ver.phtml -->
+<?php
+// Configurar la página
+$titulo = $persona->nombre . ' ' . $persona->apellidos;
+
+// Función para formatear fecha a dd/mm/aaaa
+function formatearFecha($fecha) {
+    if (empty($fecha) || $fecha == '0000-00-00' || $fecha == '') {
+        return '';
+    }
+    
+    $timestamp = strtotime($fecha);
+    if ($timestamp === false) {
+        return $fecha;
+    }
+    
+    // Usar IntlDateFormatter (requiere extensión intl)
+    $formatter = new IntlDateFormatter(
+        'es_ES',
+        IntlDateFormatter::NONE,
+        IntlDateFormatter::NONE,
+        null,
+        null,
+        "d 'de' MMMM 'de' yyyy"
+    );
+    
+    return $formatter->format($timestamp);
+}
+
+// Función para obtener el badge de sexo
+function badgeSexo($sexo) {
+    $icono = '';
+    $clase = '';
+    $label = '';
+    
+    if ($sexo == 'H') {
+        $icono = 'bi-gender-male';
+        $clase = 'H';
+        $label = 'Masculino';
+    } elseif ($sexo == 'M') {
+        $icono = 'bi-gender-female';
+        $clase = 'M';
+        $label = 'Femenino';
+    } else {
+        $icono = 'bi-gender-ambiguous';
+        $clase = 'O';
+        $label = 'Otro';
+    }
+    
+    return '<span class="badge-sexo ' . $clase . '"><i class="bi ' . $icono . '"></i> ' . $label . '</span>';
+}
+
+// Preparar uniones
+$uniones = array_merge($uniones1, $uniones2);
+?>
+
+<style>
+    /* Estilos específicos para la vista detallada */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e8e0d8;
+    }
+    
+    .page-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .page-header h2 i {
+        color: #4a6741;
+        margin-right: 10px;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    /* Tarjeta de datos */
+    .profile-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0ece6;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #4a6741;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        flex-shrink: 0;
+    }
+    
+    .profile-name {
+        flex: 1;
+    }
+    
+    .profile-name h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    
+    .profile-name .subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+    
+    /* Tabla de datos */
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .info-table tr {
+        border-bottom: 1px solid #f0ece6;
+    }
+    
+    .info-table tr:last-child {
+        border-bottom: none;
+    }
+    
+    .info-table th {
+        text-align: left;
+        padding: 12px 15px 12px 0;
+        font-weight: 600;
+        color: #2c3e50;
+        width: 180px;
+        font-size: 0.9rem;
+    }
+    
+    .info-table td {
+        padding: 12px 0;
+        color: #3d3d3d;
+        font-size: 0.95rem;
+    }
+    
+    /* Badge de sexo */
+    .badge-sexo {
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .badge-sexo.M {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .badge-sexo.F {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .badge-sexo.O {
+        background: #e8e0d8;
+        color: #5a6c7a;
+    }
+    
+    /* Secciones */
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 30px 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e8e0d8;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title i {
+        color: #4a6741;
+    }
+    
+    /* Lista de progenitores, hijos, parejas */
+    .list-genealogia {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .list-genealogia li {
+        padding: 10px 15px;
+        background: #f8f5f0;
+        margin-bottom: 6px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .list-genealogia li:hover {
+        background: #f0ece6;
+    }
+    
+    .list-genealogia .person-name {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .list-genealogia .person-relation {
+        font-size: 0.85rem;
+        color: #6c757d;
+        background: white;
+        padding: 2px 12px;
+        border-radius: 12px;
+    }
+    
+    .list-genealogia .person-dates {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .list-empty {
+        color: #6c757d;
+        font-style: italic;
+        padding: 15px 0;
+    }
+    
+    /* Botones */
+    .btn-genealogia-primary {
+        background: #4a6741;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-primary:hover {
+        background: #3d5635;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 103, 65, 0.3);
+    }
+    
+    .btn-genealogia-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .btn-genealogia-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-outline-secondary:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+    
+    .btn-sm {
+        padding: 4px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Botones de acción en listas */
+    .btn-accion {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-accion:hover {
+        background: rgba(0,0,0,0.05);
+        color: #2c3e50;
+    }
+    
+    .btn-accion.editar:hover {
+        color: #4a6741;
+        background: rgba(74, 103, 65, 0.1);
+    }
+    
+    .btn-accion.ver:hover {
+        color: #17a2b8;
+        background: rgba(23, 162, 184, 0.1);
+    }
+    
+    .btn-accion.eliminar:hover {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    /* Contenedor de acciones */
+    .actions-container {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #f0ece6;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .info-table th {
+            width: 120px;
+            font-size: 0.8rem;
+        }
+        
+        .info-table td {
+            font-size: 0.85rem;
+        }
+        
+        .list-genealogia li {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .actions-container {
+            flex-direction: column;
+        }
+        
+        .actions-container a {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- ENCABEZADO DE LA PÁGINA                     -->
+<!-- ============================================ -->
+<div class="page-header">
+    <h2>
+        <i class="bi bi-person-circle"></i> <?= htmlspecialchars($persona->nombre) ?> <?= htmlspecialchars($persona->apellidos) ?>
+    </h2>
+    <div class="page-actions">
+        <?php if (Auth::puedeEditar($persona->id)): ?>
+            <a href="<?= PUBLIC_PATH ?>personas/editar/<?= $persona->id ?>" class="btn-genealogia-primary">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+        <?php endif; ?>
+        <a href="<?= PUBLIC_PATH ?>personas" class="btn-genealogia-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DATOS PERSONALES                            -->
+<!-- ============================================ -->
+<div class="profile-card">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="bi bi-person"></i>
+        </div>
+        <div class="profile-name">
+            <h3><?= htmlspecialchars($persona->nombre) ?> <?= htmlspecialchars($persona->apellidos) ?></h3>
+            <span class="subtitle">
+                <?= badgeSexo($persona->sexo ?? '') ?>
+            </span>
+        </div>
+    </div>
+    
+    <table class="info-table">
+        <tr>
+            <th><i class="bi bi-person"></i> Nombre</th>
+            <td><?= htmlspecialchars($persona->nombre) ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-person"></i> Apellidos</th>
+            <td><?= htmlspecialchars($persona->apellidos) ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-gender-ambiguous"></i> Sexo</th>
+            <td><?= badgeSexo($persona->sexo ?? '') ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-calendar-event"></i> Fecha de nacimiento</th>
+            <td><?= htmlspecialchars(formatearFecha($persona->fecha_nacimiento ?? '')) ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-geo-alt"></i> Lugar de nacimiento</th>
+            <td><?= htmlspecialchars($persona->lugar_nacimiento ?? '') ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-calendar-event"></i> Fecha de defunción</th>
+            <td><?= htmlspecialchars(formatearFecha($persona->fecha_defuncion ?? '')) ?></td>
+        </tr>
+        <tr>
+            <th><i class="bi bi-geo-alt"></i> Lugar de defunción</th>
+            <td><?= htmlspecialchars($persona->lugar_defuncion ?? '') ?></td>
+        </tr>
+    </table>
+</div>
+
+<!-- ============================================ -->
+<!-- PROGENITORES                                -->
+<!-- ============================================ -->
+<h3 class="section-title">
+    <i class="bi bi-people"></i> Progenitores
+</h3>
+
+<?php if ($progenitores): ?>
+    <ul class="list-genealogia">
+        <?php foreach ($progenitores as $filiacion): ?>
+            <?php
+            $progenitor = (new Personas())->find($filiacion->progenitor_id);
+            ?>
+            <?php if ($progenitor): ?>
+                <li>
+                    <span class="person-name">
+                        <?= htmlspecialchars($progenitor->nombre) ?> <?= htmlspecialchars($progenitor->apellidos) ?>
+                    </span>
+                    <span class="person-relation">
+                        <?= htmlspecialchars($filiacion->tipo) ?>
+                    </span>
+                    <span class="person-dates">
+                        <?= badgeSexo($progenitor->sexo ?? '') ?>
+                    </span>
+                </li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+<?php else: ?>
+    <p class="list-empty">No constan progenitores.</p>
+<?php endif; ?>
+
+<?php if (Auth::puedeEditar($persona->id)): ?>
+    <a href="<?= PUBLIC_PATH ?>personas/nuevo_progenitor/<?= $persona->id ?>" class="btn-genealogia-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> Añadir progenitor
+    </a>
+<?php endif; ?>
+
+<!-- ============================================ -->
+<!-- HIJOS                                       -->
+<!-- ============================================ -->
+<h3 class="section-title">
+    <i class="bi bi-person-badge"></i> Hijos
+</h3>
+
+<?php if ($hijos): ?>
+    <ul class="list-genealogia">
+        <?php foreach ($hijos as $filiacion): ?>
+            <?php
+            $hijo = (new Personas())->find($filiacion->hijo_id);
+            ?>
+            <?php if ($hijo): ?>
+                <li>
+                    <span class="person-name">
+                        <?= htmlspecialchars($hijo->nombre) ?> <?= htmlspecialchars($hijo->apellidos) ?>
+                    </span>
+                    <span class="person-relation">
+                        <?= htmlspecialchars($filiacion->tipo) ?>
+                    </span>
+                    <span class="person-dates">
+                        <?= badgeSexo($hijo->sexo ?? '') ?>
+                    </span>
+                </li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+<?php else: ?>
+    <p class="list-empty">No constan hijos.</p>
+<?php endif; ?>
+
+<?php if (Auth::puedeEditar($persona->id)): ?>
+    <a href="<?= PUBLIC_PATH ?>personas/nuevo_hijo/<?= $persona->id ?>" class="btn-genealogia-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> Añadir hijo
+    </a>
+<?php endif; ?>
+
+<!-- ============================================ -->
+<!-- PAREJAS Y MATRIMONIOS                       -->
+<!-- ============================================ -->
+<h3 class="section-title">
+    <i class="bi bi-heart"></i> Parejas y matrimonios
+</h3>
+
+<?php if ($uniones): ?>
+    <ul class="list-genealogia">
+        <?php foreach ($uniones as $union): ?>
+            <?php
+            if ($union->persona1_id == $persona->id) {
+                $otraPersonaId = $union->persona2_id;
+            } else {
+                $otraPersonaId = $union->persona1_id;
+            }
+            $otraPersona = (new Personas())->find($otraPersonaId);
+            ?>
+            <?php if ($otraPersona): ?>
+                <li>
+                    <span class="person-name">
+                        <?= htmlspecialchars($otraPersona->nombre) ?> <?= htmlspecialchars($otraPersona->apellidos) ?>
+                    </span>
+                    <span class="person-relation">
+                        <?= htmlspecialchars($union->tipo) ?>
+                    </span>
+                    <span class="person-dates">
+                        <?php if ($union->fecha_inicio): ?>
+                            desde <?= htmlspecialchars(formatearFecha($union->fecha_inicio)) ?>
+                        <?php endif; ?>
+                        <?php if ($union->fecha_fin): ?>
+                            hasta <?= htmlspecialchars(formatearFecha($union->fecha_fin)) ?>
+                        <?php endif; ?>
+                    </span>
+                </li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+<?php else: ?>
+    <p class="list-empty">No constan parejas.</p>
+<?php endif; ?>
+
+<?php if (Auth::puedeEditar($persona->id)): ?>
+    <a href="<?= PUBLIC_PATH ?>personas/nueva_pareja/<?= $persona->id ?>" class="btn-genealogia-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> Añadir pareja
+    </a>
+<?php endif; ?>
+
+<!-- ============================================ -->
+<!-- ACCIONES                                    -->
+<!-- ============================================ -->
+<div class="actions-container">
+    <?php if (Auth::puedeEditar($persona->id)): ?>
+        <a href="<?= PUBLIC_PATH ?>personas/editar/<?= $persona->id ?>" class="btn-genealogia-primary">
+            <i class="bi bi-pencil"></i> Editar persona
+        </a>
+    <?php endif; ?>
+    
+    <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $persona->id ?>" class="btn-genealogia-outline-secondary">
+        <i class="bi bi-tree"></i> Ver árbol genealógico
+    </a>
+    
+    <a href="<?= PUBLIC_PATH ?>personas/familia/<?= $persona->id ?>" class="btn-genealogia-outline-secondary">
+        <i class="bi bi-diagram-2"></i> Ver familia
+    </a>
+    
+    <a href="<?= PUBLIC_PATH ?>personas" class="btn-genealogia-secondary">
+        <i class="bi bi-arrow-left"></i> Volver al listado
+    </a>
+</div>

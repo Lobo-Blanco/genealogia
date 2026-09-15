@@ -1,0 +1,587 @@
+<!-- app/views/personas/index.phtml -->
+<?php
+// Configurar la página
+$titulo = 'Lista de Personas';
+$icono = 'people';
+$usuario = Auth::usuario();
+$arbol = Auth::arbolActual();
+
+// Función para formatear fecha a dd/mm/aaaa
+function formatearFecha($fecha) {
+    if (empty($fecha) || $fecha == '0000-00-00' || $fecha == '') {
+        return '';
+    }
+    
+    $timestamp = strtotime($fecha);
+    if ($timestamp === false) {
+        return $fecha;
+    }
+    
+    // Usar IntlDateFormatter (requiere extensión intl)
+    $formatter = new IntlDateFormatter(
+        'es_ES',
+        IntlDateFormatter::NONE,
+        IntlDateFormatter::NONE,
+        null,
+        null,
+        "d 'de' MMMM 'de' yyyy"
+    );
+    
+    return $formatter->format($timestamp);
+}
+?>
+
+<style>
+    /* Estilos específicos para páginas con tablas */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e8e0d8;
+    }
+    
+    .page-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .page-header h2 i {
+        color: #4a6741;
+        margin-right: 10px;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    /* Barra de herramientas */
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .toolbar-left {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .toolbar-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    /* Badge de información de usuario/árbol */
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f5f0;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: #2c3e50;
+        border: 1px solid #e8e0d8;
+    }
+    
+    .info-badge i {
+        color: #4a6741;
+    }
+    
+    /* Tabla */
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        margin-bottom: 20px;
+        overflow-x: auto;
+    }
+    
+    .table-genealogia {
+        margin-bottom: 0;
+        width: 100%;
+        min-width: 800px;
+    }
+    
+    .table-genealogia thead th {
+        background: #f8f5f0;
+        color: #2c3e50;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 12px 15px;
+        border-bottom: 2px solid #e8e0d8;
+        white-space: nowrap;
+    }
+    
+    .table-genealogia tbody td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0ece6;
+        color: #3d3d3d;
+        font-size: 0.9rem;
+    }
+    
+    .table-genealogia tbody tr:hover {
+        background-color: #f8f5f0;
+        transition: background 0.2s ease;
+    }
+    
+    .table-genealogia tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Botones de acción en tabla */
+    .btn-accion {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-accion:hover {
+        background: rgba(0,0,0,0.05);
+        color: #2c3e50;
+    }
+    
+    .btn-accion.editar:hover {
+        color: #4a6741;
+        background: rgba(74, 103, 65, 0.1);
+    }
+    
+    .btn-accion.ver:hover {
+        color: #17a2b8;
+        background: rgba(23, 162, 184, 0.1);
+    }
+    
+    .btn-accion.uniones:hover {
+        color: #c9a86a;
+        background: rgba(201, 168, 106, 0.1);
+    }
+    
+    .btn-accion.familia:hover {
+        color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .btn-accion.arbol:hover {
+        color: #6f42c1;
+        background: rgba(111, 66, 193, 0.1);
+    }
+    
+    /* Botones principales */
+    .btn-genealogia-primary {
+        background: #4a6741;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-primary:hover {
+        background: #3d5635;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 103, 65, 0.3);
+    }
+    
+    .btn-genealogia-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .btn-genealogia-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-genealogia-outline-secondary:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+    
+    /* Sexo badge */
+    .badge-sexo {
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .badge-sexo.M {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .badge-sexo.F {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .badge-sexo.O {
+        background: #e8e0d8;
+        color: #5a6c7a;
+    }
+    
+    /* Grupo de acciones en tabla */
+    .acciones-grupo {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .toolbar-left, .toolbar-right {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .acciones-grupo {
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- ENCABEZADO DE LA PÁGINA                     -->
+<!-- ============================================ -->
+<div class="page-header">
+    <h2>
+        <i class="bi bi-people"></i> <?= $titulo ?>
+    </h2>
+    <div class="page-actions">
+        <!-- Información de usuario y árbol -->
+        <?php if (Auth::estaAutenticado()): ?>
+            <span class="info-badge">
+                <i class="bi bi-person"></i> <?= htmlspecialchars(Auth::usuario()->username) ?>
+            </span>
+            <span class="info-badge">
+                <i class="bi bi-tree"></i> <?= htmlspecialchars(Auth::arbolActual()->nombre) ?>
+            </span>
+        <?php endif; ?>
+        
+        <!-- Botón para crear nueva persona -->
+        <a href="<?= PUBLIC_PATH ?>personas/nuevo" class="btn-genealogia-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Persona
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- BARRA DE HERRAMIENTAS                        -->
+<!-- ============================================ -->
+<div class="toolbar">
+    <div class="toolbar-left">
+        <span class="info-badge">
+            <i class="bi bi-person"></i> Total: <?= count($personas) ?>
+        </span>
+        <!-- Botones de filtro rápido -->
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrarTodos()">
+            <i class="bi bi-list"></i> Todos
+        </button>
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrarSexo('M')">
+            <i class="bi bi-gender-male"></i> Hombres
+        </button>
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrarSexo('F')">
+            <i class="bi bi-gender-female"></i> Mujeres
+        </button>
+        <button class="btn-genealogia-outline-secondary btn-sm" onclick="filtrarSexo('O')">
+            <i class="bi bi-gender-ambiguous"></i> Otros
+        </button>
+    </div>
+    <div class="toolbar-right">
+        <!-- Formulario de búsqueda -->
+        <form class="search-form" method="get" action="<?= PUBLIC_PATH ?>personas/buscar">
+            <input type="search" name="q" class="form-control form-control-sm" 
+                   placeholder="Buscar persona..." value="<?= isset($busqueda) ? htmlspecialchars($busqueda) : '' ?>">
+            <button type="submit" class="btn-genealogia-primary btn-sm">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TABLA DE PERSONAS                           -->
+<!-- ============================================ -->
+<div class="table-container">
+    <table class="table-genealogia table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Apellidos</th>
+                <th>Nombre</th>
+                <th>Sexo</th>
+                <th>Fecha Nacimiento</th>
+                <th>Fecha Defunción</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($personas)): ?>
+                <?php foreach ($personas as $persona): ?>
+                    <tr>
+                        <td><?= $persona->id ?></td>
+                        <td><?= htmlspecialchars($persona->apellidos) ?></td>
+                        <td><?= htmlspecialchars($persona->nombre) ?></td>
+                        <td>
+                            <?php
+                            $sexo = $persona->sexo ?? '';
+                            $icono = '';
+                            $clase = '';
+                            
+                            if ($sexo == 'H') {
+                                $icono = 'bi-gender-male';
+                                $clase = 'M';
+                                $label = 'Masculino';
+                            } elseif ($sexo == 'M') {
+                                $icono = 'bi-gender-female';
+                                $clase = 'F';
+                                $label = 'Femenino';
+                            } else {
+                                $icono = 'bi-gender-ambiguous';
+                                $clase = 'O';
+                                $label = 'Otro';
+                            }
+                            ?>
+                            <span class="badge-sexo <?= $clase ?>">
+                                <i class="bi <?= $icono ?>"></i> <?= htmlspecialchars($label) ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php 
+                            // Formatear fecha de nacimiento a dd/mm/aaaa
+                            $fecha_nac = formatearFecha($persona->fecha_nacimiento ?? '');
+                            echo htmlspecialchars($fecha_nac);
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                            // Formatear fecha de defunción a dd/mm/aaaa
+                            $fecha_def = formatearFecha($persona->fecha_defuncion ?? '');
+                            echo htmlspecialchars($fecha_def);
+                            ?>
+                        </td>
+                        <td>
+                            <div class="acciones-grupo">
+                                <?php if (Auth::puedeEditar($persona->id)): ?>
+                                    <a href="<?= PUBLIC_PATH ?>personas/editar/<?= $persona->id ?>" 
+                                       class="btn-accion editar" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <a href="<?= PUBLIC_PATH ?>personas/ver/<?= $persona->id ?>" 
+                                   class="btn-accion ver" title="Ver">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                
+                                <a href="<?= PUBLIC_PATH ?>personas/uniones/<?= $persona->id ?>" 
+                                   class="btn-accion uniones" title="Uniones">
+                                    <i class="bi bi-heart"></i>
+                                </a>
+                                
+                                <a href="<?= PUBLIC_PATH ?>personas/familia/<?= $persona->id ?>" 
+                                   class="btn-accion familia" title="Familia">
+                                    <i class="bi bi-diagram-2"></i>
+                                </a>
+                                
+                                <a href="<?= PUBLIC_PATH ?>personas/arbol/<?= $persona->id ?>" 
+                                   class="btn-accion arbol" title="Árbol genealógico">
+                                    <i class="bi bi-tree"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7" class="text-center" style="padding: 40px 20px; color: #6c757d;">
+                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        No hay personas registradas
+                        <br>
+                        <a href="<?= PUBLIC_PATH ?>personas/nuevo" class="btn-genealogia-primary" style="margin-top: 10px;">
+                            <i class="bi bi-plus-circle"></i> Crear primera persona
+                        </a>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- ============================================ -->
+<!-- PIE DE PÁGINA DE LA TABLA                   -->
+<!-- ============================================ -->
+<div class="toolbar" style="margin-top: 0; border-radius: 0 0 10px 10px;">
+    <div class="toolbar-left">
+        <span class="info-badge">
+            <i class="bi bi-person"></i> Mostrando <?= count($personas) ?> personas
+        </span>
+    </div>
+    <div class="toolbar-right">
+        <a href="<?= PUBLIC_PATH ?>personas/nuevo" class="btn-genealogia-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Persona
+        </a>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- JAVASCRIPT                                  -->
+<!-- ============================================ -->
+<script>
+    /**
+     * Filtrar por sexo
+     */
+    function filtrarSexo(sexo) {
+        const filas = document.querySelectorAll('.table-genealogia tbody tr');
+        const botones = document.querySelectorAll('.toolbar-left .btn-genealogia-outline-secondary');
+        
+        // Actualizar botones activos
+        botones.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.color = '#6c757d';
+        });
+        
+        // Marcar botón activo
+        const evento = event || window.event;
+        if (evento && evento.target) {
+            const btn = evento.target.closest('button');
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.background = '#4a6741';
+                btn.style.color = 'white';
+            }
+        }
+        
+        // Filtrar filas
+        filas.forEach(fila => {
+            const sexoCell = fila.querySelector('td:nth-child(4)');
+            if (!sexoCell) return;
+            
+            const texto = sexoCell.textContent.trim();
+            
+            if (sexo === 'todos' || texto.includes(sexo)) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+    
+    /**
+     * Mostrar todos los registros
+     */
+    function filtrarTodos() {
+        const filas = document.querySelectorAll('.table-genealogia tbody tr');
+        const botones = document.querySelectorAll('.toolbar-left .btn-genealogia-outline-secondary');
+        
+        botones.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.color = '#6c757d';
+        });
+        
+        filas.forEach(fila => {
+            fila.style.display = '';
+        });
+    }
+    
+    /**
+     * Búsqueda en tiempo real
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-form input[name="q"]');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                const busqueda = this.value.toLowerCase().trim();
+                const filas = document.querySelectorAll('.table-genealogia tbody tr');
+                
+                filas.forEach(fila => {
+                    const texto = fila.textContent.toLowerCase();
+                    if (busqueda === '' || texto.includes(busqueda)) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
