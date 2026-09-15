@@ -19,52 +19,69 @@
         .navbar-genealogia .dropdown-item:hover,.navbar-genealogia .dropdown-item:focus { background:rgba(212,201,168,.2); color:#d4c9a8; }
         .navbar-genealogia .dropdown-item i { margin-right:10px; color:#c9a86a; }
 
-        /* Dropdown del primer nivel: siempre debajo de su opcion. */
-        .navbar-genealogia .navbar-nav.me-auto > .nav-item {
-            position: relative;
-        }
+        .navbar-genealogia .navbar-nav.me-auto > .nav-item { position:relative; }
         .navbar-genealogia .navbar-nav.me-auto > .nav-item > .dropdown-menu {
-            position: absolute !important;
-            top: 100% !important;
-            left: 0 !important;
-            right: auto !important;
-            bottom: auto !important;
-            margin-top: .125rem;
-            transform: none !important;
+            position:absolute !important;
+            top:100% !important;
+            left:0 !important;
+            right:auto !important;
+            bottom:auto !important;
+            margin-top:.125rem;
+            transform:none !important;
         }
 
-        /* Submenu: siempre a la derecha de la opcion que lo contiene. */
-        .navbar-genealogia .dropdown-submenu {
-            position: relative;
-        }
+        .navbar-genealogia .dropdown-submenu { position:relative; }
         .navbar-genealogia .dropdown-submenu > .dropdown-menu {
-            position: absolute !important;
-            top: 0 !important;
-            left: 100% !important;
-            right: auto !important;
-            bottom: auto !important;
-            margin-top: -.35rem;
-            margin-left: .15rem;
-            transform: none !important;
+            position:absolute !important;
+            top:0 !important;
+            left:100% !important;
+            right:auto !important;
+            bottom:auto !important;
+            margin-top:-.35rem;
+            margin-left:.15rem;
+            transform:none !important;
         }
-        .navbar-genealogia .dropdown-submenu > .dropdown-item::after { content:'›'; float:right; margin-left:1.5rem; }
+
+        /* Una sola flecha para los submenús, centrada verticalmente. */
+        .navbar-genealogia .dropdown-submenu > .dropdown-item.dropdown-toggle {
+            position:relative;
+            padding-right:2.5rem;
+        }
+        .navbar-genealogia .dropdown-submenu > .dropdown-item.dropdown-toggle::after {
+            content:'›';
+            display:block;
+            position:absolute;
+            right:1rem;
+            top:50%;
+            margin:0;
+            border:0 !important;
+            transform:translateY(-50%);
+            font-size:1.35rem;
+            line-height:1;
+        }
 
         @media (max-width:991.98px) {
             .navbar-genealogia .navbar-nav.me-auto > .nav-item > .dropdown-menu,
             .navbar-genealogia .dropdown-submenu > .dropdown-menu {
-                position: static !important;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                bottom: auto !important;
-                transform: none !important;
-                margin-top: 0;
-                margin-left: 1rem;
+                position:static !important;
+                top:auto !important;
+                left:auto !important;
+                right:auto !important;
+                bottom:auto !important;
+                transform:none !important;
+                margin-top:0;
+                margin-left:1rem;
                 box-shadow:none;
                 border-left:1px solid rgba(212,201,168,.2);
                 border-radius:0;
             }
-            .navbar-genealogia .dropdown-submenu > .dropdown-item::after { content:'⌄'; }
+            .navbar-genealogia .dropdown-submenu > .dropdown-item.dropdown-toggle::after {
+                content:'⌄';
+                right:1rem;
+                top:50%;
+                transform:translateY(-50%);
+                font-size:1rem;
+            }
         }
         .main-content { padding:20px; min-height:calc(100vh - 70px); }
         .genealogy-card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); padding:25px; margin-bottom:20px; }
@@ -83,17 +100,11 @@
         </button>
         <div class="collapse navbar-collapse" id="menuPrincipal">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- Personas es deliberadamente una opción fija de primer nivel. -->
                 <li class="nav-item">
                     <a class="nav-link <?= ($controller == 'personas') ? 'active' : '' ?>" href="<?= PUBLIC_PATH ?>personas"><i class="bi bi-people"></i>Personas</a>
                 </li>
 
                 <?php
-                /*
-                 * Menú jerárquico. Los elementos de primer nivel y los elementos
-                 * de los submenús se renderizan con estructuras HTML diferentes.
-                 * Los permisos solamente determinan qué elementos son visibles.
-                 */
                 $menu = array(
                     array(
                         'texto' => 'Genealogía',
@@ -131,10 +142,7 @@
 
                 $renderMenu = function($items, $nivel = 0) use (&$renderMenu) {
                     foreach ($items as $item) {
-                        if (isset($item['visible']) && !$item['visible']) {
-                            continue;
-                        }
-
+                        if (isset($item['visible']) && !$item['visible']) continue;
                         $tieneHijos = array_key_exists('hijos', $item) && is_array($item['hijos']) && count($item['hijos']) > 0;
                         $id = 'menu_' . $nivel . '_' . substr(md5($item['texto'] . $nivel), 0, 8);
 
